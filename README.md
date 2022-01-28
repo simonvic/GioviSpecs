@@ -1,28 +1,37 @@
 # sLang
 
+The idea is to make a data-centric, typed scripting language, easy to read but most importantly easy to learn for new programmers
+
+
 ## Comments
-```
+
+```bash
 # Single line comment
 
 #{
-	Multi line comment
-	Sort of a "block"
+	This is a multiline
+	comment.
+	For when you need to write long
+	comments.
 #}
 ```
 
 # Operators
 
 ## Arithmetic operators
+
 | Operation      | Symbol | Example |
 | -------------- | ------ | ------- |
 | Addition       | +      | 10 + 5  |
 | Subtraction    | -      | 10 - 5  |
 | Multiplication | *      | 10 * 5  |
 | Division       | /      | 10 / 5  |
-| Modulo         | %      | 10 / 5  |
+| Modulo         | %      | 10 % 5  |
+| Exponential    | ^      | 2 ^ 64  |
 
 
 ## Assignment
+
 | Operation           | Symbol | Example                      |
 | ------------------- | ------ | ---------------------------- |
 | Content redirection | >      | "Hello world" > message Text |
@@ -31,7 +40,9 @@
 | Mutiply by value    | *>     | 10 *> count                  |
 | Divide by value     | />     | 10 /> count                  |
 
+
 ## Relational
+
 | Operation                  | Symbol | Example    |
 | -------------------------- | ------ | ---------- |
 | More than value            | >      | if 10 > 2  |
@@ -41,8 +52,21 @@
 | Equal                      | =      | if 10 = 10 |
 | Not equal                  | !=     | if 10 != 2 |
 
+
+## Text related
+
+| Operation                      | Symbol | Example                   | Output                     |
+| ------------------------------ | ------ | ------------------------- | -------------------------- |
+| Concatenation                  | +      | "Hello" + " " + "World"   | "Hello World"              |
+| Remove substring               | -      | "Hello world" - "world"   | "Hello "                   |
+| Append to variable             | +>     | "Hello world" +> someText | "$someText Hello world"    |
+| Remove substring from variable | ->     | "substring" -> someText   | someText without substring |
+
+
 ## Variables
+
 ### Primitive Types
+
 | Type name | Possible values | Default value |
 | --------- | --------------- | ------------- |
 | Natural   | 0 .. +inf       | 0             |
@@ -51,7 +75,7 @@
 | Bool      | false / true    | false         |
 | Text      |                 | (empty text)  |
 
-```
+```bash
 # Declaration
 index Int                 # Example declaration of int
 age Natural               # Example declaration of natural
@@ -88,7 +112,7 @@ Pretty empty
 ```
 
 Assign variables to other variables is possible
-```
+```bash
 number Int
 copyOfNumber Int
 
@@ -97,9 +121,10 @@ number > copyOfNumber
 ```
 
 ### Text handling
+
 Double quotes will interpret variables (dollar sign will need escaping)
 Single quotes will not
-```
+```bash
 "Simone" > name Text
 "Vicinanza" > surname Text
 
@@ -108,19 +133,69 @@ fullName Text
 '$name $surname' > fullName        # fullName will be equal to "$name $surname"
 "$name \$surname" > fullName       # fullName will be equal to "Simone $surname"
 ```
-Text can also interpret code block (see Functions)
+
+If you need to have something immediately after the variable, without a space, you can wrap the variable name in curly braces
+```bash
+"Mario" > name Text
+"Rossi" > surname Text
+
+"${name}_${surname}" > fullName Text
+
+# Writing this would have been an error
+"$name_$surname" > fullName Text
+# since the name_ variable doesn't exists
+# (the underscore is a valid character for a variable name)
+
 ```
+
+Text can also interpret code block (see Functions)
+```bash
 getName() => Text { 
 	"simonvic" =>
 }
+
 """
 Hello world
 I'm am ${getName()}
 """ > someText Text
 ```
 
+
+## Variable naming rules
+
+The general rules for naming variables are:
+  - Names must be unique
+  - Names can contain letters, digits, underscores and dashes
+  - Names must begin with a letter
+  - Names cannot contain whitespace
+  - Names are case sensitive ("myVar" and "myvar" are different variables)
+  - Types, Structs and Functions name cannot be used as names
+  - Reserved words cannot be used as names
+
+### Reserved words
+
+  - Types names
+  - Structs names
+  - Functions names
+  - constant
+  - if
+  - else
+  - for
+  - in
+  - repeat
+  - break
+  - continue
+  - true / false
+  - null
+
+
 ### Struct
-```
+
+A Struct is a structured data type that you can define.
+
+It can contains primitive types or other Structs. It can also be a recursive struct (a Struct containing a Struct of the same type), but a default value must be specified. See Linked List example.
+
+```bash
 # Definition
 
 Color (
@@ -142,14 +217,14 @@ Person (
 )
 
 # Declaration
-red Color               # null at declaration
+# If not initialized, all values will have their type default value
+red Color  # (0 0 0)
 (255 0 0) > red
-
 (255 0 255) > magenta Color
 
 (
-	"Simon"                # Name
-	"Vic"                  # Surname
+	"Simon"              # Name
+	"Vic"                # Surname
 	22                   # Age
 	red                  # Favorite color
 	(                    # Favorite car
@@ -169,8 +244,9 @@ red Color               # null at declaration
 me.name > myName Text
 me.favoriteColor > myFavoriteColor Color
 ```
+
 Specific attribute ???
-```
+```bash
 (
 	age: 22
 	surname: "Vic"
@@ -182,23 +258,26 @@ Specific attribute ???
 ) > me Person
 ```
 
+
 ### Constants
+
 Constants are readonly, its value is defined at declaration
-```
-# const <VARIABLE_NAME> <type> <value>
-const LIGHT_SPEED Natural 299792458
-const EARTH_GRAVITY Real 9.81
-const BEST_LANGUAGE Text "sLang"
-const ORIGIN Vector (0 0 0)
-const RED Color (
+```bash
+# constant <VARIABLE_NAME> <type> <value>
+constant LIGHT_SPEED Natural 299792458
+constant EARTH_GRAVITY Real 9.81
+constant BEST_LANGUAGE Text "sLang"
+constant ORIGIN Vector (0 0 0)
+
+constant RED Color (
 	255
 	0
 	0
 )
 
-const NAME_LIST List<Text> (
+constant NAME_LIST List<Text> (
 	"Simone"
-	"Luca
+	"Luca"
 	"Alessio"
 	"Giada"
 	"Francesca"
@@ -207,32 +286,37 @@ const NAME_LIST List<Text> (
 
 ```
 
+
 ### Default value
+
 The `_` (underscore) symbol represent the default value of a type
-```
+```bash
 69 > number Natural
 -420 > anotherNumber Integer
-69.69 > someotherNumber Real
-"This is a message" > message Text
+69.69 > someOtherNumber Real
+"This is a text" > someText Text
+true > someBoolean Bool
 
 _ > number            # This will set number to 0
-_ > anotherNumber     # This will set anoherNumber to 0
-_ > someotherNumber   # This will set someotherNumber to 0.0
-_ > message           # This will set message to empty string
+_ > anotherNumber     # This will set anotherNumber to 0
+_ > someOtherNumber   # This will set someOtherNumber to 0.0
+_ > someText          # This will set someText to empty string
+_ > someBoolean       # This will set someBoolean to false
 ```
+
 
 ### Struct default value
+
 Struct default value is a struct with all primitives default
-```
-someColor Color           # By default struct are null   
+```bash
+someColor Color           # By default structs values will have their type default value   
 (255 255 0) > someColor   # Setting someColor to (255 255 0)
 _ > someColor             # This will set someColor to (0 0 0)
-
 _ > someOtherColor Color  # This will be initialized with default values
 ```
 
-```
-# Color with defined defaults
+```bash
+# Color with overridden defaults
 Color (
 	red Natural _< 255
 	green Natural _< 255
@@ -244,7 +328,7 @@ _ > someColor                  # Set someColor to default (255 255 255)
 ```
 
 If the default is not defined, the type default will be used
-```
+```bash
 Person (
 	name Text _< "No name"
 	surname Text _< "No surname"
@@ -281,16 +365,44 @@ _ > aDefaultPerson.favoriteCar.paint
 # aDefaultPerson.favoriteCar is now ("Ferrari" (40 40 40 ))
 ```
 
+
+### Structs inheritance ???
+
+```bash
+Vehicle (
+	paint Color
+	wheelCount Natural
+)
+
+Vehicle > Car (
+	wheelCount _< 4
+	licensePlate Text
+)
+
+Vehicle > Bike (
+	wheelCount _< 2
+	tireType Text
+)
+
+Bike > MotorBike (
+	isOffroad Bool
+)
+```
+
+
 ## Logical operators
+
 | Operation | Symbol | Example            |
 | --------- | ------ | ------------------ |
 | And       | &      | if 10 > 2 & 10 > 5 |
 | Or        | \|     | if 10 > 2 \| 5 > 2 |
 | Not       | !      | if !(2 > 10)       |
 
+
 ## Control structure
 
 ### if
+
 ```
 # Square parenthesis around condition are optional
 if <condition> {
@@ -303,9 +415,9 @@ if <condition> {
 	<false body>
 }
 ```
-Example:
 
-```
+Example:
+```bash
 1 > x Int
 69 > y Int
 
@@ -318,13 +430,14 @@ if x > y {
 # Square brackets are mandatory for each condition
 # But optional around the entire condition
 if [x > y] & [x > 10] {
-	# x is greater than y and greater than 10
+	# x is greater than y AND greater than 10
 }
 ```
 
 
 
 ### Muliple if (switch)
+
 ```
 if <variable> {
 	<condition> {
@@ -341,24 +454,26 @@ if <variable> {
 }
 ```
 
-```
+Example:
+```bash
 69 > x Int
 
 if x {
-	= 1 {}                # x is 1
-
-	[= 2] | [= 3] {}          # x is equal 2 or equal 3
-
-	[ [> 3] & [< 8] ]  & [!= 5] {} # x is between 3 and 8 exclusive and not equal to 5
-
-
-	>= 10 {
-		# x is greater or equal to 10
+	= 1 {                          # x is equal 1
 	}
 
-	= _ {
-		# when x is equal to its type default value (zero)
+	[= 2] | [= 3] {                # x is equal 2 or equal 3
 	}
+
+	[ [> 3] & [< 8] ]  & [!= 5] {  # x is between 3 and 8 exclusive and not equal to 5
+	}
+
+	>= 10 {                        # x is greater or equal to 10
+	}
+
+	= _ {                          # when x is equal to its type default value (zero)
+	}
+
 } else {
 	# no conditions have been met
 }
@@ -374,34 +489,40 @@ if name {
 ```
 
 Comparing struct
-```
+```bash
 FullName (
 	name Text
 	surname Text
 )
 
-("Simone" "Vicinanza") > myFullName FullName
-myFullName > adminName FullName
+myFullName FullName
+adminName FullName
+
+("Simone" "Vicinanza") > myFullName
+myFullName > adminName
 
 if myFullName {
 	= _ {}                                                   # myFullName is default FullName value
 	= ("Max" "Power") {}                                     # myFullName is ("Max" "Power")
 	= ("Gian Carlo" "Esposito") {}                           # myFullName is ("Gian Carlo" "Esposito")
 	[=("Simone" "Vicinanza")] | [=("Alessio" "Vicinanza")]   # myFullName is ("Simone" "Vicinanza") or ("Alessio" "Vicinanza")
-	= adminName | ("Paolo" adminName.surname)                # myFullName is adminName or ("Paolo" adminName.surname)
+	[= adminName] | [=("Paolo" adminName.surname) ]          # myFullName is adminName or ("Paolo" adminName.surname)
 }
 ```
 
+
 # Collections
+
 ## List
+
 A list is a collection of variables that can be accessed via the index. The indexes are 0-based
-```
+```bash
 # Declaration
 # NOTE: Default value is an empty list
 listOfNames List<Text>
 
 # Assignment
-("Simone" "Giada" "Gian Carlo" "Paolo" "Luca") > listOfNames
+("Simone" "Giada") > listOfNames
 
 # Insertion
 # When inserting single element, round parentesis can be omitted
@@ -415,9 +536,6 @@ listOfNames List<Text>
 	listOfNames is now:
 	- Simone
 	- Giada
-	- Gian Carlo
-	- Paolo
-	- Luca
 	- Francesca
 	- Alessio
 	- Giovanna
@@ -427,7 +545,7 @@ listOfNames List<Text>
 #}
 ```
 
-```
+```bash
 # List type can be omitted when declaring and initializing
 # It will be inferred from the first element inserted
 (1.0 0.5 2.5) > listOfReal List                  # List of Real (List<Real>)
@@ -447,7 +565,7 @@ listOfNames List<Text>
 ```
 
 Accessing list elements
-```
+```bash
 # Defining a "Vector" (Struct with 3 Real representing x, y, z coordinates)
 Vector (
 	x Real
@@ -471,7 +589,7 @@ coordinates(-2) > secondToLastElement Vector
 # list element count will be subtracted from the index, therefore
 # "cylcying" through the list
 
-(a b c d e f g h i j) > letters List<Text>    # List of 10 elements
+("a" "b" "c" "d" "e" "f" "g" "h" "i" "j") > letters List<Text>    # List of 10 elements
 letters(-12) secondToLastElement Text
 # Will return "i", because -(abs(-12) - 10) = -2
 # So it's the same as typing letters(-2)
@@ -482,10 +600,10 @@ coordinates(#) > coordinatesCount Int
 
 # Copy list to another List
 coordinates > copyOfCoordinates List<Vector>
+```
 
-```
 Comparing Lists
-```
+```bash
 numbers List<Int>
 ( 1 2 3 4 ) > numbers
 
@@ -501,40 +619,46 @@ if numbers {
 }
 ```
 
+
 ## Set
+
 A set is an unordered collections in which duplicates element are not allowed
 
+
 ## Map
+
 A map contains values on the basis of key, i.e. key and value pair. Each key and value pair is known as an entry. A Map contains unique keys.
+
 
 ## Matrix
 
 ## Sequence operator
+
 The sequence operator lets you quickly define a sequence of elements
-```
+```bash
 (0..5) > fromZeroToFive List                # List of Integer equal to (0 1 2 3 4 5)
 (3..5) > fromThreeToFiveReal List<Real>     # List of Real equal to (3.0 4.0 5.0)
-(a..d) > fromAtoZ List                      # List of Text equal to (a b c d)
-(aaa..zzz) > listOfWords List               # List of text containing all possible words of 3 characters with letters from A to Z
+("a".."d") > fromAtoZ List                  # List of Text equal to (a b c d)
+("aaa".."zzz") > listOfWords List           # List of text containing all possible words of 3 characters with letters from A to Z
 ```
 
 Descending sequences can be defined
-```
+```bash
 (5..0) > fromZeroToFive List                # List of Integer equal to (5 4 3 2 1)
 (5..3) > fromThreeToFiveReal List<Real>     # List of Real equal to (5.0 4.0 3.0)
-(d..a) > fromAtoZ List                      # List of Text equal to (d c b a)
-(zzz..aaa) > listOfWords List               # List of text containing all possible words of 3 characters with letters from Z to A
+("d".."a") > fromAtoZ List                      # List of Text equal to (d c b a)
+("zzz".."aaa") > listOfWords List           # List of text containing all possible words of 3 characters with letters from Z to A
 ```
 
 A step value can also be used
-```
+```bash
 (0..10..2) > evenNumbers List               # List of Integer equal to (0 2 4 6 8 10)
 (0..0.5..0.1) > fromZeroToOne List          # List of Real equal to (0.1 0.2 0.3 0.4 0.5)
 (a..g..2) > listOfLetters List              # List of Text equal to (a c e g)
 ```
 
 Variables can be used
-```
+```bash
 0 > start Int
 10 > end Int
 2 > step Int
@@ -542,17 +666,25 @@ Variables can be used
 ```
 
 # Loops
+
 A loop is block of code that will be repeated (looped)
 
+
 ## Loop control
+
 ### break
+
 The break keyword will break the loop
 
+
 ### continue
+
 The continue keyword will skip the current iteration, and continue with the next
 
+
 ## repeat keyword
-```
+
+```bash
 repeat {
 	<body> # the body will be repeated for an undefined amount of time
 }
@@ -563,7 +695,7 @@ repeat if <condition> {
 ```
 
 A do-while loop can be achieved like so
-```
+```bash
 repeat {
 	<body>  # the body will be executed once and repeated if the condition is false
 	if <condition> {
@@ -572,20 +704,22 @@ repeat {
 }
 ```
 
+
 ## For loop
+
 The for loop is mainly used to iterate over collections
-```
-# <variable> type will be inferred from list type
+```bash
+# <variable> type will be inferred from the collection type
 for <variable> in Collection {
 	<body>
 }
 ```
 
-```
+```bash
 (0 1 2 3 4) > numbers List
 for number in numbers {}
 
-(Simone Luca Paolo) > names List
+("Simone" "Luca" "Paolo") > names List
 for name in names {}
 
 # The sequence operator can be used
@@ -594,11 +728,25 @@ for i in (0..10) {}
 # Iterating list over indeces
 for i in (0..$names(#)) {}
 ```
+
+
 # Content redirection
+
 `content` > `destination`
 
+
+## Special destinations
+
+| Destination     | Symbol | Shorthand symbol |
+| --------------- | ------ | ---------------- |
+| Standard output | /out   | /                |
+| Standard error  | /error |                  |
+
+
+### Standard output
+
 Print to standard output
-```
+```bash
 "Hello world" > /
 "I'm going to print the lorem ipsum" > /
 """
@@ -608,25 +756,62 @@ Pariatur nam nobis placeat. Consequuntur laborum consequatur accusantium totam o
 """ > /
 ```
 
+
+### Standard error
+
+Print to standard error
+```bash
+"Some error happened" > /error
+"I'm going to print some details:" > /error
+"""
+This program has crashed
+because you tried to perform a
+division by zero.
+""" > /error
+```
+
 Multiple redirection can be achieved like so
 
 `content` > `destination` > `destination2`
 
 
-## Block return
+## New line split
+
+If a line of code is too long, you can split it and use a new line by prefixing it with `|` (pipe)
+```bash
+# Declare three Text variables
+aVariable Text
+anotherVariable Text
+someOtherVariable Text
+
+# Assign "Hello World" to all of them
+"Hello World" > aVariable > anotherVariable > someOtherVariable
+
+# The previous line can be split like so:
+"Hello World" > aVariable
+	| > anotherVariable
+	| > someOtherVariable
+```
+
+
+## Block return ???
+
 Each code block (scope) can yield a value by redirecting content without specifying the destination
 NOTE: instruction after the yield will be executed!
 ???
 
 
 ## Functions
+
 Functions are special types of code block
 ```
 <function name>(<param name> <param type> <default value> | <other params>) => <return type> {
 	<body>
 	<return value> =>
 }
+```
 
+```bash
 printHelloWorld() {
 	"Hello World" >/
 }
@@ -635,8 +820,8 @@ greetPerson(name Text, surname Text) {
 	"Greetings $name, $surname" >/
 }
 
-getBestLanguage() -> Text {
-	"sLang" >
+getBestLanguage() => Text {
+	"sLang" =>
 }
 
 sum(x Int, y Int) => Int {
@@ -663,17 +848,18 @@ fibonacci(maxCount Natural) => Natural {
 }
 
 ```
-```
+
+```bash
 printHelloWorld()
-greetPerson
+greetPerson()
 sum(2, 2) > sumResult Int
 division(10, 3) > divisionResult Real
 ```
 
-Function can also have default value 
-```
-# if num is not specified when calling the function
-# num will be 10
+Function parameters can also have default values
+```bash
+# if num is not specified when calling the
+# function, num will be 10
 count(num Natural _< 10) {
 	for i in (0..$num) {
 		i >/
@@ -695,8 +881,9 @@ count(69)        # Will count to 69
 greet()
 greet("Simone")
 ```
+
 Functions parameters can be explicitly specified, so the order doesn't matter
-```
+```bash
 greet(name Text, age Natural) {
 	"My name is $name" >/
 	"My age is $age" >/
@@ -708,7 +895,7 @@ greet(age:22, name:"Simone")
 ```
 
 Recursion can be used
-```
+```bash
 fibonacci(count Natural) => Natural {
 	if [count = 0] | [count = 1] {
 		count =>
@@ -724,10 +911,12 @@ factorial(n Natural) {
 }
 ```
 
+
 # Code examples
 
 ## Book store
-```
+
+```bash
 Author (
 	name Text
 	surname Text
@@ -845,11 +1034,13 @@ printShelfStandard(shelf)
 toRowHTML(shelf) >/
 ```
 
+
 ## Linked List
+
 ```
 Node (
 	text Text
-	next Node
+	next Node _< null
 )
 
 (
