@@ -222,8 +222,7 @@ red Color  # (0 0 0)
 (255 0 0) > red
 (255 0 255) > magenta Color
 
-(
-	"Simon"              # Name
+(	"Simon"              # Name
 	"Vic"                # Surname
 	22                   # Age
 	red                  # Favorite color
@@ -247,8 +246,7 @@ me.favoriteColor > myFavoriteColor Color
 
 Specific attribute ???
 ```bash
-(
-	age: 22
+(	age: 22
 	surname: "Vic"
 	favoriteColor: red
 	favoriteCar: (
@@ -557,8 +555,7 @@ listOfNames List<Text>
 # When creating list of Struct, the type must be declared
 ( (62 65 10) (0 64 0) (12 50 255) ) > listOfColors List<Color>
 
-(
-	("Simone" "Vicinanza")
+(	("Simone" "Vicinanza")
 	("Mario" "Rossi")
 	("Luigi" "Bianchi")
 ) > listOfFullNames List<FullName>
@@ -646,7 +643,7 @@ Descending sequences can be defined
 ```bash
 (5..0) > fromZeroToFive List                # List of Integer equal to (5 4 3 2 1)
 (5..3) > fromThreeToFiveReal List<Real>     # List of Real equal to (5.0 4.0 3.0)
-("d".."a") > fromAtoZ List                      # List of Text equal to (d c b a)
+("d".."a") > fromAtoZ List                  # List of Text equal to (d c b a)
 ("zzz".."aaa") > listOfWords List           # List of text containing all possible words of 3 characters with letters from Z to A
 ```
 
@@ -946,7 +943,7 @@ printShelfStandard(shelf List<Book>) {
 	}
 }
 
-toTableHTML(shelft List<Book>) {
+printShelfTableHTML(shelft List<Book>) {
 	table Text
 	"""
 	<table>
@@ -973,6 +970,7 @@ toTableHTML(shelft List<Book>) {
 	</table>
 	""" +> table
 
+	table >/
 }
 
 toRowHTML(book Book) {
@@ -1031,13 +1029,13 @@ toRowHTML(book Book) {
 ) > shelf List<Book>
 
 printShelfStandard(shelf)
-toRowHTML(shelf) >/
+printShelfTableHTML(shelf)
 ```
 
 
 ## Linked List
 
-```
+```bash
 Node (
 	text Text
 	next Node _< null
