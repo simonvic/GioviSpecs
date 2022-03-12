@@ -35,10 +35,10 @@ The idea is to make a data-centric, typed scripting language, easy to read but m
 | Operation           | Symbol | Example                      |
 | ------------------- | ------ | ---------------------------- |
 | Content redirection | >      | "Hello world" > message Text |
-| Increment by value  | +>     | 10 +> count                  |
-| Decrement by value  | ->     | 10 -> count                  |
-| Mutiply by value    | *>     | 10 *> count                  |
-| Divide by value     | />     | 10 /> count                  |
+| Increment by value  | >+     | 10 >+ count                  |
+| Decrement by value  | >-     | 10 >- count                  |
+| Mutiply by value    | >*     | 10 >* count                  |
+| Divide by value     | >/     | 10 >/ count                  |
 
 
 ## Relational
@@ -59,8 +59,8 @@ The idea is to make a data-centric, typed scripting language, easy to read but m
 | ------------------------------ | ------ | ------------------------- | -------------------------- |
 | Concatenation                  | +      | "Hello" + " " + "World"   | "Hello World"              |
 | Remove substring               | -      | "Hello world" - "world"   | "Hello "                   |
-| Append to variable             | +>     | "Hello world" +> someText | "$someText Hello world"    |
-| Remove substring from variable | ->     | "substring" -> someText   | someText without substring |
+| Append to variable             | >+     | "Hello world" >+ someText | "$someText Hello world"    |
+| Remove substring from variable | >-     | "substring" >- someText   | someText without substring |
 
 
 ## Variables
@@ -273,7 +273,7 @@ constant RED Color (
 	0
 )
 
-constant NAME_LIST List<Text> (
+constant NAME_LIST List[Text] (
 	"Simone"
 	"Luca"
 	"Alessio"
@@ -372,17 +372,17 @@ Vehicle (
 	wheelCount Natural
 )
 
-Vehicle > Car (
+Vehicle : Car (
 	wheelCount _< 4
 	licensePlate Text
 )
 
-Vehicle > Bike (
+Vehicle : Bike (
 	wheelCount _< 2
 	tireType Text
 )
 
-Bike > MotorBike (
+Bike : MotorBike (
 	isOffroad Bool
 )
 ```
@@ -394,7 +394,7 @@ Bike > MotorBike (
 | --------- | ------ | ------------------ |
 | And       | &      | if 10 > 2 & 10 > 5 |
 | Or        | \|     | if 10 > 2 \| 5 > 2 |
-| Not       | !      | if !(2 > 10)       |
+| Not       | !      | if ![2 > 10]       |
 
 
 ## Control structure
@@ -425,8 +425,6 @@ if x > y {
 	# y is greater or equal to x
 }
 
-# Square brackets are mandatory for each condition
-# But optional around the entire condition
 if [x > y] & [x > 10] {
 	# x is greater than y AND greater than 10
 }
@@ -517,18 +515,18 @@ A list is a collection of variables that can be accessed via the index. The inde
 ```bash
 # Declaration
 # NOTE: Default value is an empty list
-listOfNames List<Text>
+listOfNames List[Text]
 
 # Assignment
-("Simone" "Giada") > listOfNames
+["Simone" "Giada"] > listOfNames
 
 # Insertion
 # When inserting single element, round parentesis can be omitted
-"Francesca" +> listOfNames
-"Alessio" +> listOfNames
-"Giovanna" +> listOfNames
-("Lucia" "Alessandra") +> listOfNames
-"Gian Luca" +> listOfNames
+"Francesca" >+ listOfNames
+"Alessio" >+ listOfNames
+"Giovanna" >+ listOfNames
+["Lucia" "Alessandra"] >+ listOfNames
+"Gian Luca" >+ listOfNames
 
 #{
 	listOfNames is now:
@@ -546,19 +544,19 @@ listOfNames List<Text>
 ```bash
 # List type can be omitted when declaring and initializing
 # It will be inferred from the first element inserted
-(1.0 0.5 2.5) > listOfReal List                  # List of Real (List<Real>)
-(1 2 3 4 5) > listOfNatural List                 # List of Natural (List<Natural>)
-(-1 0 4 5) > listOfInteger List                  # List of Integer (List<Int>)
-(4 5 6 7) > listOfInteger List<Int>              # List of Integer
-("Simone" "Luca" "Paolo") > listOfText List      # List of Text (List<Text>)
+[1.0 0.5 2.5] > listOfReal List                  # List of Real (List[Real])
+[1 2 3 4 5] > listOfNatural List                 # List of Natural (List[Natural])
+[-1 0 4 5] > listOfInteger List                  # List of Integer (List[Int])
+[4 5 6 7] > listOfInteger List[Int]              # List of Integer
+["Simone" "Luca" "Paolo"] > listOfText List      # List of Text (List[Text])
 
 # When creating list of Struct, the type must be declared
-( (62 65 10) (0 64 0) (12 50 255) ) > listOfColors List<Color>
+[ (62 65 10) (0 64 0) (12 50 255) ] > listOfColors List[Color]
 
-(	("Simone" "Vicinanza")
+[	("Simone" "Vicinanza")
 	("Mario" "Rossi")
 	("Luigi" "Bianchi")
-) > listOfFullNames List<FullName>
+] > listOfFullNames List[FullName]
 ```
 
 Accessing list elements
@@ -571,48 +569,49 @@ Vector (
 )
 
 # Defining list of Vectors
-( (0 0 0) (0.5 1.5 3.2) (4 5.0 60.1) ) > vectors List<Vector>
+[ (0 0 0) (0.5 1.5 3.2) (4 5.0 60.1) ] > vectors List[Vector]
 
 # Accessing with index
-coordinates(0) > firstElement Vector
-coordinates(1) > secondElement Vector
+coordinates[0] > firstElement Vector
+coordinates[1] > secondElement Vector
 
 # Negative indexes are valid
 # It will return element count minus index
-coordinates(-1) > lastElement Vector
-coordinates(-2) > secondToLastElement Vector
+coordinates[-1] > lastElement Vector
+coordinates[-2] > secondToLastElement Vector
 
 # If negative index absolute value is greater than List count
 # list element count will be subtracted from the index, therefore
 # "cylcying" through the list
 
-("a" "b" "c" "d" "e" "f" "g" "h" "i" "j") > letters List<Text>    # List of 10 elements
-letters(-12) secondToLastElement Text
+["a" "b" "c" "d" "e" "f" "g" "h" "i" "j"] > letters List[Text]    # List of 10 elements
+letters[-12] secondToLastElement Text
 # Will return "i", because -(abs(-12) - 10) = -2
 # So it's the same as typing letters(-2)
 
 
 # List length
-coordinates(#) > coordinatesCount Int
+coordinates[#] > coordinatesCount Int
 
 # Copy list to another List
-coordinates > copyOfCoordinates List<Vector>
+coordinates > copyOfCoordinates List[Vector]
 ```
 
 Comparing Lists
 ```bash
-numbers List<Int>
-( 1 2 3 4 ) > numbers
+numbers List[Int]
+[ 1 2 3 4 ] > numbers
 
 if numbers = _ {
 	# if list is equal to List default (empty list)
 }
 
 if numbers {
-	= (1 2 3) {}                     # if equal to a list of (1 2 3)
-	[=(1 2 3 4)] | [=(4 5 6 7)] {}   # if equal to a list of (1 2 3 4) or (4 5 6 7)
-	[= _] | [numbers(#) < 3] {}      # if empty list or elements count less then 3
-	[= _] & [numbers(0) = 6] {}      # if empty list and first element equal to 6
+	= [1 2 3] {}                      # if equal to a list of [1 2 3]
+	= [1 2 3 4] | = [4 5 6 7] {}      # if equal to a list of [1 2 3 4] or [4 5 6 7]
+	= [1 2 3 4] | numbers[#] = 10 {}  # if equal to a list of [1 2 3 4] or elements count equal to 10
+	= _ | numbers[#] < 3 {}           # if empty list or elements count less then 3
+	= _ & numbers[0] = 6 {}           # if empty list and first element equal to 6
 }
 ```
 
@@ -626,32 +625,95 @@ A set is an unordered collections in which duplicates element are not allowed
 
 A map contains values on the basis of key, i.e. key and value pair. Each key and value pair is known as an entry. A Map contains unique keys.
 
+```bash
+carCount Map[Text Int]
+
+[ "Audi" 1 ] > carCount    # Insert new key "Audi"
+[ "Audi" 5 ] > carCount    # Set "Audi" key value to 5
+
+[                          # Insert/Set new key value pair
+	"Mercedes" 10
+	"Audi" 7
+	"BMW" 15
+	"Ferrari" 20
+] > carCount
+
+26 > carCount["Ferrari"]  # Set "Ferrari" value to 26
+```
+
+Default values can be used
+
+```bash
+[ "Fiat" _ ] > carCount
+_ > carCount["Fiat"]
+```
+
+Accessing values
+
+```bash
+carCount["BMW"] > bmwCount Int     # Get value of key "BMW"
+
+# Special characters
+carCount[#] > entriesCount Int     # Get count of key/value pairs
+carCount[@] > keys List[Text]      # Get all keys
+carCount[*] > values List[Int]     # Get all values
+```
+
+Examples
+
+```bash
+bank Map[Text Real]
+[
+	"Simone" 69.0
+	"Alessio" 15.50
+	"Francesco" 125.15
+] > bank
+
+for name money in bank {
+	"$name has $money € in his wallet" >
+}
+
+"List of names: " >
+for name in bank[@] {
+	"- $name" >
+}
+
+sum Real
+for money in bank[*] {
+	money >+ sum
+}
+"The bank has $sum €" >
+```
 
 ## Matrix
+
+```bash
+
+```
 
 ## Sequence operator
 
 The sequence operator lets you quickly define a sequence of elements
 ```bash
-(0..5) > fromZeroToFive List                # List of Integer equal to (0 1 2 3 4 5)
-(3..5) > fromThreeToFiveReal List<Real>     # List of Real equal to (3.0 4.0 5.0)
-("a".."d") > fromAtoZ List                  # List of Text equal to (a b c d)
-("aaa".."zzz") > listOfWords List           # List of text containing all possible words of 3 characters with letters from A to Z
+[0..5] > fromZeroToFive List                # List of Integer equal to [0 1 2 3 4 5]
+[3..5] > fromThreeToFiveReal List[Real]     # List of Real equal to [3.0 4.0 5.0]
+["a".."d"] > fromAtoZ List                  # List of Text equal to [a b c d]
+["aaa".."zzz"] > listOfWords List           # List of text containing all possible words of 3 characters with letters from A to Z
 ```
 
 Descending sequences can be defined
 ```bash
-(5..0) > fromZeroToFive List                # List of Integer equal to (5 4 3 2 1)
-(5..3) > fromThreeToFiveReal List<Real>     # List of Real equal to (5.0 4.0 3.0)
-("d".."a") > fromAtoZ List                  # List of Text equal to (d c b a)
-("zzz".."aaa") > listOfWords List           # List of text containing all possible words of 3 characters with letters from Z to A
+[5..0] > fromZeroToFive List                # List of Integer equal to [5 4 3 2 1]
+[5..3] > fromThreeToFiveReal List[Real]     # List of Real equal to [5.0 4.0 3.0]
+["d".."a"] > fromAtoZ List                  # List of Text equal to [d c b a]
+["zzz".."aaa"] > listOfWords List           # List of text containing all possible words of 3 characters with letters from Z to A
 ```
 
 A step value can also be used
 ```bash
-(0..10..2) > evenNumbers List               # List of Integer equal to (0 2 4 6 8 10)
-(0..0.5..0.1) > fromZeroToOne List          # List of Real equal to (0.1 0.2 0.3 0.4 0.5)
-(a..g..2) > listOfLetters List              # List of Text equal to (a c e g)
+[0..10..2] > evenNumbers List               # List of Integer equal to [0 2 4 6 8 10]
+[0..0.5..0.1] > fromZeroToOne List          # List of Real equal to [0.1 0.2 0.3 0.4 0.5]
+[a..g..2] > listOfLetters List              # List of Text equal to [a c e g]
 ```
 
 Variables can be used
@@ -659,7 +721,7 @@ Variables can be used
 0 > start Int
 10 > end Int
 2 > step Int
-($start..$end..$step) > List                # List of Integer equal to (0 2 4 6 8 10)
+[$start..$end..$step] > List                # List of Integer equal to [0 2 4 6 8 10]
 ```
 
 # Loops
@@ -704,26 +766,43 @@ repeat {
 
 ## For loop
 
-The for loop is mainly used to iterate over collections
+The for loop is mainly used to iterate over List
 ```bash
-# <variable> type will be inferred from the collection type
-for <variable> in Collection {
+# <variable> type will be inferred from the List type
+for <variable> in <List> {
 	<body>
 }
 ```
 
 ```bash
-(0 1 2 3 4) > numbers List
+[0 1 2 3 4] > numbers List
 for number in numbers {}
 
-("Simone" "Luca" "Paolo") > names List
+["Simone" "Luca" "Paolo"] > names List
 for name in names {}
 
 # The sequence operator can be used
-for i in (0..10) {}
+for i in [0..10] {}
 
 # Iterating list over indeces
-for i in (0..$names(#)) {}
+for i in [0..$names[#]] {}
+
+# Iterating over list of struct
+[(0 255 0) (55 0 255) (255 255 255)] > colors List[Color]
+for color in colors {}
+```
+
+Iterating over list of struct
+
+```bash
+[(0 255 0) (55 0 255) (255 255 255)] > colors List[Color]
+for color in colors {}
+```
+
+The for loop also tries to deconstruct the struct if the variables are the same of the struct
+
+```bash
+for red green blue in colors {}
 ```
 
 
@@ -736,21 +815,22 @@ for i in (0..$names(#)) {}
 
 | Destination     | Symbol | Shorthand symbol |
 | --------------- | ------ | ---------------- |
-| Standard output | /out   | /                |
-| Standard error  | /error |                  |
+| Standard output | \out   | \                |
+| Standard error  | \error |                  |
 
 
 ### Standard output
 
 Print to standard output
 ```bash
-"Hello world" > /
-"I'm going to print the lorem ipsum" > /
+"Hello world" > \out
+"Hello world" > \
+"I'm going to print the lorem ipsum" > \
 """
 Qui odit molestias commodi omnis magni sunt. Et et et dolorem mollitia eum repellendus fuga qui. Numquam sint numquam sed delectus. Necessitatibus pariatur voluptatem ad ut eos in eos quo. Cupiditate et ut fuga. Aut enim aut amet non.
 
 Pariatur nam nobis placeat. Consequuntur laborum consequatur accusantium totam occaecati possimus illo repellat. In fuga earum ea modi ut perspiciatis iusto. Iste voluptate qui at. Eos eaque cumque quisquam non nemo tenetur quo fugit.
-""" > /
+""" > \
 ```
 
 
@@ -758,13 +838,13 @@ Pariatur nam nobis placeat. Consequuntur laborum consequatur accusantium totam o
 
 Print to standard error
 ```bash
-"Some error happened" > /error
-"I'm going to print some details:" > /error
+"Some error happened" > \error
+"I'm going to print some details:" > \error
 """
 This program has crashed
 because you tried to perform a
 division by zero.
-""" > /error
+""" > \error
 ```
 
 Multiple redirection can be achieved like so
@@ -795,6 +875,7 @@ someOtherVariable Text
 
 Each code block (scope) can yield a value by redirecting content without specifying the destination
 NOTE: instruction after the yield will be executed!
+
 ???
 
 
@@ -810,11 +891,11 @@ Functions are special types of code block
 
 ```bash
 printHelloWorld() {
-	"Hello World" >/
+	"Hello World" >\
 }
 
 greetPerson(name Text, surname Text) {
-	"Greetings $name, $surname" >/
+	"Greetings $name, $surname" >\
 }
 
 getBestLanguage() => Text {
@@ -838,8 +919,8 @@ intToBool(x Int) => Bool {
 
 fibonacci(maxCount Natural) => Natural {
 	sum Natural
-	for i in (0..maxCount) {
-		sum +> sum
+	for i in [0..maxCount] {
+		i >+ sum
 	}
 	sum =>
 }
@@ -859,7 +940,7 @@ Function parameters can also have default values
 # function, num will be 10
 count(num Natural _< 10) {
 	for i in (0..$num) {
-		i >/
+		i >\
 	}
 }
 
@@ -867,9 +948,9 @@ count(num Natural _< 10) {
 # its type default value will be used
 greet(name Text _<_ ){
 	if name = _ {
-		"Greetings everybody!" >/
+		"Greetings everybody!" >\
 	} else {
-		"Hello $name" >/
+		"Hello $name" >\
 	}
 }
 
@@ -882,8 +963,8 @@ greet("Simone")
 Functions parameters can be explicitly specified, so the order doesn't matter
 ```bash
 greet(name Text, age Natural) {
-	"My name is $name" >/
-	"My age is $age" >/
+	"My name is $name" >\
+	"My age is $age" >\
 }
 
 greet("Simone", 22)
@@ -928,7 +1009,7 @@ Book (
 	pagesCount Natural
 )
 
-printShelfStandard(shelf List<Book>) {
+printShelfStandard(shelf List[Book]) {
 	for book in shelf {
 		"""
 		Title:        $book.title
@@ -939,11 +1020,11 @@ printShelfStandard(shelf List<Book>) {
 			Name:       $book.author.name
 			Surname:    $book.author.surname
 			Age:        $book.author.age
-		""" >/
+		""" >\
 	}
 }
 
-printShelfTableHTML(shelft List<Book>) {
+printShelfTableHTML(shelf List[Book]) {
 	table Text
 	"""
 	<table>
@@ -962,15 +1043,15 @@ printShelfTableHTML(shelft List<Book>) {
 	for book in shelf {
 		"""
 		${toRowHTML(book)}
-		""" +> table
+		""" >+ table
 	}
 
 	"""
 		</tbody>
 	</table>
-	""" +> table
+	""" >+ table
 
-	table >/
+	table >\
 }
 
 toRowHTML(book Book) {
@@ -1026,7 +1107,7 @@ toRowHTML(book Book) {
 		10.5
 		120
 	)
-) > shelf List<Book>
+) > shelf List[Book]
 
 printShelfStandard(shelf)
 printShelfTableHTML(shelf)
@@ -1052,7 +1133,7 @@ Node (
 ) > root Node
 
 recursivePrintList(node Node) {
-	node.text >/
+	node.text >\
 	if node != null {
 		recursivePrintList(node)
 	}
