@@ -53,14 +53,17 @@ The idea is to make a data-centric, typed scripting language, easy to read but m
 | Not equal                  | !=     | if 10 != 2 |
 
 
+
 ## Text related
 
-| Operation                      | Symbol | Example                   | Output                     |
-| ------------------------------ | ------ | ------------------------- | -------------------------- |
-| Concatenation                  | +      | "Hello" + " " + "World"   | "Hello World"              |
-| Remove substring               | -      | "Hello world" - "world"   | "Hello "                   |
-| Append to variable             | >+     | "Hello world" >+ someText | "$someText Hello world"    |
-| Remove substring from variable | >-     | "substring" >- someText   | someText without substring |
+| Operation                      | Symbol | Example                       | Output                     |
+| ------------------------------ | ------ | ----------------------------- | -------------------------- |
+| Concatenation                  | +      | "Hello" + " " + "World"       | "Hello World"              |
+| Remove substring               | -      | "Hello world" - "world"       | "Hello "                   |
+| Append to variable             | >+     | "Hello world" >+ someText     | "$someText Hello world"    |
+| Remove substring from variable | >-     | "substring" >- someText       | someText without substring |
+| Text contains                  | =~     | if "Hello world" =~ "lo worl" | true                       |
+| Text is contained              | ~=     | if "lo worl" ~= "Hello world" | true                       |
 
 
 ## Variables
@@ -226,14 +229,8 @@ red Color  # (0 0 0)
 	"Vic"                # Surname
 	22                   # Age
 	red                  # Favorite color
-	(                    # Favorite car
-		"Ferrari"
-		red
-	)
-	(                    # Owned car
-		"Fiat 600"
-		420.69
-	)
+	("Ferrari" red)      # Favorite car
+	("Fiat 600" magenta) # Owned car
 ) > me Person
 
 # Setting struct attribute
@@ -363,6 +360,12 @@ _ > aDefaultPerson.favoriteCar.paint
 # aDefaultPerson.favoriteCar is now ("Ferrari" (40 40 40 ))
 ```
 
+A default value of a specific attribute can be accessed with the struct name
+```bash
+Person.name > defaultPersonName Text              # defaultPersonName will be "No name"
+Person.favoriteColor > defaultFavoriteColor Color # defaultFavoriteColor will be (255 0 0)
+```
+
 
 ### Structs inheritance ???
 
@@ -394,7 +397,7 @@ Bike : MotorBike (
 | --------- | ------ | ------------------ |
 | And       | &      | if 10 > 2 & 10 > 5 |
 | Or        | \|     | if 10 > 2 \| 5 > 2 |
-| Not       | !      | if ![2 > 10]       |
+| Not       | !      | if !{2 > 10}       |
 
 
 ## Control structure
@@ -425,9 +428,17 @@ if x > y {
 	# y is greater or equal to x
 }
 
-if [x > y] & [x > 10] {
+if x > y & x > 10 {
 	# x is greater than y AND greater than 10
 }
+```
+
+Curly braces are used to optionally wrap conditions. The followings will evaluate the same conditions
+```bash
+if x < 0 & x > 10 {}
+if {x < 0 & x > 10} {}
+if {x < 0} & {x > 10} {}
+if {{x < 0} & {x > 10}} {}
 ```
 
 
@@ -501,8 +512,8 @@ if myFullName {
 	= _ {}                                                   # myFullName is default FullName value
 	= ("Max" "Power") {}                                     # myFullName is ("Max" "Power")
 	= ("Gian Carlo" "Esposito") {}                           # myFullName is ("Gian Carlo" "Esposito")
-	[=("Simone" "Vicinanza")] | [=("Alessio" "Vicinanza")]   # myFullName is ("Simone" "Vicinanza") or ("Alessio" "Vicinanza")
-	[= adminName] | [=("Paolo" adminName.surname) ]          # myFullName is adminName or ("Paolo" adminName.surname)
+	= ("Simone" "Vicinanza") | = ("Alessio" "Vicinanza")     # myFullName is ("Simone" "Vicinanza") or ("Alessio" "Vicinanza")
+	{= adminName} | {=("Paolo" adminName.surname)}           # myFullName is adminName or ("Paolo" adminName.surname)
 }
 ```
 
@@ -593,6 +604,9 @@ letters[-12] secondToLastElement Text
 # List length
 coordinates[#] > coordinatesCount Int
 
+# List indeces
+coordinates[@] > indeces List[Natural] # Useful when iterating Lists with the indeces
+
 # Copy list to another List
 coordinates > copyOfCoordinates List[Vector]
 ```
@@ -628,15 +642,15 @@ A map contains values on the basis of key, i.e. key and value pair. Each key and
 ```bash
 carCount Map[Text Int]
 
-[ "Audi" 1 ] > carCount    # Insert new key "Audi"
-[ "Audi" 5 ] > carCount    # Set "Audi" key value to 5
+[ "Audi" 1 ] >+ carCount    # Insert new key "Audi"
+[ "Audi" 5 ] >+ carCount    # Set "Audi" key value to 5
 
 [                          # Insert/Set new key value pair
 	"Mercedes" 10
 	"Audi" 7
 	"BMW" 15
 	"Ferrari" 20
-] > carCount
+] >+ carCount
 
 26 > carCount["Ferrari"]  # Set "Ferrari" value to 26
 ```
@@ -644,7 +658,7 @@ carCount Map[Text Int]
 Default values can be used
 
 ```bash
-[ "Fiat" _ ] > carCount
+[ "Fiat" _ ] >+ carCount
 _ > carCount["Fiat"]
 ```
 
@@ -685,11 +699,6 @@ for money in bank[*] {
 "The bank has $sum €" >
 ```
 
-## Matrix
-
-```bash
-
-```
 
 ## Sequence operator
 
@@ -802,6 +811,7 @@ for color in colors {}
 The for loop also tries to deconstruct the struct if the variables are the same of the struct
 
 ```bash
+[(0 255 0) (55 0 255) (255 255 255)] > colors List[Color]
 for red green blue in colors {}
 ```
 
@@ -975,7 +985,7 @@ greet(age:22, name:"Simone")
 Recursion can be used
 ```bash
 fibonacci(count Natural) => Natural {
-	if [count = 0] | [count = 1] {
+	if {count = 0} | {count = 1} {
 		count =>
 	}
 	fibonacci(count - 1) + fibonacci(count - 2) =>
