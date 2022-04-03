@@ -245,17 +245,29 @@ me.favoriteColor > myFavoriteColor Color
 ```
 
 Specific attribute ???
+
 ```bash
 (	age: 22
 	surname: "Vic"
 	favoriteColor: red
 	favoriteCar: (
-		"Ferrari"
-		red
+		model: "Ferrari"
+		paint: red
 	)
 ) > me Person
 ```
 
+Specific struct type ???
+```bash
+Color : (255 255 255)
+
+Person : (
+	22
+	"Vic"
+	red
+	Car : ("Ferrari" red)
+) > me Person
+```
 
 ### Constants
 
@@ -340,27 +352,27 @@ Person (
 	ownedCar Car
 )
 
-aDefaultPerson Person
+somebody Person
 
-# aDefaultPerson.name is "No name"
-# aDefaultPerson.surna is "No surname"
-# aDefaultPerson.age is 0 (zero, Natural default)
-# aDefaultPerson.favoriteColor is (255 0 0)
-# aDefaultPerson.favoriteCar is ("" (40 40 40))
-# aDefaultPerson.ownedCar is ("" (40 40 40))
+# somebody.name is "No name"
+# somebody.surname is "No surname"
+# somebody.age is 0 (zero, Natural default)
+# somebody.favoriteColor is (255 0 0)
+# somebody.favoriteCar is ("" (40 40 40))
+# somebody.ownedCar is ("" (40 40 40))
 
-( "Fiat 600" (10 100 20)) > aDefaultPerson.ownedCar
-# aDefaultPerson.ownedCar is now ("Fiat 600" (10 100 20))
+( "Fiat 600" (10 100 20)) > somebody.ownedCar
+# somebody.ownedCar is now ("Fiat 600" (10 100 20))
 
-_ > aDefaultPerson.ownedCar
-# aDefaultPerson.ownedCar is now ("" (40 40 40))
+_ > somebody.ownedCar
+# somebody.ownedCar is now ("" (40 40 40))
 
 
-( "Ferrari" (255 255 255)) > aDefaultPerson.favoriteCar
-# aDefaultPerson.favoriteCar is now ("Ferrari" (255 255 255))
+( "Ferrari" (255 255 255)) > somebody.favoriteCar
+# somebody.favoriteCar is now ("Ferrari" (255 255 255))
 
-_ > aDefaultPerson.favoriteCar.paint
-# aDefaultPerson.favoriteCar is now ("Ferrari" (40 40 40 ))
+_ > somebody.favoriteCar.paint
+# somebody.favoriteCar is now ("Ferrari" (40 40 40 ))
 ```
 
 A default value of a specific attribute can be accessed with the struct name
@@ -509,28 +521,6 @@ if name {
 }
 ```
 
-```bash
-if x {
-	= 1 do "X is one" >\
-
-	= 2 | = 3 do {
-
-	}
-
-	{> 3 & < 8} & != 5 do {
-
-	}
-
-	>= 10 do {
-
-	}
-
-	= _ do {
-
-	}
-
-}
-```
 
 Comparing struct
 ```bash
@@ -686,6 +676,63 @@ if numbers do {
 }
 ```
 
+## Multidimensional list (matrix)
+
+A multidimensional list (matrix) can be defined as follows
+
+```bash
+identityMatrix List[List[Real]]
+
+[	
+	[1 0 0]
+	[0 1 0]
+	[0 0 1]
+] > matrix
+```
+
+Values can be accessed as normal lists
+
+`nameOfList[row][column]`
+
+```bash
+# Example of a Rubik cube multidimensional list
+# for simplicity, we're storing color name instead of a Color struct
+rubikCube List[List[List[Text]]]
+[
+	[
+		[ "Red" "Red" "Red" ]
+		[ "Red" "Red" "Red" ]
+		[ "Red" "Red" "Red" ]
+	]
+	[
+		[ "White" "White" "White" ]
+		[ "White" "White" "White" ]
+		[ "White" "White" "White" ]
+	]
+	[
+		[ "Green" "Green" "Green" ]
+		[ "Green" "Green" "Green" ]
+		[ "Green" "Green" "Green" ]
+	]
+	[
+		[ "Yellow" "Yellow" "Yellow" ]
+		[ "Yellow" "Yellow" "Yellow" ]
+		[ "Yellow" "Yellow" "Yellow" ]
+	]
+	[
+		[ "Blue" "Blue" "Blue" ]
+		[ "Blue" "Blue" "Blue" ]
+		[ "Blue" "Blue" "Blue" ]
+	]
+	[
+		[ "Orange" "Orange" "Orange" ]
+		[ "Orange" "Orange" "Orange" ]
+		[ "Orange" "Orange" "Orange" ]
+	]
+] > rubikCube
+
+# rubikCube[2][1][1] will refer to the central tile of green face
+```
 
 ## Set
 
@@ -756,6 +803,20 @@ for money in bank[*] {
 "The bank has $sum €" >
 ```
 
+
+
+## Implicit collection declaration ???
+
+```bash
+[1.0 0.5 2.5] > listOfReal []                  # List of Real (List[Real])
+[1 2 3 4 5] > listOfNatural []                 # List of Natural (List[Natural])
+[-1 0 4 5] > listOfInteger []                  # List of Integer (List[Int])
+[4 5 6 7] > listOfInteger [Int]                # List of Integer
+["Simone" "Luca" "Paolo"] > listOfText []      # List of Text (List[Text])
+matrix [[Real]]                                # Matrix of Real
+rubikCube [[[Color]]]                          # Cube of Color
+carCount [Text Int]                            # Map of Text and Int (Map[Text Int])
+```
 
 ## Sequence operator
 
