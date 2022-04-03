@@ -10,10 +10,12 @@ The idea is to make a data-centric, typed scripting language, easy to read but m
 
 #{
 	This is a multiline
-	comment.
+	comment block.
 	For when you need to write long
 	comments.
 #}
+
+#{ this is an inline comment block #}
 ```
 
 # Operators
@@ -94,10 +96,10 @@ surname, loremIpsum Text  # Example of multiple declaration of type text
 "Simone" > name         
 "Van der Sar" > name  # unless there is space
 
-# Text blocks are possible. Spaces, new lines and tabs will be kept
+# Text blocks. Spaces, new lines and tabs will be kept
 # Work like Java (https://docs.oracle.com/en/java/javase/13/text_blocks/index.html)
 """
-Aut quod excepturi officia tempore. 
+Aut quod excepturi officia tempore.
 Quia non molestiae non aut.
 Sit quos saepe exercitationem dolor voluptatem.
 Et culpa voluptatem quos eligendi.
@@ -182,6 +184,7 @@ The general rules for naming variables are:
   - Functions names
   - constant
   - if
+  - do
   - else
   - for
   - in
@@ -313,9 +316,9 @@ _ > someOtherColor Color  # This will be initialized with default values
 ```bash
 # Color with overridden defaults
 Color (
-	red Natural _< 255
-	green Natural _< 255
-	blue Natural _< 255
+	red Natural _ 255
+	green Natural _ 255
+	blue Natural _ 255
 )
 
 (0 255 0) > someColor Color
@@ -325,13 +328,13 @@ _ > someColor                  # Set someColor to default (255 255 255)
 If the default is not defined, the type default will be used
 ```bash
 Person (
-	name Text _< "No name"
-	surname Text _< "No surname"
+	name Text _ "No name"
+	surname Text _ "No surname"
 	age Natural
-	favoriteColor Color _< (255 0 0)
+	favoriteColor Color _ (255 0 0)
 	favoriteCar Car (
 		model Text
-		paint Color _< (40 40 40) 
+		paint Color _ (40 40 40) 
 	)
 	# ownderCar will be a default Car
 	ownedCar Car
@@ -376,12 +379,12 @@ Vehicle (
 )
 
 Vehicle : Car (
-	wheelCount _< 4
+	wheelCount _ 4
 	licensePlate Text
 )
 
 Vehicle : Bike (
-	wheelCount _< 2
+	wheelCount _ 2
 	tireType Text
 )
 
@@ -405,12 +408,12 @@ Bike : MotorBike (
 ### if
 
 ```
-# Square parenthesis around condition are optional
-if <condition> {
+# Curly braces around condition are optional
+if <condition> do {
 	<true body>
 }
 
-if <condition> {
+if <condition> do {
 	<true body>
 } else {
 	<false body>
@@ -422,23 +425,23 @@ Example:
 1 > x Int
 69 > y Int
 
-if x > y {
+if x > y do {
 	# x is greater than y
 } else {
 	# y is greater or equal to x
 }
 
-if x > y & x > 10 {
+if x > y & x > 10 do {
 	# x is greater than y AND greater than 10
 }
 ```
 
 Curly braces are used to optionally wrap conditions. The followings will evaluate the same conditions
 ```bash
-if x < 0 & x > 10 {}
-if {x < 0 & x > 10} {}
-if {x < 0} & {x > 10} {}
-if {{x < 0} & {x > 10}} {}
+if x < 0 & x > 10 do {}
+if {x < 0 & x > 10} do {}
+if {x < 0} & {x > 10} do {}
+if {{x < 0} & {x > 10}} do {}
 ```
 
 
@@ -447,11 +450,11 @@ if {{x < 0} & {x > 10}} {}
 
 ```
 if <variable> {
-	<condition> {
+	<condition> do {
 		<condition body>
 	}
 
-	<condition 2> {
+	<condition 2> do {
 		<condition 2 body>
 	}
 
@@ -466,20 +469,31 @@ Example:
 69 > x Int
 
 if x {
-	= 1 {                          # x is equal 1
+	# x is equal 1
+	= 1 do {
+		# body
 	}
 
-	[= 2] | [= 3] {                # x is equal 2 or equal 3
+	# x is equal 2 or equal 3
+	{= 2} | {= 3} do {
+		# body
 	}
 
-	[ [> 3] & [< 8] ]  & [!= 5] {  # x is between 3 and 8 exclusive and not equal to 5
+	# x is between 3 and 8 exclusive and not equal to 5
+	{> 3 & < 8} & != 5 do {
+		# body
 	}
 
-	>= 10 {                        # x is greater or equal to 10
+	# x is greater or equal to 10
+	>= 10 do {
+		# body
 	}
 
-	= _ {                          # when x is equal to its type default value (zero)
+	# when x is equal to its type default value (zero)
+	= _ do {
+		# body
 	}
+
 
 } else {
 	# no conditions have been met
@@ -487,11 +501,34 @@ if x {
 
 "Simone" > name Text
 if name {
-	= _ {}                # name is empty string
-	= "Simone" {}         # name is Simone
-	= "Alessio" {}        # name is Alessio
-	= "Paolo" {}          # name is Paolo
-	= "Gian Carlo" {}     # name is Gian Carlo
+	= _ do {}                # name is empty string
+	= "Simone" do {}         # name is Simone
+	= "Alessio" do {}        # name is Alessio
+	= "Paolo" do {}          # name is Paolo
+	= "Gian Carlo" do {}     # name is Gian Carlo
+}
+```
+
+```bash
+if x {
+	= 1 do "X is one" >\
+
+	= 2 | = 3 do {
+
+	}
+
+	{> 3 & < 8} & != 5 do {
+
+	}
+
+	>= 10 do {
+
+	}
+
+	= _ do {
+
+	}
+
 }
 ```
 
@@ -508,12 +545,22 @@ adminName FullName
 ("Simone" "Vicinanza") > myFullName
 myFullName > adminName
 
-if myFullName {
-	= _ {}                                                   # myFullName is default FullName value
-	= ("Max" "Power") {}                                     # myFullName is ("Max" "Power")
-	= ("Gian Carlo" "Esposito") {}                           # myFullName is ("Gian Carlo" "Esposito")
-	= ("Simone" "Vicinanza") | = ("Alessio" "Vicinanza")     # myFullName is ("Simone" "Vicinanza") or ("Alessio" "Vicinanza")
-	{= adminName} | {=("Paolo" adminName.surname)}           # myFullName is adminName or ("Paolo" adminName.surname)
+if myFullName do {
+	# myFullName is default FullName value
+	= _ do {}
+
+	# myFullName is ("Max" "Power")
+	= ("Max" "Power") do {}
+
+	# myFullName is ("Gian Carlo" "Esposito")
+	= ("Gian Carlo" "Esposito") do {}
+
+	# myFullName is ("Simone" "Vicinanza") or ("Alessio" "Vicinanza")
+	= ("Simone" "Vicinanza") | = ("Alessio" "Vicinanza") do {}
+
+	# myFullName is adminName or ("Paolo" adminName.surname)
+	{= adminName} | {=("Paolo" adminName.surname)} do {}
+
 }
 ```
 
@@ -616,16 +663,26 @@ Comparing Lists
 numbers List[Int]
 [ 1 2 3 4 ] > numbers
 
-if numbers = _ {
+if numbers = _ do {
 	# if list is equal to List default (empty list)
 }
 
-if numbers {
-	= [1 2 3] {}                      # if equal to a list of [1 2 3]
-	= [1 2 3 4] | = [4 5 6 7] {}      # if equal to a list of [1 2 3 4] or [4 5 6 7]
-	= [1 2 3 4] | numbers[#] = 10 {}  # if equal to a list of [1 2 3 4] or elements count equal to 10
-	= _ | numbers[#] < 3 {}           # if empty list or elements count less then 3
-	= _ & numbers[0] = 6 {}           # if empty list and first element equal to 6
+if numbers do {
+	# if equal to a list of [1 2 3]
+	= [1 2 3] do {}
+	
+	# if equal to a list of [1 2 3 4] or [4 5 6 7]
+	= [1 2 3 4] | = [4 5 6 7] do {}
+	
+	# if equal to a list of [1 2 3 4] or elements count equal to 10
+	= [1 2 3 4] | numbers[#] = 10 do {}
+	
+	# if empty list or elements count less then 3
+	= _ | numbers[#] < 3 do {}
+	
+	# if empty list and first element equal to 6
+	= _ & numbers[0] = 6 do {}
+	
 }
 ```
 
@@ -647,9 +704,9 @@ carCount Map[Text Int]
 
 [                          # Insert/Set new key value pair
 	"Mercedes" 10
-	"Audi" 7
-	"BMW" 15
-	"Ferrari" 20
+	"Audi"     7
+	"BMW"      15
+	"Ferrari"  20
 ] >+ carCount
 
 26 > carCount["Ferrari"]  # Set "Ferrari" value to 26
@@ -722,7 +779,7 @@ A step value can also be used
 ```bash
 [0..10..2] > evenNumbers List               # List of Integer equal to [0 2 4 6 8 10]
 [0..0.5..0.1] > fromZeroToOne List          # List of Real equal to [0.1 0.2 0.3 0.4 0.5]
-[a..g..2] > listOfLetters List              # List of Text equal to [a c e g]
+["a".."g"..2] > listOfLetters List              # List of Text equal to [a c e g]
 ```
 
 Variables can be used
@@ -730,7 +787,7 @@ Variables can be used
 0 > start Int
 10 > end Int
 2 > step Int
-[$start..$end..$step] > List                # List of Integer equal to [0 2 4 6 8 10]
+[start..end..step] > List                # List of Integer equal to [0 2 4 6 8 10]
 ```
 
 # Loops
@@ -766,7 +823,7 @@ A do-while loop can be achieved like so
 ```bash
 repeat {
 	<body>  # the body will be executed once and repeated if the condition is false
-	if <condition> {
+	if <condition> do {
 		break
 	}
 }
@@ -794,7 +851,7 @@ for name in names {}
 for i in [0..10] {}
 
 # Iterating list over indeces
-for i in [0..$names[#]] {}
+for i in [0..names[#]] {}
 
 # Iterating over list of struct
 [(0 255 0) (55 0 255) (255 255 255)] > colors List[Color]
@@ -862,32 +919,6 @@ Multiple redirection can be achieved like so
 `content` > `destination` > `destination2`
 
 
-## New line split
-
-If a line of code is too long, you can split it and use a new line by prefixing it with `|` (pipe)
-```bash
-# Declare three Text variables
-aVariable Text
-anotherVariable Text
-someOtherVariable Text
-
-# Assign "Hello World" to all of them
-"Hello World" > aVariable > anotherVariable > someOtherVariable
-
-# The previous line can be split like so:
-"Hello World" > aVariable
-	| > anotherVariable
-	| > someOtherVariable
-```
-
-
-## Block return ???
-
-Each code block (scope) can yield a value by redirecting content without specifying the destination
-NOTE: instruction after the yield will be executed!
-
-???
-
 
 ## Functions
 
@@ -921,7 +952,7 @@ division(x Real, y Real) => Real {
 }
 
 intToBool(x Int) => Bool {
-	if x <= 0 {
+	if x <= 0 do {
 		false =>
 	}
 	true =>
@@ -948,16 +979,16 @@ Function parameters can also have default values
 ```bash
 # if num is not specified when calling the
 # function, num will be 10
-count(num Natural _< 10) {
-	for i in (0..$num) {
+count(num Natural _ 10) {
+	for i in (0..num) {
 		i >\
 	}
 }
 
 # if name is not specified when calling the function
 # its type default value will be used
-greet(name Text _<_ ){
-	if name = _ {
+greet(name Text __ ){
+	if name = _ do {
 		"Greetings everybody!" >\
 	} else {
 		"Hello $name" >\
@@ -970,7 +1001,7 @@ greet()
 greet("Simone")
 ```
 
-Functions parameters can be explicitly specified, so the order doesn't matter
+Functions parameters can be explicitly specified, so the order won't matter
 ```bash
 greet(name Text, age Natural) {
 	"My name is $name" >\
@@ -985,14 +1016,14 @@ greet(age:22, name:"Simone")
 Recursion can be used
 ```bash
 fibonacci(count Natural) => Natural {
-	if {count = 0} | {count = 1} {
+	if {count = 0} | {count = 1} do {
 		count =>
 	}
 	fibonacci(count - 1) + fibonacci(count - 2) =>
 }
 
 factorial(n Natural) {
-	if n = 0 {
+	if n = 0 do {
 		1 =>
 	}
 	n * factorial(n-1) =>
@@ -1065,13 +1096,16 @@ printShelfTableHTML(shelf List[Book]) {
 }
 
 toRowHTML(book Book) {
+
+	# the curly braces can be omitted
+	# I've used them only to accomodate the bash syntax highlighting
 	"""
 	<tr>
-		<td>$book.name</td>
-		<td>$book.description</td>
-		<td>$book.price</td>
-		<td>$book.pageCount</td>
-		<td>$book.author</td>
+		<td>${book.name}</td>
+		<td>${book.description}</td>
+		<td>${book.price}</td>
+		<td>${book.pageCount}</td>
+		<td>${book.author}</td>
 	</tr>
 	""" =>
 }
@@ -1081,7 +1115,7 @@ toRowHTML(book Book) {
 ("Simone" "Vicinanza" 22) > author1 Author
 ("Mario" "Rossi" 35) > author2 Author
 
-(
+[
 	(
 		"sLang for dummies"
 		"A book describing very easily the sLang"
@@ -1117,7 +1151,7 @@ toRowHTML(book Book) {
 		10.5
 		120
 	)
-) > shelf List[Book]
+] > shelf List[Book]
 
 printShelfStandard(shelf)
 printShelfTableHTML(shelf)
@@ -1129,22 +1163,32 @@ printShelfTableHTML(shelf)
 ```bash
 Node (
 	text Text
-	next Node _< null
+	next Node _ null
 )
 
+("This is the root"
+	("This is the second node"
+		("This is the third node")
+	)
+) > root Node
+
+#{
+	it could also be written like so
 (
-	"This is the root"
-	(
-		"This is the second node"
-		(
-			"This is the third node"
+	text:"This is the root"
+	node:(
+		text:"This is the second node"
+		node:(
+			text:"This is the third node"
 		)
 	)
 ) > root Node
 
+#}
+
 recursivePrintList(node Node) {
 	node.text >\
-	if node != null {
+	if node != null do {
 		recursivePrintList(node)
 	}
 }
