@@ -98,22 +98,22 @@ surname, loremIpsum Text  # Example of multiple declaration of type text
 
 # Text blocks. Spaces, new lines and tabs will be kept
 # Work like Java (https://docs.oracle.com/en/java/javase/13/text_blocks/index.html)
-"""
+"{
 Aut quod excepturi officia tempore.
 Quia non molestiae non aut.
 Sit quos saepe exercitationem dolor voluptatem.
 Et culpa voluptatem quos eligendi.
-""" > loremIpsum
+"} > loremIpsum
 
 # Initialization (declaration and assignment)
 420.50 > money Real
 "Alessio" > secondName Text
 
-"""
+"{
 This is my biography.
 Lol
 Pretty empty
-""" > biography Text
+"} > biography Text
 ```
 
 Assign variables to other variables is possible
@@ -159,10 +159,10 @@ getName() => Text {
 	"simonvic" =>
 }
 
-"""
+"{
 Hello world
 I'm am ${getName()}
-""" > someText Text
+"} > someText Text
 ```
 
 
@@ -657,7 +657,7 @@ if numbers = _ do {
 	# if list is equal to List default (empty list)
 }
 
-if numbers do {
+if numbers {
 	# if equal to a list of [1 2 3]
 	= [1 2 3] do {}
 	
@@ -954,11 +954,11 @@ Print to standard output
 "Hello world" > \out
 "Hello world" > \
 "I'm going to print the lorem ipsum" > \
-"""
+"{
 Qui odit molestias commodi omnis magni sunt. Et et et dolorem mollitia eum repellendus fuga qui. Numquam sint numquam sed delectus. Necessitatibus pariatur voluptatem ad ut eos in eos quo. Cupiditate et ut fuga. Aut enim aut amet non.
 
 Pariatur nam nobis placeat. Consequuntur laborum consequatur accusantium totam occaecati possimus illo repellat. In fuga earum ea modi ut perspiciatis iusto. Iste voluptate qui at. Eos eaque cumque quisquam non nemo tenetur quo fugit.
-""" > \
+"} > \
 ```
 
 
@@ -968,11 +968,11 @@ Print to standard error
 ```bash
 "Some error happened" > \error
 "I'm going to print some details:" > \error
-"""
+"{
 This program has crashed
 because you tried to perform a
 division by zero.
-""" > \error
+"} > \error
 ```
 
 Multiple redirection can be achieved like so
@@ -1113,7 +1113,7 @@ Book (
 
 printShelfStandard(shelf List[Book]) {
 	for book in shelf {
-		"""
+		"{
 		Title:        $book.title
 		Description:  $book.description 
 		Price:        $book.price
@@ -1122,13 +1122,13 @@ printShelfStandard(shelf List[Book]) {
 			Name:       $book.author.name
 			Surname:    $book.author.surname
 			Age:        $book.author.age
-		""" >\
+		"} >\
 	}
 }
 
 printShelfTableHTML(shelf List[Book]) {
 	table Text
-	"""
+	"{
 	<table>
 		<thead>
 			<tr>
@@ -1140,18 +1140,18 @@ printShelfTableHTML(shelf List[Book]) {
 			</tr>
 		</thead>
 	<tbody>
-	""" > table
+	"} > table
 
 	for book in shelf {
-		"""
+		"{
 		${toRowHTML(book)}
-		""" >+ table
+		"} >+ table
 	}
 
-	"""
+	"{
 		</tbody>
 	</table>
-	""" >+ table
+	"} >+ table
 
 	table >\
 }
@@ -1160,7 +1160,7 @@ toRowHTML(book Book) {
 
 	# the curly braces can be omitted
 	# I've used them only to accomodate the bash syntax highlighting
-	"""
+	"{
 	<tr>
 		<td>${book.name}</td>
 		<td>${book.description}</td>
@@ -1168,7 +1168,7 @@ toRowHTML(book Book) {
 		<td>${book.pageCount}</td>
 		<td>${book.author}</td>
 	</tr>
-	""" =>
+	"} =>
 }
 
 
@@ -1186,21 +1186,21 @@ toRowHTML(book Book) {
 	)
 	(
 		"How to make a new Language"
-		"""
+		"{
 		A step by step guide on how to build a new language from scratch
 		It even has pictures!!!
-		"""
+		"}
 		author2
 		6.9
 		420
 	)
 	(
 		"How to make a new Language | 2 edition"
-		"""
+		"{
 		A step by step guide on how to build a new language from scratch
 		It even has pictures!!!
 		Revisioned edition
-		"""
+		"}
 		author2
 		4.2
 		690
