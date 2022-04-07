@@ -165,6 +165,13 @@ I'm am ${getName()}
 "} > someText Text
 ```
 
+If you don't want variables/code to be interpteted, use single quotes (`'`) strings/text block
+```bash
+'{
+Hello,
+I have $69
+'}
+```
 
 ## Variable naming rules
 
@@ -267,6 +274,29 @@ Person : (
 	red
 	Car : ("Ferrari" red)
 ) > me Person
+```
+
+Struct functions ???
+```bash
+Vehicle (
+	speedKmH Int
+	
+	accelerate(amount Int) {
+		amount >+ speed
+	}
+	
+	brake() {
+		1 >- speed
+	}
+
+	speedToMilesPerHour() => Int{
+		speed / 1.6093 =>
+	}
+)
+
+car.accelerate(10)
+"${car.speed} KMH" >\
+"${car.speedToMilesPerHour()} MPH" >\
 ```
 
 ### Constants
@@ -639,7 +669,7 @@ letters[-12] secondToLastElement Text
 
 
 # List length
-coordinates[#] > coordinatesCount Int
+coordinates[%] > coordinatesCount Int
 
 # List indeces
 coordinates[@] > indeces List[Natural] # Useful when iterating Lists with the indeces
@@ -665,10 +695,10 @@ if numbers {
 	= [1 2 3 4] | = [4 5 6 7] do {}
 	
 	# if equal to a list of [1 2 3 4] or elements count equal to 10
-	= [1 2 3 4] | numbers[#] = 10 do {}
+	= [1 2 3 4] | numbers[%] = 10 do {}
 	
 	# if empty list or elements count less then 3
-	= _ | numbers[#] < 3 do {}
+	= _ | numbers[%] < 3 do {}
 	
 	# if empty list and first element equal to 6
 	= _ & numbers[0] = 6 do {}
@@ -772,7 +802,7 @@ Accessing values
 carCount["BMW"] > bmwCount Int     # Get value of key "BMW"
 
 # Special characters
-carCount[#] > entriesCount Int     # Get count of key/value pairs
+carCount[%] > entriesCount Int     # Get count of key/value pairs
 carCount[@] > keys List[Text]      # Get all keys
 carCount[*] > values List[Int]     # Get all values
 ```
@@ -912,7 +942,7 @@ for name in names {}
 for i in [0..10] {}
 
 # Iterating list over indeces
-for i in [0..names[#]] {}
+for i in [0..names[%]] {}
 
 # Iterating over list of struct
 [(0 255 0) (55 0 255) (255 255 255)] > colors List[Color]
