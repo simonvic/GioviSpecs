@@ -1,4 +1,4 @@
-# sLang
+# Giovi
 
 The idea is to make a data-centric, typed scripting language, easy to read but most importantly easy to learn for new programmers
 
@@ -306,7 +306,7 @@ Constants are readonly, its value is defined at declaration
 # constant <VARIABLE_NAME> <type> <value>
 constant LIGHT_SPEED Natural 299792458
 constant EARTH_GRAVITY Real 9.81
-constant BEST_LANGUAGE Text "sLang"
+constant BEST_LANGUAGE Text "Giovi"
 constant ORIGIN Vector (0 0 0)
 
 constant RED Color (
@@ -1031,7 +1031,7 @@ greetPerson(name Text, surname Text) {
 }
 
 getBestLanguage() => Text {
-	"sLang" =>
+	"Giovi" =>
 }
 
 sum(x Int, y Int) => Int {
@@ -1208,8 +1208,8 @@ toRowHTML(book Book) {
 
 [
 	(
-		"sLang for dummies"
-		"A book describing very easily the sLang"
+		"Giovi for dummies"
+		"A book describing very easily the Giovi"
 		author1
 		0.0
 		69
