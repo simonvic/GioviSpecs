@@ -27,7 +27,7 @@ statement
 	;
 
 structDefinition
-	: identifier '(' (
+	: (identifier ':')? identifier '(' (
 		structAttributeDefinition
 		| nestedStructDefinition
 	)+ ')'
@@ -36,6 +36,10 @@ structDefinition
 nestedStructDefinition: identifier structDefinition;
 
 structAttributeDefinition: identifier type defaultDefinition?;
+
+structCreation: '(' structAttribute+ ')';
+
+structAttribute: ((identifier ':')? expression);
 
 functionDeclaration
 	: identifier '(' formalParameters? ')' (RETURN type)? block
@@ -49,7 +53,13 @@ formalParameterDefinition: identifier type defaultDefinition?;
 
 defaultDefinition: defaultLiteral literal;
 
-functionCall: identifier '(' expressionList? ')';
+functionCall: identifier '(' functionParameterList? ')';
+
+functionParameterList
+	: functionParameter (',' functionParameter)?
+	;
+
+functionParameter: (identifier ':')? expression;
 
 ifStatement
 	: IF conditionalExpression DO block (ELSE block)?
@@ -88,6 +98,7 @@ expressionList: expression (',' expression)*;
 
 expression
 	: primary
+	| structCreation
 	| expression bop = '.' (identifier | functionCall)
 	| functionCall
 	| prefix = ('+' | '-') expression
