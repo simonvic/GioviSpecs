@@ -251,7 +251,7 @@ me.name > myName Text
 me.favoriteColor > myFavoriteColor Color
 ```
 
-Specific attribute ???
+Specific attribute @candidate
 
 ```bash
 (	age: 22
@@ -264,7 +264,7 @@ Specific attribute ???
 ) > me Person
 ```
 
-Specific struct type ???
+Specific struct type @candidate
 ```bash
 Color : (255 255 255)
 
@@ -276,7 +276,7 @@ Person : (
 ) > me Person
 ```
 
-Struct functions ???
+Struct functions @candidate
 ```bash
 Vehicle (
 	speedKmH Int
@@ -412,7 +412,7 @@ Person.favoriteColor > defaultFavoriteColor Color # defaultFavoriteColor will be
 ```
 
 
-### Structs inheritance ???
+### Structs inheritance @candidate
 
 ```bash
 Vehicle (
@@ -590,6 +590,24 @@ if myFullName do {
 ## List
 
 A list is a collection of variables that can be accessed via the index. The indexes are 0-based
+
+### Operators
+
+| Operation         | Symbol | Example        |
+| ----------------- | ------ | -------------- |
+| Assignment        | >      | [1 2 3] > list |
+| Insert            | >+     | 4 >+ list      |
+| Remove @candidate | >-     | 4 >- list      |
+
+#### Relational
+
+| Operation               | Symbol | Example              |
+| ----------------------- | ------ | -------------------- |
+| Equal                   | =      | if [1 2 3] = [1 2 3] |
+| Contains     @candidate | =~     | if list =~ 2         |
+| Is contained @candidate | ~=     | if 2 =~ list         |
+
+
 ```bash
 # Declaration
 # NOTE: Default value is an empty list
@@ -702,6 +720,9 @@ if numbers {
 	
 	# if empty list and first element equal to 6
 	= _ & numbers[0] = 6 do {}
+
+	# if contains 69
+	=~ 69 do {}
 	
 }
 ```
@@ -835,7 +856,7 @@ for money in bank[*] {
 
 
 
-## Implicit collection declaration ???
+## Implicit collection declaration @candidate
 
 ```bash
 [1.0 0.5 2.5] > listOfReal []                  # List of Real (List[Real])
