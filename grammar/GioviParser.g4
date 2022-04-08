@@ -100,6 +100,7 @@ expression
 	: primary
 	| structCreation
 	| listCreation
+	| listAccess
 	| expression bop = '.' (identifier | functionCall)
 	| functionCall
 	| prefix = ('+' | '-') expression
@@ -158,7 +159,13 @@ primitiveStructType: list | map;
 list:	TYPE_LIST '[' type ']';
 map:	TYPE_MAP '[' type type ']';
 
-listCreation: '[' expression* ']';
+listCreation: '[' (expression* | sequence*) ']';
+
+listAccess: identifier '[' listAccessor ']';
+
+listAccessor: '%' | '@' | expression;
+
+sequence: expression '..' expression ('..' expression)?;
 
 primitiveType
 	: TYPE_INT
