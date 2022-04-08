@@ -1092,7 +1092,7 @@ Function parameters can also have default values
 # if num is not specified when calling the
 # function, num will be 10
 count(num Natural _ 10) {
-	for i in (0..num) {
+	for i in [0..num] {
 		i >\
 	}
 }
