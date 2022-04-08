@@ -68,7 +68,7 @@ INTEGER_LITERAL:	[+-]? DecimalIntegerLiteral;
 NATURAL_LITERAL:	'+'? DecimalIntegerLiteral;
 
 REAL_LITERAL:							DecimalFloatingPointLiteral;
-fragment DecimalFloatingPointLiteral:	Digit '.' Digit+;
+fragment DecimalFloatingPointLiteral:	Digit+ '.' Digit+;
 
 BOOL_LITERAL: 'true' | 'false';
 

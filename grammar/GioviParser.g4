@@ -99,6 +99,7 @@ expressionList: expression (',' expression)*;
 expression
 	: primary
 	| structCreation
+	| listCreation
 	| expression bop = '.' (identifier | functionCall)
 	| functionCall
 	| prefix = ('+' | '-') expression
@@ -150,22 +151,21 @@ identifier: IDENTIFIER;
 
 type: ( structType | primitiveType);
 
+structType: primitiveStructType | identifier;
+
+primitiveStructType: list | map;
+
+list:	TYPE_LIST '[' type ']';
+map:	TYPE_MAP '[' type type ']';
+
+listCreation: '[' expression* ']';
+
 primitiveType
 	: TYPE_INT
 	| TYPE_NATURAL
 	| TYPE_BOOL
 	| TYPE_REAL
 	| TYPE_TEXT
-	;
-
-structType: primitiveStructType | identifier;
-
-primitiveStructType: list | map;
-
-list: TYPE_LIST BRACKET_SQUARE_OPEN type BRACKET_SQUARE_CLOSE;
-
-map
-	: TYPE_MAP BRACKET_SQUARE_OPEN type type BRACKET_SQUARE_CLOSE
 	;
 
 literal
