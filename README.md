@@ -795,16 +795,16 @@ A set is an unordered collections in which duplicates element are not allowed
 A map contains values on the basis of key, i.e. key and value pair. Each key and value pair is known as an entry. A Map contains unique keys.
 
 ```bash
-carCount Map[Text Int]
+carCount Map[Text : Int]
 
-[ "Audi" 1 ] >+ carCount    # Insert new key "Audi"
-[ "Audi" 5 ] >+ carCount    # Set "Audi" key value to 5
+[ "Audi" : 1 ] >+ carCount    # Insert new key "Audi"
+[ "Audi" : 5 ] >+ carCount    # Set "Audi" key value to 5
 
 [                          # Insert/Set new key value pair
-	"Mercedes" 10
-	"Audi"     7
-	"BMW"      15
-	"Ferrari"  20
+	"Mercedes" : 10
+	"Audi" : 7
+	"BMW" : 15
+	"Ferrari" : 20
 ] >+ carCount
 
 26 > carCount["Ferrari"]  # Set "Ferrari" value to 26
@@ -813,7 +813,7 @@ carCount Map[Text Int]
 Default values can be used
 
 ```bash
-[ "Fiat" _ ] >+ carCount
+[ "Fiat" : _ ] >+ carCount
 _ > carCount["Fiat"]
 ```
 
@@ -831,11 +831,11 @@ carCount[*] > values List[Int]     # Get all values
 Examples
 
 ```bash
-bank Map[Text Real]
+bank Map[Text : Real]
 [
-	"Simone" 69.0
-	"Alessio" 15.50
-	"Francesco" 125.15
+	"Simone" : 69.0
+	"Alessio" : 15.50
+	"Francesco" : 125.15
 ] > bank
 
 for name money in bank {
@@ -866,7 +866,7 @@ for money in bank[*] {
 ["Simone" "Luca" "Paolo"] > listOfText []      # List of Text (List[Text])
 matrix [[Real]]                                # Matrix of Real
 rubikCube [[[Color]]]                          # Cube of Color
-carCount [Text Int]                            # Map of Text and Int (Map[Text Int])
+carCount [Text : Int]                          # Map of Text and Int (Map[Text : Int])
 ```
 
 ## Sequence operator

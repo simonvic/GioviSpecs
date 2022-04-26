@@ -4,13 +4,16 @@ parser grammar GioviParser
 options {
 	tokenVocab = GioviLexer;
 }
+
 /*
  @header { package it.simonvic.giovi; }
- */
+*/
 
 begin: program EOF;
 
 program: statement*;
+
+block: '{' program '}';
 
 statement
 	: ifStatement
@@ -22,15 +25,44 @@ statement
 	| redirection
 	| expression
 	| structDefinition
+	| constantDeclaration
 	| varDeclaration
 	| functionDeclaration
 	;
 
+repeatStatement: REPEAT (IF conditionalExpression)? block;
+
+forStatement: FOR identifier IN expression block;
+
+returnStatement: (expression | conditionalExpression)? RETURN;
+
+breakStatement: BREAK;
+
+continueStatement: CONTINUE;
+
+redirection
+	: (expression | parenthesizedConditionalExpression) bop = BRACKET_ANGULAR_CLOSE destinations
+	| expression bop =
+	(
+		REDIRECTION_DIVISION
+		| REDIRECTION_MULTIPLICATION
+		| REDIRECTION_PLUS
+		| REDIRECTION_MINUS
+	) identifier
+	;
+
+
+constantDeclaration: CONSTANT identifier type expression;
+
+varDeclaration: identifier type;
+
+defaultDefinition: defaultLiteral expression;
+
+////////////////////////////////////////////////
+// STRUCT
+
 structDefinition
-	: (identifier ':')? identifier '(' (
-		structAttributeDefinition
-		| nestedStructDefinition
-	)+ ')'
+	: (identifier ':')? identifier '(' (structAttributeDefinition | nestedStructDefinition)+ ')'
 	;
 
 nestedStructDefinition: identifier structDefinition;
@@ -39,42 +71,34 @@ structAttributeDefinition: identifier type defaultDefinition?;
 
 structCreation: '(' structAttribute+ ')';
 
-structAttribute: ((identifier ':')? expression);
+structAttribute: (identifier ':')? expression;
 
-functionDeclaration
-	: identifier '(' formalParameters? ')' (RETURN type)? block
-	;
 
-formalParameters
-	: formalParameterDefinition (',' formalParameterDefinition)?
-	;
+////////////////////////////////////////////////
+// FUNCTIONS
+
+functionDeclaration: identifier '(' formalParameters? ')' (RETURN type)? block;
+
+formalParameters: formalParameterDefinition (',' formalParameterDefinition)*;
 
 formalParameterDefinition: identifier type defaultDefinition?;
 
-defaultDefinition: defaultLiteral literal;
-
 functionCall: identifier '(' functionParameterList? ')';
 
-functionParameterList
-	: functionParameter (',' functionParameter)?
-	;
+functionParameterList: functionParameter (',' functionParameter)?;
 
 functionParameter: (identifier ':')? expression;
+
+
+////////////////////////////////////////////////
+// FLOW CONTROL
 
 ifStatement
 	: IF conditionalExpression DO block (ELSE block)?
 	| IF expression switchBlock (ELSE block)?
 	;
 
-repeatStatement: REPEAT (IF conditionalExpression)? block;
-
-forStatement: FOR identifier IN expression block;
-
 switchBlock: '{' switchLabel+ '}';
-
-returnStatement:	(expression | conditionalExpression) RETURN;
-breakStatement:		BREAK;
-continueStatement:	CONTINUE;
 
 switchLabel: caseMatch DO block;
 
@@ -86,23 +110,23 @@ caseMatch
 	| op = ('=' | '!=') expression
 	| op = '~=' expression
 	| op = '=~' expression
-	| caseMatch bop = ('&' | '|') (
-		caseMatch
-		| conditionalExpression
-	)
+	| caseMatch bop = ('&' | '|') (caseMatch | conditionalExpression)
 	;
 
-block: '{' program '}';
+
+////////////////////////////////////////////////
+// EXPRESSIONS
 
 expressionList: expression (',' expression)*;
 
 expression
 	: primary
-	| structCreation
-	| listCreation
-	| listAccess
-	| expression bop = '.' (identifier | functionCall)
 	| functionCall
+	| collectionAccess
+	| listCreation
+	| mapCreation
+	| structCreation
+	| expression bop = '.' (identifier | functionCall)
 	| prefix = ('+' | '-') expression
 	| prefix = ('~' | '!') expression
 	| expression bop = '^' expression
@@ -126,46 +150,82 @@ conditionalExpression
 	| expression
 	;
 
-parenthesizedConditionalExpression
-	: '{' conditionalExpression '}'
-	;
-
-redirection
-	: (expression | parenthesizedConditionalExpression) BRACKET_ANGULAR_CLOSE varDeclaration
-	| (expression | parenthesizedConditionalExpression) BRACKET_ANGULAR_CLOSE destinations
-	| expression REDIRECTION_DIVISION identifier
-	| expression REDIRECTION_MULTIPLICATION identifier
-	| expression REDIRECTION_PLUS identifier
-	| expression REDIRECTION_MINUS identifier
-	;
-
-destinations: identifier | primitiveDestination;
-
-primitiveDestination: stdout | stderr;
-
-stdout:	(DEST_STDOUT | BACKSLASH);
-stderr:	DEST_STDERR;
-
-varDeclaration: identifier type;
-
-identifier: IDENTIFIER;
-
-type: ( structType | primitiveType);
-
-structType: primitiveStructType | identifier;
-
-primitiveStructType: list | map;
-
-list:	TYPE_LIST '[' type ']';
-map:	TYPE_MAP '[' type type ']';
-
-listCreation: '[' (expression* | sequence*) ']';
-
-listAccess: identifier '[' listAccessor ']';
-
-listAccessor: '%' | '@' | expression;
+parenthesizedConditionalExpression: '{' conditionalExpression '}';
 
 sequence: expression '..' expression ('..' expression)?;
+
+////////////////////////////////////////////////
+// DESTINATIONS
+
+destinations
+	: varDeclaration
+	| identifier
+	| primitiveDestination
+	;
+
+primitiveDestination
+	: stdout
+	| stderr
+	;
+
+stdout: (DEST_STDOUT | BACKSLASH);
+
+stderr: DEST_STDERR;
+
+
+
+type: (structType | primitiveType);
+
+structType
+	: primitiveStructType
+	| identifier
+	;
+
+primitiveStructType
+	: list
+	| map
+	;
+
+
+////////////////////////////////////////////////
+// COLLECTIONS
+
+collectionAccess: identifier '[' collectionAccessor ']';
+collectionAccessor
+	: listAccessor
+	| mapAccessor
+	;
+
+
+list: TYPE_LIST '[' type ']';
+listCreation: '[' listEntries ']';
+listEntries: listEntry*;
+listEntry
+	: expression
+	| sequence
+	;
+listAccessor
+	: '%'
+	| '@'
+	| expression
+	;
+
+
+map: TYPE_MAP '[' type ':' type ']';
+mapCreation: '[' mapEntries ']';
+mapEntries: mapEntry* ;
+mapEntry: expression ':' expression;
+mapAccessor
+	: '%'
+	| '@'
+	| '*'
+	| expression
+	;
+
+
+
+////////////////////////////////////////////////
+// TYPES
 
 primitiveType
 	: TYPE_INT
@@ -189,13 +249,14 @@ literal
 	| defaultLiteral
 	;
 
-integerLiteral:			INTEGER_LITERAL;
-naturalLiteral:			NATURAL_LITERAL;
-realLiteral:			REAL_LITERAL;
-boolLiteral:			BOOL_LITERAL;
-textBlockLiteral:		TEXT_BLOCK_LITERAL;
-textLiteral:			TEXT_LITERAL;
-exactTextBlockLiteral:	EXACT_TEXT_BLOCK_LITERAL;
-exactTextLiteral:		EXACT_TEXT_LITERAL;
-nullLiteral:			NULL;
-defaultLiteral:			UNDERSCORE;
+identifier: IDENTIFIER;
+integerLiteral: INTEGER_LITERAL;
+naturalLiteral: NATURAL_LITERAL;
+realLiteral: REAL_LITERAL;
+boolLiteral: BOOL_LITERAL;
+textBlockLiteral: TEXT_BLOCK_LITERAL;
+textLiteral: TEXT_LITERAL;
+exactTextBlockLiteral: EXACT_TEXT_BLOCK_LITERAL;
+exactTextLiteral: EXACT_TEXT_LITERAL;
+nullLiteral: NULL;
+defaultLiteral: UNDERSCORE;

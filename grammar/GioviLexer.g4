@@ -82,12 +82,13 @@ EXACT_TEXT_BLOCK_LITERAL
 	;
 EXACT_TEXT_LITERAL: '\'' (~['\\\r\n] | EscapeSequence)* '\'';
 
-IDENTIFIER: Letter LetterOrDigit*;
+IDENTIFIER: Letter LetterOrDigitOrUnderscore*;
 
 fragment EscapeSequence
 	: '\\' [btnfr"'\\]
 	| '\\' ([0-3]? [0-7])? [0-7]
 	| '\\' 'u'+ HexDigit HexDigit HexDigit HexDigit
+	| '\\$'
 	;
 fragment HexDigit:				[0-9a-fA-F];
 fragment DecimalIntegerLiteral:	DecimalNumeral;
@@ -95,6 +96,7 @@ fragment DecimalNumeral:		Digit+;
 fragment Digit:					[0-9];
 fragment Letter:				[a-zA-Z];
 fragment LetterOrDigit:			Letter | Digit;
+fragment LetterOrDigitOrUnderscore:			LetterOrDigit | '_';
 
 DEST_STDOUT:	'\\out';
 DEST_STDERR:	'\\error';
