@@ -1,5 +1,4 @@
-parser grammar GioviParser
-	;
+parser grammar GioviParser;
 
 options {
 	tokenVocab = GioviLexer;
@@ -13,10 +12,11 @@ begin: program EOF;
 
 program: statement*;
 
-block: '{' program '}';
+block: '{' statement* '}';
 
 statement
 	: ifStatement
+	| switchStatement
 	| repeatStatement
 	| forStatement
 	| returnStatement
@@ -30,27 +30,27 @@ statement
 	| functionDeclaration
 	;
 
-repeatStatement: REPEAT (IF conditionalExpression)? block;
+repeatStatement: REPEAT (IF expression)? block;
 
 forStatement: FOR identifier IN expression block;
 
-returnStatement: (expression | conditionalExpression)? RETURN;
+returnStatement: expression? RETURN;
 
 breakStatement: BREAK;
 
 continueStatement: CONTINUE;
 
 redirection
-	: (expression | parenthesizedConditionalExpression) bop = BRACKET_ANGULAR_CLOSE destinations
-	| expression bop =
-	(
-		REDIRECTION_DIVISION
-		| REDIRECTION_MULTIPLICATION
-		| REDIRECTION_PLUS
-		| REDIRECTION_MINUS
-	) identifier
+	: expression bop = '>' varDeclaration         #redirectionToVarDeclaration
+	| expression bop = '>' primitiveDestination   #redirectionToPrimitiveDestination
+	| expression bop = (
+			'>'
+			| REDIRECTION_DIVISION
+			| REDIRECTION_MULTIPLICATION
+			| REDIRECTION_PLUS
+			| REDIRECTION_MINUS
+		) identifier                              #redirectionToIdentifier
 	;
-
 
 constantDeclaration: CONSTANT identifier type expression;
 
@@ -62,14 +62,14 @@ defaultDefinition: defaultLiteral expression;
 // STRUCT
 
 structDefinition
-	: (identifier ':')? identifier '(' (structAttributeDefinition | nestedStructDefinition)+ ')'
+	: (parentName=identifier ':')? structName=identifier '(' (structAttributeDefinition | nestedStructDefinition)+ ')'
 	;
 
 nestedStructDefinition: identifier structDefinition;
 
 structAttributeDefinition: identifier type defaultDefinition?;
 
-structCreation: '(' structAttribute+ ')';
+structCreation: (identifier ':')? '(' structAttribute+ ')';
 
 structAttribute: (identifier ':')? expression;
 
@@ -93,10 +93,9 @@ functionParameter: (identifier ':')? expression;
 ////////////////////////////////////////////////
 // FLOW CONTROL
 
-ifStatement
-	: IF conditionalExpression DO block (ELSE block)?
-	| IF expression switchBlock (ELSE block)?
-	;
+ifStatement: IF expression DO ifBlock=block (ELSE elseBlock=block)? ;
+	
+switchStatement: IF expression switchBlock (ELSE block)? ;
 
 switchBlock: '{' switchLabel+ '}';
 
@@ -105,63 +104,45 @@ switchLabel: caseMatch DO block;
 caseMatch
 	: '{' caseMatch '}'
 	| op = ('<=' | '>=' | '>' | '<') expression
-	| op = '&' conditionalExpression
-	| op = '|' conditionalExpression
+	| op = '&' expression
+	| op = '|' expression
 	| op = ('=' | '!=') expression
-	| op = '~=' expression
-	| op = '=~' expression
-	| caseMatch bop = ('&' | '|') (caseMatch | conditionalExpression)
+	| op = ('~=' | '=~') expression
+	| caseMatch bop = ('&' | '|') (caseMatch | expression)
 	;
 
 
 ////////////////////////////////////////////////
 // EXPRESSIONS
 
-expressionList: expression (',' expression)*;
+//expressionList: expression (',' expression)*;
 
 expression
-	: primary
-	| functionCall
-	| collectionAccess
-	| listCreation
-	| mapCreation
-	| structCreation
-	| expression bop = '.' (identifier | functionCall)
-	| prefix = ('+' | '-') expression
-	| prefix = ('~' | '!') expression
-	| expression bop = '^' expression
-	| expression bop = ('*' | '/' | '%') expression
-	| expression bop = ('+' | '-') expression
+	: primary                                                #primaryExpression
+	| '{' expression '}'                                     #parenthesizedExpression
+	| expression bop = '.' (identifier | functionCall)       #dotExpression
+	| collectionAccess                                       #collectionAccessExpression
+	| listCreation                                           #listCreationExpression
+	| mapCreation                                            #mapCreationExpression
+	| structCreation                                         #structCreationExpression
+	| functionCall                                           #functionCallExpression
+	| prefix = ('+' | '-') expression                        #prefixedExpression
+	| prefix = '!' expression                                #notExpression
+	| expression bop = '^' expression                        #powerExpression
+	| expression bop = ('*' | '/' | '%') expression          #multiplicativeExpression
+	| expression bop = ('+' | '-') expression                #additiveExpression
+	| expression bop = ('<=' | '>=' | '>' | '<') expression  #relationalExpression
+	| expression bop = ('=' | '!=') expression               #equalityExpression
+	| expression bop = ('~=' | '=~') expression              #containmentExpression
+	| expression bop = ('&' | '|' ) expression               #boolExpression
 	;
 
-primary: parenthesizedExpression | literal | identifier;
+primary: literal | identifier;
 
-parenthesizedExpression: '{' expression '}';
-
-conditionalExpression
-	: parenthesizedConditionalExpression
-	| expression bop = ('<=' | '>=' | '>' | '<') expression
-	| conditionalExpression bop = '&' conditionalExpression
-	| conditionalExpression bop = '|' conditionalExpression
-	| conditionalExpression bop = ('=' | '!=') conditionalExpression
-	| expression bop = ('=' | '!=') expression
-	| expression bop = '~=' expression
-	| expression bop = '=~' expression
-	| expression
-	;
-
-parenthesizedConditionalExpression: '{' conditionalExpression '}';
-
-sequence: expression '..' expression ('..' expression)?;
+sequence: start=expression '..' end=expression ('..' step=expression)?;
 
 ////////////////////////////////////////////////
 // DESTINATIONS
-
-destinations
-	: varDeclaration
-	| identifier
-	| primitiveDestination
-	;
 
 primitiveDestination
 	: stdout
@@ -211,10 +192,10 @@ listAccessor
 	;
 
 
-map: TYPE_MAP '[' type ':' type ']';
+map: TYPE_MAP '[' mapKeyType=type ':' mapValueType=type ']';
 mapCreation: '[' mapEntries ']';
 mapEntries: mapEntry* ;
-mapEntry: expression ':' expression;
+mapEntry: mapKey=expression ':' mapValue=expression;
 mapAccessor
 	: '%'
 	| '@'

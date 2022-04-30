@@ -64,23 +64,19 @@ WS:				[ \t\r\n\u000C]+ -> skip;
 COMMENT:		'#' ~[\r\n]* -> skip;
 COMMENT_BLOCK:	'#{' .*? '#}' -> skip;
 
-INTEGER_LITERAL:	[+-]? DecimalIntegerLiteral;
-NATURAL_LITERAL:	'+'? DecimalIntegerLiteral;
+INTEGER_LITERAL:	DecimalIntegerLiteral;
+NATURAL_LITERAL:	DecimalIntegerLiteral;
 
 REAL_LITERAL:							DecimalFloatingPointLiteral;
 fragment DecimalFloatingPointLiteral:	Digit+ '.' Digit+;
 
 BOOL_LITERAL: 'true' | 'false';
 
-TEXT_BLOCK_LITERAL
-	: '"{' [ \t]* [\r\n]* (. | EscapeSequence)*? '"}'
-	;
-TEXT_LITERAL: '"' (~["\\\r\n] | EscapeSequence)* '"';
+TEXT_BLOCK_LITERAL:	'"{' [ \t]* [\r\n]* (. | EscapeSequence)*? '"}';
+TEXT_LITERAL:		'"' (~["\\\r\n] | EscapeSequence)* '"';
 
-EXACT_TEXT_BLOCK_LITERAL
-	: '\'{' [ \t]* [\r\n]* (. | EscapeSequence)*? '\'}'
-	;
-EXACT_TEXT_LITERAL: '\'' (~['\\\r\n] | EscapeSequence)* '\'';
+EXACT_TEXT_BLOCK_LITERAL:	'\'{' [ \t]* [\r\n]* (. | EscapeSequence)*? '\'}';
+EXACT_TEXT_LITERAL:			'\'' (~['\\\r\n] | EscapeSequence)* '\'';
 
 IDENTIFIER: Letter LetterOrDigitOrUnderscore*;
 
@@ -90,13 +86,13 @@ fragment EscapeSequence
 	| '\\' 'u'+ HexDigit HexDigit HexDigit HexDigit
 	| '\\$'
 	;
-fragment HexDigit:				[0-9a-fA-F];
-fragment DecimalIntegerLiteral:	DecimalNumeral;
-fragment DecimalNumeral:		Digit+;
-fragment Digit:					[0-9];
-fragment Letter:				[a-zA-Z];
-fragment LetterOrDigit:			Letter | Digit;
-fragment LetterOrDigitOrUnderscore:			LetterOrDigit | '_';
+fragment HexDigit:					[0-9a-fA-F];
+fragment DecimalIntegerLiteral:		DecimalNumeral;
+fragment DecimalNumeral:			Digit+;
+fragment Digit:						[0-9];
+fragment Letter:					[a-zA-Z];
+fragment LetterOrDigit:				Letter | Digit;
+fragment LetterOrDigitOrUnderscore:	LetterOrDigit | '_';
 
 DEST_STDOUT:	'\\out';
 DEST_STDERR:	'\\error';
