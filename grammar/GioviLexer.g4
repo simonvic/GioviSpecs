@@ -1,5 +1,4 @@
-lexer grammar GioviLexer
-	;
+lexer grammar GioviLexer;
 
 PLUS:						'+';
 MINUS:						'-';
@@ -48,15 +47,6 @@ BREAK:		'break';
 CONTINUE:	'continue';
 CONSTANT:	'constant';
 
-TYPE_NATURAL:	'Natural';
-TYPE_INT:		'Int';
-TYPE_REAL:		'Real';
-TYPE_BOOL:		'Bool';
-TYPE_TEXT:		'Text';
-
-TYPE_LIST:	'List';
-TYPE_MAP:	'Map';
-
 NULL:	'null';
 RETURN:	'=>';
 
@@ -93,6 +83,3 @@ fragment Digit:						[0-9];
 fragment Letter:					[a-zA-Z];
 fragment LetterOrDigit:				Letter | Digit;
 fragment LetterOrDigitOrUnderscore:	LetterOrDigit | '_';
-
-DEST_STDOUT:	'\\out';
-DEST_STDERR:	'\\error';

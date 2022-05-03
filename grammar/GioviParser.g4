@@ -23,16 +23,16 @@ statement
 	| breakStatement
 	| continueStatement
 	| redirection
-	| expression
 	| structDefinition
 	| constantDeclaration
 	| varDeclaration
 	| functionDeclaration
+	| expression
 	;
 
 repeatStatement: REPEAT (IF expression)? block;
 
-forStatement: FOR identifier IN expression block;
+forStatement: FOR identifier+ IN collection=expression DO block;
 
 returnStatement: expression? RETURN;
 
@@ -141,28 +141,16 @@ primary: literal | identifier;
 
 sequence: start=expression '..' end=expression ('..' step=expression)?;
 
-////////////////////////////////////////////////
-// DESTINATIONS
 
-primitiveDestination
-	: stdout
-	| stderr
-	;
-
-stdout: (DEST_STDOUT | BACKSLASH);
-
-stderr: DEST_STDERR;
+primitiveDestination: '\\' identifier?;
 
 
-
-type: (structType | primitiveType);
-
-structType
-	: primitiveStructType
+type
+	: collectionType
 	| identifier
 	;
 
-primitiveStructType
+collectionType
 	: list
 	| map
 	;
@@ -178,7 +166,7 @@ collectionAccessor
 	;
 
 
-list: TYPE_LIST '[' type ']';
+list: '[' type ']';
 listCreation: '[' listEntries ']';
 listEntries: listEntry*;
 listEntry
@@ -192,7 +180,7 @@ listAccessor
 	;
 
 
-map: TYPE_MAP '[' mapKeyType=type ':' mapValueType=type ']';
+map: '[' mapKeyType=type ':' mapValueType=type ']';
 mapCreation: '[' mapEntries ']';
 mapEntries: mapEntry* ;
 mapEntry: mapKey=expression ':' mapValue=expression;
@@ -207,14 +195,6 @@ mapAccessor
 
 ////////////////////////////////////////////////
 // TYPES
-
-primitiveType
-	: TYPE_INT
-	| TYPE_NATURAL
-	| TYPE_BOOL
-	| TYPE_REAL
-	| TYPE_TEXT
-	;
 
 literal
 	: integerLiteral
