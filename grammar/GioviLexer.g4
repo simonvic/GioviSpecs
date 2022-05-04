@@ -34,6 +34,7 @@ COMMA:						',';
 UNDERSCORE:					'_';
 BACKSLASH:					'\\';
 COLON:						':';
+SEMICOLON:					';';
 HASHTAG:					'#';
 AT:							'@';
 

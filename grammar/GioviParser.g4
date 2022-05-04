@@ -93,22 +93,21 @@ functionParameter: (identifier ':')? expression;
 ////////////////////////////////////////////////
 // FLOW CONTROL
 
-ifStatement: IF expression DO ifBlock=block (ELSE elseBlock=block)? ;
+ifStatement: IF expression DO ifBody=block (ELSE elseBody=block)? ;
 	
-switchStatement: IF expression switchBlock (ELSE block)? ;
+switchStatement: IF expression switchBlock (ELSE elseBody=block)? ;
 
 switchBlock: '{' switchLabel+ '}';
 
 switchLabel: caseMatch DO block;
 
 caseMatch
-	: '{' caseMatch '}'
-	| op = ('<=' | '>=' | '>' | '<') expression
-	| op = '&' expression
-	| op = '|' expression
-	| op = ('=' | '!=') expression
-	| op = ('~=' | '=~') expression
-	| caseMatch bop = ('&' | '|') (caseMatch | expression)
+	: '{' caseMatch '}'                                     #parenthesizedCaseMatch
+	| op = ('<=' | '>=' | '>' | '<') expression             #relationalCaseMatch
+	| op = ('&' | '|') expression                           #booleanCaseMatch
+	| op = ('=' | '!=') expression                          #equalityCaseMatch
+	| op = ('~=' | '=~') expression                         #containmentCaseMatch
+	| caseMatch bop = ('&' | '|') (caseMatch | expression )  #guardedCaseMatch
 	;
 
 
@@ -161,8 +160,8 @@ collectionType
 
 collectionAccess: identifier '[' collectionAccessor ']';
 collectionAccessor
-	: listAccessor
-	| mapAccessor
+	: ('%' | '@' | '*')   #specialAccessor
+	| expression          #expressionAccessor
 	;
 
 
@@ -173,23 +172,12 @@ listEntry
 	: expression
 	| sequence
 	;
-listAccessor
-	: '%'
-	| '@'
-	| expression
-	;
 
 
 map: '[' mapKeyType=type ':' mapValueType=type ']';
 mapCreation: '[' mapEntries ']';
 mapEntries: mapEntry* ;
 mapEntry: mapKey=expression ':' mapValue=expression;
-mapAccessor
-	: '%'
-	| '@'
-	| '*'
-	| expression
-	;
 
 
 
