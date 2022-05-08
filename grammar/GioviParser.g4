@@ -85,7 +85,7 @@ formalParameterDefinition: identifier type defaultDefinition?;
 
 functionCall: identifier '(' functionParameterList? ')';
 
-functionParameterList: functionParameter (',' functionParameter)?;
+functionParameterList: functionParameter (',' functionParameter)*;
 
 functionParameter: (identifier ':')? expression;
 
@@ -117,8 +117,7 @@ caseMatch
 //expressionList: expression (',' expression)*;
 
 expression
-	: primary                                                #primaryExpression
-	| '{' expression '}'                                     #parenthesizedExpression
+	: '{' expression '}'                                     #parenthesizedExpression
 	| expression bop = '.' (identifier | functionCall)       #dotExpression
 	| collectionAccess                                       #collectionAccessExpression
 	| listCreation                                           #listCreationExpression
@@ -134,6 +133,7 @@ expression
 	| expression bop = ('=' | '!=') expression               #equalityExpression
 	| expression bop = ('~=' | '=~') expression              #containmentExpression
 	| expression bop = ('&' | '|' ) expression               #boolExpression
+	| primary                                                #primaryExpression
 	;
 
 primary: literal | identifier;
