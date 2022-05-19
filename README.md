@@ -97,7 +97,7 @@ surname, loremIpsum Text  # Example of multiple declaration of type text
 "Van der Sar" > name  # unless there is space
 
 # Text blocks. Spaces, new lines and tabs will be kept
-# Work like Java (https://docs.oracle.com/en/java/javase/13/text_blocks/index.html)
+# Work similar to Java (https://docs.oracle.com/en/java/javase/13/text_blocks/index.html)
 "{
 Aut quod excepturi officia tempore.
 Quia non molestiae non aut.
@@ -181,7 +181,7 @@ The general rules for naming variables are:
   - Names must begin with a letter
   - Names cannot contain whitespace
   - Names are case sensitive ("myVar" and "myvar" are different variables)
-  - Types, Structs and Functions name cannot be used as names
+  - Types and Structs name cannot be used as names
   - Reserved words cannot be used as names
 
 ### Reserved words
@@ -251,7 +251,7 @@ me.name > myName Text
 me.favoriteColor > myFavoriteColor Color
 ```
 
-Specific attribute @candidate
+To improve readability you can use named attribute
 
 ```bash
 (	age: 22
@@ -264,7 +264,8 @@ Specific attribute @candidate
 ) > me Person
 ```
 
-Specific struct type @candidate
+When creating a struct, its type is inferred, but you can optionally specify its type
+
 ```bash
 Color : (255 255 255)
 
@@ -295,8 +296,8 @@ Vehicle (
 )
 
 car.accelerate(10)
-"${car.speed} KMH" >\
-"${car.speedToMilesPerHour()} MPH" >\
+"${car.speed} KMH" > \out
+"${car.speedToMilesPerHour()} MPH" > \out
 ```
 
 ### Constants
@@ -315,7 +316,7 @@ constant RED Color (
 	0
 )
 
-constant NAME_LIST List[Text] (
+constant NAME_LIST [Text] (
 	"Simone"
 	"Luca"
 	"Alessio"
@@ -330,6 +331,7 @@ constant NAME_LIST List[Text] (
 ### Default value
 
 The `_` (underscore) symbol represent the default value of a type
+
 ```bash
 69 > number Natural
 -420 > anotherNumber Integer
@@ -348,6 +350,7 @@ _ > someBoolean       # This will set someBoolean to false
 ### Struct default value
 
 Struct default value is a struct with all primitives default
+
 ```bash
 someColor Color           # By default structs values will have their type default value   
 (255 255 0) > someColor   # Setting someColor to (255 255 0)
@@ -406,6 +409,7 @@ _ > somebody.favoriteCar.paint
 ```
 
 A default value of a specific attribute can be accessed with the struct name
+
 ```bash
 Person.name > defaultPersonName Text              # defaultPersonName will be "No name"
 Person.favoriteColor > defaultFavoriteColor Color # defaultFavoriteColor will be (255 0 0)
@@ -463,6 +467,7 @@ if <condition> do {
 ```
 
 Example:
+
 ```bash
 1 > x Int
 69 > y Int
@@ -479,6 +484,7 @@ if x > y & x > 10 do {
 ```
 
 Curly braces are used to optionally wrap conditions. The followings will evaluate the same conditions
+
 ```bash
 if x < 0 & x > 10 do {}
 if {x < 0 & x > 10} do {}
@@ -507,6 +513,7 @@ if <variable> {
 ```
 
 Example:
+
 ```bash
 69 > x Int
 
@@ -597,27 +604,27 @@ A list is a collection of variables that can be accessed via the index. The inde
 | ----------------- | ------ | -------------- |
 | Assignment        | >      | [1 2 3] > list |
 | Insert            | >+     | 4 >+ list      |
-| Remove @candidate | >-     | 4 >- list      |
+| Remove            | >-     | 4 >- list      |
 
 #### Relational
 
 | Operation               | Symbol | Example              |
 | ----------------------- | ------ | -------------------- |
 | Equal                   | =      | if [1 2 3] = [1 2 3] |
-| Contains     @candidate | =~     | if list =~ 2         |
-| Is contained @candidate | ~=     | if 2 =~ list         |
+| Contains                | =~     | if list =~ 2         |
+| Is contained            | ~=     | if 2 =~ list         |
 
 
 ```bash
 # Declaration
 # NOTE: Default value is an empty list
-listOfNames List[Text]
+listOfNames [Text]
 
 # Assignment
 ["Simone" "Giada"] > listOfNames
 
 # Insertion
-# When inserting single element, round parentesis can be omitted
+# When inserting single element, square parentesis can be omitted
 "Francesca" >+ listOfNames
 "Alessio" >+ listOfNames
 "Giovanna" >+ listOfNames
@@ -637,68 +644,91 @@ listOfNames List[Text]
 #}
 ```
 
+List type inference @candidate
+
 ```bash
 # List type can be omitted when declaring and initializing
 # It will be inferred from the first element inserted
-[1.0 0.5 2.5] > listOfReal List                  # List of Real (List[Real])
-[1 2 3 4 5] > listOfNatural List                 # List of Natural (List[Natural])
-[-1 0 4 5] > listOfInteger List                  # List of Integer (List[Int])
-[4 5 6 7] > listOfInteger List[Int]              # List of Integer
-["Simone" "Luca" "Paolo"] > listOfText List      # List of Text (List[Text])
+[1.0 0.5 2.5] > listOfReal []                  # List of Real ([Real])
+[1 2 3 4 5] > listOfNatural []                 # List of Natural ([Natural])
+[-1 0 4 5] > listOfInteger []                  # List of Integer ([Int])
+[4 5 6 7] > listOfInteger [Int]                # List of Integer
+["Simone" "Luca" "Paolo"] > listOfText []      # List of Text ([Text])
 
 # When creating list of Struct, the type must be declared
-[ (62 65 10) (0 64 0) (12 50 255) ] > listOfColors List[Color]
+[ (62 65 10) (0 64 0) (12 50 255) ] > listOfColors [Color]
 
 [	("Simone" "Vicinanza")
 	("Mario" "Rossi")
 	("Luigi" "Bianchi")
-] > listOfFullNames List[FullName]
+] > listOfFullNames [FullName]
 ```
 
-Accessing list elements
+Accessing list elements is done with the `@` symbol followed by the index (optionally wrapped in curly braces)
+
 ```bash
-# Defining a "Vector" (Struct with 3 Real representing x, y, z coordinates)
-Vector (
-	x Real
-	y Real
-	z Real
-)
+<list>@<index>
+or
+<list>@{<index or expression>}
+```
 
-# Defining list of Vectors
-[ (0 0 0) (0.5 1.5 3.2) (4 5.0 60.1) ] > vectors List[Vector]
+```bash
+# Defining a list of Text
+[ "a" "b" "c" "d" ] > letters [Text]
 
-# Accessing with index
-coordinates[0] > firstElement Vector
-coordinates[1] > secondElement Vector
+# Accessing via index
+letters@0 > \out      # this will print "a"
+letters@{0} > \out    # this will print "a" too
 
-# Negative indexes are valid
+# Variables can be used
+2 > index Int
+letters@index > \out     # this will print "c"
+letters@{index} > \out   # this will print "c" too
+
+# Expressions can be used, but they must be enclosed in curly braces
+letters@{index + 1} > \out    # this will print "d"
+
+# Negative indices can be used
 # It will return element count minus index
-coordinates[-1] > lastElement Vector
-coordinates[-2] > secondToLastElement Vector
+coordinates@{-1} > lastElement Vector
+coordinates@{-2} > secondToLastElement Vector
 
 # If negative index absolute value is greater than List count
 # list element count will be subtracted from the index, therefore
 # "cylcying" through the list
 
-["a" "b" "c" "d" "e" "f" "g" "h" "i" "j"] > letters List[Text]    # List of 10 elements
-letters[-12] secondToLastElement Text
+["a" "b" "c" "d" "e" "f" "g" "h" "i" "j"] > letters # List of 10 elements
+letters@{-12} > secondToLastElement Text
 # Will return "i", because -(abs(-12) - 10) = -2
-# So it's the same as typing letters(-2)
+# So it's the same as typing letters@{-2}
 
+```
+
+### Special list accessors
+
+The List collection have some special accessor
+
+```bash
+[ "a" "b" "c" ] > letters [Text]
 
 # List length
-coordinates[%] > coordinatesCount Int
+letters@{%} > \out    # this will print "3" (list length)
 
 # List indeces
-coordinates[@] > indeces List[Natural] # Useful when iterating Lists with the indeces
+letters@{@} > \out    # this will print a list of indeces
 
-# Copy list to another List
-coordinates > copyOfCoordinates List[Vector]
+# useful when you need to iterate a list with indeces (see "for loop")
+for index in letters@{@} do {
+	# if index is even
+	if index % 2 = 0 do {
+		letters@{index} > \out
+	}
+}
 ```
 
 Comparing Lists
 ```bash
-numbers List[Int]
+numbers [Int]
 [ 1 2 3 4 ] > numbers
 
 if numbers = _ do {
@@ -713,13 +743,13 @@ if numbers {
 	= [1 2 3 4] | = [4 5 6 7] do {}
 	
 	# if equal to a list of [1 2 3 4] or elements count equal to 10
-	= [1 2 3 4] | numbers[%] = 10 do {}
+	= [1 2 3 4] | numbers@{%} = 10 do {}
 	
 	# if empty list or elements count less then 3
-	= _ | numbers[%] < 3 do {}
+	= _ | numbers@{%} < 3 do {}
 	
 	# if empty list and first element equal to 6
-	= _ & numbers[0] = 6 do {}
+	= _ & numbers@0 = 6 do {}
 
 	# if contains 69
 	=~ 69 do {}
@@ -727,12 +757,12 @@ if numbers {
 }
 ```
 
-## Multidimensional list (matrix)
+## Multidimensional list (matrix) @candidate
 
 A multidimensional list (matrix) can be defined as follows
 
 ```bash
-identityMatrix List[List[Real]]
+identityMatrix [[Real]]
 
 [	
 	[1 0 0]
@@ -743,12 +773,12 @@ identityMatrix List[List[Real]]
 
 Values can be accessed as normal lists
 
-`nameOfList[row][column]`
+`nameOfList@row@column`
 
 ```bash
 # Example of a Rubik cube multidimensional list
 # for simplicity, we're storing color name instead of a Color struct
-rubikCube List[List[List[Text]]]
+rubikCube [[[Text]]]
 [
 	[
 		[ "Red" "Red" "Red" ]
@@ -782,10 +812,10 @@ rubikCube List[List[List[Text]]]
 	]
 ] > rubikCube
 
-# rubikCube[2][1][1] will refer to the central tile of green face
+rubikCube@2@1@1   # will refer to the central tile of green face
 ```
 
-## Set
+## Set @candidate
 
 A set is an unordered collections in which duplicates element are not allowed
 
@@ -795,7 +825,7 @@ A set is an unordered collections in which duplicates element are not allowed
 A map contains values on the basis of key, i.e. key and value pair. Each key and value pair is known as an entry. A Map contains unique keys.
 
 ```bash
-carCount Map[Text : Int]
+carCount [Text : Int]
 
 [ "Audi" : 1 ] >+ carCount    # Insert new key "Audi"
 [ "Audi" : 5 ] >+ carCount    # Set "Audi" key value to 5
@@ -807,91 +837,80 @@ carCount Map[Text : Int]
 	"Ferrari" : 20
 ] >+ carCount
 
-26 > carCount["Ferrari"]  # Set "Ferrari" value to 26
+26 > carCount@{"Ferrari"}  # Set "Ferrari" value to 26
 ```
 
 Default values can be used
 
 ```bash
 [ "Fiat" : _ ] >+ carCount
-_ > carCount["Fiat"]
+_ > carCount@{"Fiat"}
 ```
 
-Accessing values
+Values can be accessed by key
 
 ```bash
-carCount["BMW"] > bmwCount Int     # Get value of key "BMW"
+carCount@{"BMW"} > bmwCount Int     # Get value of key "BMW"
+```
 
-# Special characters
-carCount[%] > entriesCount Int     # Get count of key/value pairs
-carCount[@] > keys List[Text]      # Get all keys
-carCount[*] > values List[Int]     # Get all values
+
+### Special characters
+
+```
+carCount@{%} > entriesCount Int  # Get count of key/value pairs
+carCount@{@} > keys [Text]       # Get all keys
+carCount@{*} > values [Int]      # Get all values
 ```
 
 Examples
 
 ```bash
-bank Map[Text : Real]
+bank [Text : Real]
 [
 	"Simone" : 69.0
 	"Alessio" : 15.50
 	"Francesco" : 125.15
 ] > bank
 
-for name money in bank {
+for name money in bank do {
 	"$name has $money € in his wallet" >
 }
 
 "List of names: " >
-for name in bank[@] {
+for name in bank@{@} do {
 	"- $name" >
 }
 
 sum Real
-for money in bank[*] {
+for money in bank@{*} do {
 	money >+ sum
 }
-"The bank has $sum €" >
-```
-
-
-
-## Implicit collection declaration @candidate
-
-```bash
-[1.0 0.5 2.5] > listOfReal []                  # List of Real (List[Real])
-[1 2 3 4 5] > listOfNatural []                 # List of Natural (List[Natural])
-[-1 0 4 5] > listOfInteger []                  # List of Integer (List[Int])
-[4 5 6 7] > listOfInteger [Int]                # List of Integer
-["Simone" "Luca" "Paolo"] > listOfText []      # List of Text (List[Text])
-matrix [[Real]]                                # Matrix of Real
-rubikCube [[[Color]]]                          # Cube of Color
-carCount [Text : Int]                          # Map of Text and Int (Map[Text : Int])
+"The bank has a total of $sum €" >
 ```
 
 ## Sequence operator
 
 The sequence operator lets you quickly define a sequence of elements
 ```bash
-[0..5] > fromZeroToFive List                # List of Integer equal to [0 1 2 3 4 5]
-[3..5] > fromThreeToFiveReal List[Real]     # List of Real equal to [3.0 4.0 5.0]
-["a".."d"] > fromAtoZ List                  # List of Text equal to [a b c d]
-["aaa".."zzz"] > listOfWords List           # List of text containing all possible words of 3 characters with letters from A to Z
+[0..5] > fromZeroToFive [Int]         # List of Integer equal to [0 1 2 3 4 5]
+[3..5] > fromThreeToFiveReal [Real]   # List of Real equal to [3.0 4.0 5.0]
+["a".."d"] > fromAtoZ [Text]          # List of Text equal to [a b c d]
+["aaa".."zzz"] > listOfWords [Text]   # List of text containing all possible words of 3 characters with letters from A to Z
 ```
 
 Descending sequences can be defined
 ```bash
-[5..0] > fromZeroToFive List                # List of Integer equal to [5 4 3 2 1]
-[5..3] > fromThreeToFiveReal List[Real]     # List of Real equal to [5.0 4.0 3.0]
-["d".."a"] > fromAtoZ List                  # List of Text equal to [d c b a]
-["zzz".."aaa"] > listOfWords List           # List of text containing all possible words of 3 characters with letters from Z to A
+[5..0] > fromZeroToFive [Int]         # List of Integer equal to [5 4 3 2 1]
+[5..3] > fromThreeToFiveReal [Real]   # List of Real equal to [5.0 4.0 3.0]
+["d".."a"] > fromAtoZ [Text]          # List of Text equal to [d c b a]
+["zzz".."aaa"] > listOfWords [Text]   # List of text containing all possible words of 3 characters with letters from Z to A
 ```
 
 A step value can also be used
 ```bash
-[0..10..2] > evenNumbers List               # List of Integer equal to [0 2 4 6 8 10]
-[0..0.5..0.1] > fromZeroToOne List          # List of Real equal to [0.1 0.2 0.3 0.4 0.5]
-["a".."g"..2] > listOfLetters List              # List of Text equal to [a c e g]
+[0..10..2] > evenNumbers [Int]        # List of Integer equal to [0 2 4 6 8 10]
+[0..1..0.1] > fromZeroToOne [Real]    # List of Real equal to [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+["a".."g"..2] > listOfLetters [Text]  # List of Text equal to [a c e g]
 ```
 
 Variables can be used
@@ -899,7 +918,7 @@ Variables can be used
 0 > start Int
 10 > end Int
 2 > step Int
-[start..end..step] > List                # List of Integer equal to [0 2 4 6 8 10]
+[start..end..step] > [Int]            # List of Integer equal to [0 2 4 6 8 10]
 ```
 
 # Loops
@@ -947,41 +966,40 @@ repeat {
 The for loop is mainly used to iterate over List
 ```bash
 # <variable> type will be inferred from the List type
-for <variable> in <List> {
+for <variable> in <List> do {
 	<body>
 }
 ```
 
 ```bash
-[0 1 2 3 4] > numbers List
-for number in numbers {}
+[0 1 2 3 4] > numbers [Int]
+for number in numbers do {}
 
-["Simone" "Luca" "Paolo"] > names List
-for name in names {}
+["Simone" "Luca" "Paolo"] > names [Text]
+for name in names do {}
+
+["Simone":69 "Luca":420 "Paolo":10] > bank [Test : Int]
+for key value in bank do {}
 
 # The sequence operator can be used
-for i in [0..10] {}
+for i in [0..10] do {}
 
 # Iterating list over indeces
-for i in [0..names[%]] {}
-
-# Iterating over list of struct
-[(0 255 0) (55 0 255) (255 255 255)] > colors List[Color]
-for color in colors {}
+for i in [0..names@{%} do {}
 ```
 
 Iterating over list of struct
 
 ```bash
-[(0 255 0) (55 0 255) (255 255 255)] > colors List[Color]
-for color in colors {}
+[(0 255 0) (55 0 255) (255 255 255)] > colors [Color]
+for color in colors do {}
 ```
 
 The for loop also tries to deconstruct the struct if the variables are the same of the struct
 
 ```bash
-[(0 255 0) (55 0 255) (255 255 255)] > colors List[Color]
-for red green blue in colors {}
+[(0 255 0) (55 0 255) (255 255 255)] > colors [Color]
+for red green blue in colors do {}
 ```
 
 
@@ -992,33 +1010,38 @@ for red green blue in colors {}
 
 ## Special destinations
 
-| Destination     | Symbol | Shorthand symbol |
-| --------------- | ------ | ---------------- |
-| Standard output | \out   | \                |
-| Standard error  | \error |                  |
+| Destination     | Symbol |
+| --------------- | ------ |
+| Standard output | \out   |
+| Standard error  | \error |
 
 
 ### Standard output
 
 Print to standard output
+
 ```bash
 "Hello world" > \out
-"Hello world" > \
-"I'm going to print the lorem ipsum" > \
+
+"I'm going to print the lorem ipsum" > \out
+
 "{
 Qui odit molestias commodi omnis magni sunt. Et et et dolorem mollitia eum repellendus fuga qui. Numquam sint numquam sed delectus. Necessitatibus pariatur voluptatem ad ut eos in eos quo. Cupiditate et ut fuga. Aut enim aut amet non.
 
 Pariatur nam nobis placeat. Consequuntur laborum consequatur accusantium totam occaecati possimus illo repellat. In fuga earum ea modi ut perspiciatis iusto. Iste voluptate qui at. Eos eaque cumque quisquam non nemo tenetur quo fugit.
-"} > \
+"} > \out
 ```
 
 
 ### Standard error
 
 Print to standard error
+
 ```bash
 "Some error happened" > \error
+
 "I'm going to print some details:" > \error
+
 "{
 This program has crashed
 because you tried to perform a
@@ -1026,6 +1049,7 @@ division by zero.
 "} > \error
 ```
 
+### Cascade redirection @candidate
 Multiple redirection can be achieved like so
 
 `content` > `destination` > `destination2`
@@ -1035,8 +1059,9 @@ Multiple redirection can be achieved like so
 ## Functions
 
 Functions are special types of code block
+
 ```
-<function name>(<param name> <param type> <default value> | <other params>) => <return type> {
+<function name>(<param name> <param type> <default value>, <other params>) => <return type> {
 	<body>
 	<return value> =>
 }
@@ -1044,11 +1069,11 @@ Functions are special types of code block
 
 ```bash
 printHelloWorld() {
-	"Hello World" >\
+	"Hello World" > \out
 }
 
 greetPerson(name Text, surname Text) {
-	"Greetings $name, $surname" >\
+	"Greetings $name, $surname" > \out
 }
 
 getBestLanguage() => Text {
@@ -1072,7 +1097,7 @@ intToBool(x Int) => Bool {
 
 fibonacci(maxCount Natural) => Natural {
 	sum Natural
-	for i in [0..maxCount] {
+	for i in [0..maxCount] do {
 		i >+ sum
 	}
 	sum =>
@@ -1093,7 +1118,7 @@ Function parameters can also have default values
 # function, num will be 10
 count(num Natural _ 10) {
 	for i in [0..num] {
-		i >\
+		i > \out
 	}
 }
 
@@ -1101,9 +1126,9 @@ count(num Natural _ 10) {
 # its type default value will be used
 greet(name Text __ ){
 	if name = _ do {
-		"Greetings everybody!" >\
+		"Greetings everybody!" > \out
 	} else {
-		"Hello $name" >\
+		"Hello $name" > \out
 	}
 }
 
@@ -1116,8 +1141,8 @@ greet("Simone")
 Functions parameters can be explicitly specified, so the order won't matter
 ```bash
 greet(name Text, age Natural) {
-	"My name is $name" >\
-	"My age is $age" >\
+	"My name is $name" > \out
+	"My age is $age" > \out
 }
 
 greet("Simone", 22)
@@ -1162,22 +1187,22 @@ Book (
 	pagesCount Natural
 )
 
-printShelfStandard(shelf List[Book]) {
-	for book in shelf {
+printShelfStandard(shelf [Book]) {
+	for book in shelf do {
 		"{
-		Title:        $book.title
-		Description:  $book.description 
-		Price:        $book.price
-		Page count:   $book.pageCount
-		Author:       $book.author
-			Name:       $book.author.name
-			Surname:    $book.author.surname
-			Age:        $book.author.age
-		"} >\
+		Title:        ${book.title}
+		Description:  ${book.description }
+		Price:        ${book.price}
+		Page count:   ${book.pageCount}
+		Author:       ${book.author}
+			Name:       ${book.author.name}
+			Surname:    ${book.author.surname}
+			Age:        ${book.author.age}
+		"} > \out
 	}
 }
 
-printShelfTableHTML(shelf List[Book]) {
+printShelfTableHTML(shelf [Book]) {
 	table Text
 	"{
 	<table>
@@ -1193,10 +1218,8 @@ printShelfTableHTML(shelf List[Book]) {
 	<tbody>
 	"} > table
 
-	for book in shelf {
-		"{
-		${toRowHTML(book)}
-		"} >+ table
+	for book in shelf do {
+		"${toRowHTML(book)}" >+ table
 	}
 
 	"{
@@ -1204,13 +1227,10 @@ printShelfTableHTML(shelf List[Book]) {
 	</table>
 	"} >+ table
 
-	table >\
+	table > \out
 }
 
-toRowHTML(book Book) {
-
-	# the curly braces can be omitted
-	# I've used them only to accomodate the bash syntax highlighting
+toRowHTML(book Book) => Text {
 	"{
 	<tr>
 		<td>${book.name}</td>
@@ -1263,7 +1283,7 @@ toRowHTML(book Book) {
 		10.5
 		120
 	)
-] > shelf List[Book]
+] > shelf [Book]
 
 printShelfStandard(shelf)
 printShelfTableHTML(shelf)
@@ -1299,11 +1319,62 @@ Node (
 #}
 
 recursivePrintList(node Node) {
-	node.text >\
+	node.text > \out
 	if node != null do {
 		recursivePrintList(node)
 	}
 }
 
 recursivePrintList(root)
+```
+
+
+## Find min value in a list
+
+```bash
+findMinElement(list [Text]) => Text {
+	if list@{%} < 1 do {
+		"list is empty" > \error
+		"" =>
+	}
+	list@0 > min Text
+	for element in list do {
+		if element < min do {
+			element > min
+		}
+	}
+	min =>
+}
+
+findMinElementIndex(list [Text]) => Int {
+	if list@{%} < 1 do {
+		"list is empty" > \out
+		-1 =>
+	}
+	0 > min Int
+	for index in list@{@} do {
+		if list@{index} < list@{min} do {
+			index > min
+		}
+	}
+	min =>
+}
+
+["z" "s" "a" "h" "j" "h" "w" "f"] > letters [Text]
+findMinElement(letters)> minElement Text
+findMinElementIndex(letters) > minElementIdx Int
+
+"{
+List: $letters
+	         min value: $minElement
+	min value position: $minElementIdx
+"} > \out
+
+#{
+# 	output:
+# 
+# List: ["z" "s" "a" "h" "j" "h" "w" "f"]
+# 	         min value: a
+# 	min value position: 2
+#}
 ```
