@@ -19,7 +19,6 @@ statement
 	| switchStatement
 	| repeatStatement
 	| forStatement
-	| returnStatement
 	| breakStatement
 	| continueStatement
 	| redirection
@@ -27,6 +26,7 @@ statement
 	| constantDeclaration
 	| varDeclaration
 	| functionDeclaration
+	| returnStatement
 	| expression
 	;
 
@@ -41,15 +41,18 @@ breakStatement: BREAK;
 continueStatement: CONTINUE;
 
 redirection
-	: expression bop = '>' varDeclaration         #redirectionToVarDeclaration
-	| expression bop = '>' primitiveDestination   #redirectionToPrimitiveDestination
-	| expression bop = (
-			'>'
-			| REDIRECTION_DIVISION
-			| REDIRECTION_MULTIPLICATION
-			| REDIRECTION_PLUS
-			| REDIRECTION_MINUS
-		) identifier                              #redirectionToIdentifier
+	: expression bop = '>' varDeclaration                     #redirectionToVarDeclaration
+	| expression bop = '>' primitiveDestination               #redirectionToPrimitiveDestination
+	| expression bop = redirectionOperator identifier         #redirectionToIdentifier
+	| expression bop = redirectionOperator collectionAccess   #redirectionToCollectionAccess
+	;
+
+redirectionOperator
+	: '>'
+	| REDIRECTION_DIVISION
+	| REDIRECTION_MULTIPLICATION
+	| REDIRECTION_PLUS
+	| REDIRECTION_MINUS
 	;
 
 constantDeclaration: CONSTANT identifier type expression;
@@ -62,8 +65,10 @@ defaultDefinition: defaultLiteral expression;
 // STRUCT
 
 structDefinition
-	: (parentName=identifier ':')? structName=identifier '(' (structAttributeDefinition | nestedStructDefinition)+ ')'
+	: (parentName=identifier ':')? structName=identifier '(' structBodyDefinition ')'
 	;
+
+structBodyDefinition: (structAttributeDefinition | nestedStructDefinition)+;
 
 nestedStructDefinition: identifier structDefinition;
 
@@ -102,11 +107,11 @@ switchBlock: '{' switchLabel+ '}';
 switchLabel: caseMatch DO block;
 
 caseMatch
-	: '{' caseMatch '}'                                     #parenthesizedCaseMatch
-	| op = ('<=' | '>=' | '>' | '<') expression             #relationalCaseMatch
-	| op = ('&' | '|') expression                           #booleanCaseMatch
-	| op = ('=' | '!=') expression                          #equalityCaseMatch
-	| op = ('~=' | '=~') expression                         #containmentCaseMatch
+	: '{' caseMatch '}'                                      #parenthesizedCaseMatch
+	| op = ('<=' | '>=' | '>' | '<') expression              #relationalCaseMatch
+	| op = ('&' | '|') expression                            #booleanCaseMatch
+	| op = ('=' | '!=') expression                           #equalityCaseMatch
+	| op = ('~=' | '=~') expression                          #containmentCaseMatch
 	| caseMatch bop = ('&' | '|') (caseMatch | expression )  #guardedCaseMatch
 	;
 
@@ -158,12 +163,14 @@ collectionType
 ////////////////////////////////////////////////
 // COLLECTIONS
 
-collectionAccess: identifier '[' collectionAccessor ']';
+collectionAccess: identifier '@' collectionAccessor;
 collectionAccessor
-	: ('%' | '@' | '*')   #specialAccessor
-	| expression          #expressionAccessor
+	: '{' (specialAccessor | literal | expression) '}'     #collectionParenthesizedAccessor
+	| specialAccessor                                      #collectionSpecialAccessor
+	| literal                                              #collectionLiteralAccessor
 	;
 
+specialAccessor: '%' | '@' | '*';
 
 list: '[' type ']';
 listCreation: '[' listEntries ']';
