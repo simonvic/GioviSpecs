@@ -32,7 +32,9 @@ statement
 
 repeatStatement: REPEAT (IF expression)? block;
 
-forStatement: FOR identifier+ IN collection=expression DO block;
+forStatement: FOR iterators IN collection=expression DO block;
+
+iterators: identifier (',' identifier)* ;
 
 returnStatement: expression? RETURN;
 
@@ -68,9 +70,7 @@ structDefinition
 	: (parentName=identifier ':')? structName=identifier '(' structBodyDefinition ')'
 	;
 
-structBodyDefinition: (structAttributeDefinition | nestedStructDefinition)+;
-
-nestedStructDefinition: identifier structDefinition;
+structBodyDefinition: (structAttributeDefinition | structDefinition)+;
 
 structAttributeDefinition: identifier type defaultDefinition?;
 
@@ -155,8 +155,8 @@ type
 	;
 
 collectionType
-	: list
-	| map
+	: listType
+	| mapType
 	;
 
 
@@ -172,7 +172,7 @@ collectionAccessor
 
 specialAccessor: '%' | '@' | '*';
 
-list: '[' type ']';
+listType: '[' type ']';
 listCreation: '[' listEntries ']';
 listEntries: listEntry*;
 listEntry
@@ -181,7 +181,7 @@ listEntry
 	;
 
 
-map: '[' mapKeyType=type ':' mapValueType=type ']';
+mapType: '[' mapKeyType=type ':' mapValueType=type ']';
 mapCreation: '[' mapEntries ']';
 mapEntries: mapEntry* ;
 mapEntry: mapKey=expression ':' mapValue=expression;

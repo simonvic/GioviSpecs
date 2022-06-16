@@ -86,7 +86,6 @@ index Int                 # Example declaration of int
 age Natural               # Example declaration of natural
 height Real               # Example declaration of height
 name Text                 # Example declaration of text
-surname, loremIpsum Text  # Example of multiple declaration of type text
 
 # Assignment
 69 > index
@@ -94,7 +93,6 @@ surname, loremIpsum Text  # Example of multiple declaration of type text
 1.70 > height
 
 "Simone" > name         
-"Van der Sar" > name  # unless there is space
 
 # Text blocks. Spaces, new lines and tabs will be kept
 # Work similar to Java (https://docs.oracle.com/en/java/javase/13/text_blocks/index.html)
@@ -218,14 +216,15 @@ Color (
 )
 
 Person (
+	Car (     # Nested struct definition
+		model Text        # it will be reusable from now on
+		paint Color       # within the Person scope
+	)
 	name Text
 	surname Text
 	age Natural
 	favoriteColor Color
-	favoriteCar Car (     # Inline struct definition
-		model Text        # it will be reusable from now on
-		paint Color       # within the Person scope
-	)
+	favoriteCar Car
 	ownedCar Car
 )
 
@@ -296,7 +295,7 @@ Vehicle (
 )
 
 car.accelerate(10)
-"${car.speed} KMH" > \out
+"${car.speedKmH} KMH" > \out
 "${car.speedToMilesPerHour()} MPH" > \out
 ```
 
@@ -316,14 +315,14 @@ constant RED Color (
 	0
 )
 
-constant NAME_LIST [Text] (
+constant NAME_LIST [Text] [
 	"Simone"
 	"Luca"
 	"Alessio"
 	"Giada"
 	"Francesca"
 	"Paolo"
-)
+]
 
 ```
 
@@ -373,15 +372,15 @@ _ > someColor                  # Set someColor to default (255 255 255)
 If the default is not defined, the type default will be used
 ```bash
 Person (
+	Car (
+		model Text
+		paint Color _ (40 40 40) 
+	)
 	name Text _ "No name"
 	surname Text _ "No surname"
 	age Natural
 	favoriteColor Color _ (255 0 0)
-	favoriteCar Car (
-		model Text
-		paint Color _ (40 40 40) 
-	)
-	# ownderCar will be a default Car
+	favoriteCar Car 
 	ownedCar Car
 )
 
