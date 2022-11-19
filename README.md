@@ -611,7 +611,7 @@ A list is a collection of variables that can be accessed via the index. The inde
 | ----------------------- | ------ | -------------------- |
 | Equal                   | =      | if [1 2 3] = [1 2 3] |
 | Contains                | =~     | if list =~ 2         |
-| Is contained            | ~=     | if 2 =~ list         |
+| Is contained            | ~=     | if 2 ~= list         |
 
 
 ```bash
@@ -821,7 +821,7 @@ A set is an unordered collections in which duplicates element are not allowed
 
 ## Map
 
-A map contains values on the basis of key, i.e. key and value pair. Each key and value pair is known as an entry. A Map contains unique keys.
+A map contains values on the basis of key, i.e. key and value pair. Each key and value pair is known as an entry. Map keys are unique.
 
 ```bash
 carCount [Text : Int]
@@ -872,19 +872,19 @@ bank [Text : Real]
 ] > bank
 
 for name money in bank do {
-	"$name has $money € in his wallet" >
+	"$name has $money € in his wallet" > \out
 }
 
-"List of names: " >
+"List of names: " > \out
 for name in bank@{@} do {
-	"- $name" >
+	"- $name" > \out
 }
 
 sum Real
 for money in bank@{*} do {
 	money >+ sum
 }
-"The bank has a total of $sum €" >
+"The bank has a total of $sum €" > \out
 ```
 
 ## Sequence operator
@@ -894,7 +894,6 @@ The sequence operator lets you quickly define a sequence of elements
 [0..5] > fromZeroToFive [Int]         # List of Integer equal to [0 1 2 3 4 5]
 [3..5] > fromThreeToFiveReal [Real]   # List of Real equal to [3.0 4.0 5.0]
 ["a".."d"] > fromAtoZ [Text]          # List of Text equal to [a b c d]
-["aaa".."zzz"] > listOfWords [Text]   # List of text containing all possible words of 3 characters with letters from A to Z
 ```
 
 Descending sequences can be defined
@@ -902,7 +901,6 @@ Descending sequences can be defined
 [5..0] > fromZeroToFive [Int]         # List of Integer equal to [5 4 3 2 1]
 [5..3] > fromThreeToFiveReal [Real]   # List of Real equal to [5.0 4.0 3.0]
 ["d".."a"] > fromAtoZ [Text]          # List of Text equal to [d c b a]
-["zzz".."aaa"] > listOfWords [Text]   # List of text containing all possible words of 3 characters with letters from Z to A
 ```
 
 A step value can also be used
@@ -981,10 +979,10 @@ for name in names do {}
 for key value in bank do {}
 
 # The sequence operator can be used
-for i in [0..10] do {}
+for i in 0..10 do {}
 
 # Iterating list over indeces
-for i in [0..names@{%} do {}
+for i in 0..names@{%} do {}
 ```
 
 Iterating over list of struct
@@ -1166,6 +1164,254 @@ factorial(n Natural) {
 }
 ```
 
+### Function reference
+
+The reference of a function is used to refer to the function itself.
+It is represented with `::` (double colon).
+
+It can be stored in variables and struct, and can be passed as a parameter to other functions as well.
+Function types can be defined as follows
+```
+<variable name> ::([parameters]) [=> return type] [_ default implementation]
+```
+
+```bash
+functionRef ::()
+
+# Assign a function
+::{
+	"hello world" > \out
+} > functionRef
+
+# I can now invoke my function
+functionRef()
+```
+
+When the function has parameters, their names can be omitted in the signature; but naming the parameters is advised for better redeability
+```bash
+# both are valid definitions of a reference to a function with a signature of (Text,Int) => Bool
+stringContainsNumber1 ::(myText Text, myNumber Int) => Bool
+stringContainsNumber2 ::(Text, Int) => Bool
+```
+
+A function type can also have a default value (implementation)
+```bash
+functionRef ::(Text) _ ::(txt Text) {
+	txt > \out
+}
+```
+
+The types and return type can be inferred, making the definition less verbose
+```bash
+# A verbose definition of a function reference which takes a Int and return an Int
+# with a default implementation which returns the sum of the parameters
+
+# variable ::(params)   => return  _ default implementation
+myFunction ::(Int, Int) => Int     _ ::(x Int, y Int) => Int {x + y =>}
+```
+```bash
+# the default implementation can infer the type and return value
+# variable ::(params)   => return  _ default implementation
+myFunction ::(Int, Int) => Int     _ ::(x, y) {x + y =>}
+
+
+# Alternatively, if parameters are named...
+# variable ::(params)       => return  _ default implementation
+myFunction ::(x Int, y Int) => Int     _ ::{x + y =>}
+```
+
+Some more examples
+```bash
+myFunction ::(Int, Int) => Int
+
+::(x, y) {x + y =>} > myFunction
+myFunction(60, 9) > \out #myFunction will print 69 (60 + 9 = 69)
+
+::(x, y) {x - y =>} > myFunction
+myFunction(79, 10) > \out #myFunction will print 69 (79 - 10 = 69)
+
+::(x, y) {x * y =>} > myFunction
+myFunction(23, 3) > \out #myFunction will print 69 (23 * 3 = 69)
+
+::(x, y) {x / y =>} > myFunction
+myFunction(28980, 420) > \out #myFunction will print 69 (28980 / 420 = 69)
+```
+
+If the function doesn't take parameters, the parenthesis can be omitted
+```bash
+functionRef ::()
+::{"hello world" > \out} > functionRef
+```
+
+Some more complex examples.
+
+A struct called `Callbacks`, holding a bunch of function references
+```bash
+Callbacks (
+	# A reference to a function with no parameters and no return value
+	callback0 ::()
+
+	# A reference to a function with an Int parameter
+	callback1 ::(Int)
+
+	# A reference to a function with an Int and a Text parameter
+	callback2 ::(Int,Text)
+
+	# A reference to a function with an Int and a Text parameter, with a Bool return type
+	callback3 ::(Int,Text) => Bool
+
+	# A reference to a function with no parameters with a Bool return type
+	callback4 ::() => Bool
+
+	# A reference to a function with a default implementation
+	callback5 ::() _ ::{
+		"default hello world" > \out
+	}
+
+	# A reference to a function with two Bool parameters, a Bool return value and a default implementation
+	callback6 ::(a Bool, b Bool) => Bool _ ::{
+		a & b =>
+	}
+
+	#{
+	#	A "normal" function
+	#}
+	aFunction() {
+		"hello world" > \out
+	}
+
+	#{
+	#	Invoke callback "count" times
+	#	@param callback
+	#	@param count
+	#}
+	aFunction(callback ::(), count Int) {
+		for i in 0..count do {
+			callback()
+		}
+	}
+
+	#{
+	#	Invoke callback "count" times
+	#	@param callback with default implementation that prints hello world
+	#	@param count
+	#	@code
+	#	# will print "hello world" 69 times
+	#	aFunction(69)
+	#
+	#	@code
+	#	# will print "something else" 69 times
+	#	aFunction(69, ::{
+	#		"something else" > \out
+	#	})
+	#
+	#	@code
+	#	aFunction
+	#}
+	aFunction(count Int, callback ::() _ ::{"hello world" > \out}) {
+		for i in 0..count do {
+			callback()
+		}
+	}
+
+	#{
+	#	Invoke a callback 69 times
+	#	@param callback ::(iteration index)
+	#}
+	aFunction2(callback ::(Int)){
+		for i in 0..69 do {
+			callback(i)
+		}
+	}
+	
+	#{
+	#	Invoke a callback and print its return value 69 times
+	#	@param callback ::(iteration index)
+	#	@code
+	#	aFunction3(::(index){index^2 =>})
+	#}
+	aFunction3(callback ::(Int) => Int){
+		for i in 0..69 do {
+			callback(i) > \out
+		}
+	}
+)
+
+c Callbacks
+```
+
+Let's assign some functions
+```bash
+::{
+	"hello world" > \out
+} > c.callback0
+
+c.callback0() # will print "hello world"
+```
+
+```bash
+::(num Int) {
+	for i in 0..num do {
+		"hello world" > \out
+	}
+} > c.callback1
+
+c.callback1() # will print "hello world" num times
+```
+
+```bash
+::(num, txt) { # the types are inferred
+	for i in 0..num do {
+		txt > \out
+	}
+} > c.callback2
+
+c.callback2() # will print txt num times
+```
+
+```bash
+# the return type can be inferred too, but for redeability here it is explicit
+::(num, txt) => Bool {
+	for i in 0..num do {
+		txt > \out
+	}
+	# return true if number is even
+	num < 10 =>
+} > c.callback3
+
+c.callback3() > result Bool # will print txt num times, and return true if num is less than 10
+```
+
+```bash
+::{
+	true =>
+} > c.callback4
+
+c.callback4() > result Bool # will return true
+```
+
+```bash
+c.callback5() # will print "default hello world"
+
+::{
+	'hello world' > \out
+} > c.callback5
+
+c.callback5() # will print "hello world"
+
+_ > c.callback5
+c.callback5() # will print "default hello world"
+```
+
+```bash
+::(a, b) {
+	a | b =>
+} > c.callback6
+c.callback6(true, false) > result Bool # will return true if a OR b are true
+
+_ > c.callback5
+c.callback6(true, false) > defaultResult Bool # will return true if a AND b are true (default implementation)
+```
 
 # Code examples
 
@@ -1376,4 +1622,47 @@ List: $letters
 # 	         min value: a
 # 	min value position: 2
 #}
+```
+
+
+# ideas
+
+
+## multiple return channels
+
+```bash
+# non terminating return: >
+# terminating return: =>
+
+# destinations
+# \return \r
+# \return1 \r1
+# \return2 \r2
+# ...
+
+div(x Int, y Int) => Real, Int, Text {
+	if x = 0 do {
+		69 > \return1 # error code 69
+		"X is zero" > \return2
+		 0 => \return
+	}
+
+	if y = 0 do {
+		420 > \return1 # error code 69
+		"Y is zero" > \return2
+		0 => \return
+	}
+
+	if x = y do {
+		"X and Y are the same" >\return2
+	}
+
+	x / y => \return
+}
+
+div(1, 2)
+	> result Real
+	> errorCode Int
+	> errorDescription Text
+
 ```
