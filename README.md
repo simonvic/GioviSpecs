@@ -266,13 +266,13 @@ To improve readability you can use named attribute
 When creating a struct, its type is inferred, but you can optionally specify its type
 
 ```bash
-Color : (255 255 255)
+Color::(255 255 255)
 
-Person : (
+Person::(
 	22
 	"Vic"
 	red
-	Car : ("Ferrari" red)
+	Car::("Ferrari" red)
 ) > me Person
 ```
 
@@ -1170,20 +1170,34 @@ The reference of a function is used to refer to the function itself.
 It is represented with `::` (double colon).
 
 It can be stored in variables and struct, and can be passed as a parameter to other functions as well.
-Function types can be defined as follows
-```
-<variable name> ::([parameters]) [=> return type] [_ default implementation]
+```bash
+printSomething(txt Text) {
+	txt > \out
+}
+
+functionRef ::(Text)
+
+::printSomething > functionRef
+
+# functionRef is now a reference to printSomething function
+functionRef("hello world") # will print "hello world"
 ```
 
+Function types are defined as follows
+```
+::([parameters]) [=> return type] [_ default implementation]
+```
+
+Anonymous function can also be defined
 ```bash
 functionRef ::()
 
-# Assign a function
+# Assign an anonymouse function to functionRef
 ::{
 	"hello world" > \out
 } > functionRef
 
-# I can now invoke my function
+# I can now invoke functionRef
 functionRef()
 ```
 
@@ -1274,18 +1288,11 @@ Callbacks (
 	}
 
 	#{
-	#	A "normal" function
-	#}
-	aFunction() {
-		"hello world" > \out
-	}
-
-	#{
 	#	Invoke callback "count" times
-	#	@param callback
 	#	@param count
+	#	@param callback
 	#}
-	aFunction(callback ::(), count Int) {
+	aFunction1(count Int, callback ::()) {
 		for i in 0..count do {
 			callback()
 		}
@@ -1293,22 +1300,19 @@ Callbacks (
 
 	#{
 	#	Invoke callback "count" times
-	#	@param callback with default implementation that prints hello world
 	#	@param count
+	#	@param callback with default implementation that prints hello world
 	#	@code
 	#	# will print "hello world" 69 times
-	#	aFunction(69)
+	#	aFunction2(69)
 	#
 	#	@code
 	#	# will print "something else" 69 times
-	#	aFunction(69, ::{
+	#	aFunction2(69, ::{
 	#		"something else" > \out
 	#	})
-	#
-	#	@code
-	#	aFunction
 	#}
-	aFunction(count Int, callback ::() _ ::{"hello world" > \out}) {
+	aFunction2(count Int, callback ::() _ ::{"hello world" > \out}) {
 		for i in 0..count do {
 			callback()
 		}
@@ -1318,7 +1322,7 @@ Callbacks (
 	#	Invoke a callback 69 times
 	#	@param callback ::(iteration index)
 	#}
-	aFunction2(callback ::(Int)){
+	aFunction3(callback ::(Int)){
 		for i in 0..69 do {
 			callback(i)
 		}
@@ -1328,9 +1332,9 @@ Callbacks (
 	#	Invoke a callback and print its return value 69 times
 	#	@param callback ::(iteration index)
 	#	@code
-	#	aFunction3(::(index){index^2 =>})
+	#	aFunction4(::(index){index^2 =>})
 	#}
-	aFunction3(callback ::(Int) => Int){
+	aFunction4(callback ::(Int) => Int){
 		for i in 0..69 do {
 			callback(i) > \out
 		}
@@ -1411,6 +1415,18 @@ c.callback6(true, false) > result Bool # will return true if a OR b are true
 
 _ > c.callback5
 c.callback6(true, false) > defaultResult Bool # will return true if a AND b are true (default implementation)
+```
+
+```bash
+someFunction() {
+	"Hello from someFunction" > \out
+}
+
+c.aFunction1(3, ::{
+	"hello from anonymous function" > \out
+})
+
+c.aFunction1(3, ::someFunction)
 ```
 
 # Code examples
