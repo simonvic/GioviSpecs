@@ -154,7 +154,7 @@ If you need to have something immediately after the variable, without a space, y
 Text can also interpret code block (see Functions)
 ```bash
 getName() => Text { 
-	"simonvic" =>
+	=> "simonvic"
 }
 
 "{
@@ -290,7 +290,7 @@ Vehicle (
 	}
 
 	speedToMilesPerHour() => Int{
-		speed / 1.6093 =>
+		=> speed / 1.6093
 	}
 )
 
@@ -1060,7 +1060,7 @@ Functions are special types of code block
 ```
 <function name>(<param name> <param type> <default value>, <other params>) => <return type> {
 	<body>
-	<return value> =>
+	=> <return value>
 }
 ```
 
@@ -1074,22 +1074,22 @@ greetPerson(name Text, surname Text) {
 }
 
 getBestLanguage() => Text {
-	"Giovi" =>
+	=> "Giovi"
 }
 
 sum(x Int, y Int) => Int {
-	x + y =>
+	=> x + y
 }
 
 division(x Real, y Real) => Real {
-	x / y =>
+	=> x / y
 }
 
 intToBool(x Int) => Bool {
 	if x <= 0 do {
-		false =>
+		=> false
 	}
-	true =>
+	=> true
 }
 
 fibonacci(maxCount Natural) => Natural {
@@ -1097,7 +1097,7 @@ fibonacci(maxCount Natural) => Natural {
 	for i in [0..maxCount] do {
 		i >+ sum
 	}
-	sum =>
+	=> sum
 }
 
 ```
@@ -1151,20 +1151,20 @@ Recursion can be used
 ```bash
 fibonacci(count Natural) => Natural {
 	if {count = 0} | {count = 1} do {
-		count =>
+		=> count
 	}
-	fibonacci(count - 1) + fibonacci(count - 2) =>
+	=> fibonacci(count - 1) + fibonacci(count - 2)
 }
 
 factorial(n Natural) {
 	if n = 0 do {
-		1 =>
+		=> 1
 	}
-	n * factorial(n-1) =>
+	=> n * factorial(n-1)
 }
 ```
 
-### Function reference
+### Function reference @candidate
 
 The reference of a function is used to refer to the function itself.
 It is represented with `::` (double colon).
@@ -1221,33 +1221,33 @@ The types and return type can be inferred, making the definition less verbose
 # with a default implementation which returns the sum of the parameters
 
 # variable ::(params)   => return  _ default implementation
-myFunction ::(Int, Int) => Int     _ ::(x Int, y Int) => Int {x + y =>}
+myFunction ::(Int, Int) => Int     _ ::(x Int, y Int) => Int {=> x + y}
 ```
 ```bash
 # the default implementation can infer the type and return value
 # variable ::(params)   => return  _ default implementation
-myFunction ::(Int, Int) => Int     _ ::(x, y) {x + y =>}
+myFunction ::(Int, Int) => Int     _ ::(x, y) {=> x + y}
 
 
 # Alternatively, if parameters are named...
 # variable ::(params)       => return  _ default implementation
-myFunction ::(x Int, y Int) => Int     _ ::{x + y =>}
+myFunction ::(x Int, y Int) => Int     _ ::{=> x + y}
 ```
 
 Some more examples
 ```bash
 myFunction ::(Int, Int) => Int
 
-::(x, y) {x + y =>} > myFunction
+::(x, y) {=> x + y} > myFunction
 myFunction(60, 9) > \out #myFunction will print 69 (60 + 9 = 69)
 
-::(x, y) {x - y =>} > myFunction
+::(x, y) {=> x - y} > myFunction
 myFunction(79, 10) > \out #myFunction will print 69 (79 - 10 = 69)
 
-::(x, y) {x * y =>} > myFunction
+::(x, y) {=> x * y} > myFunction
 myFunction(23, 3) > \out #myFunction will print 69 (23 * 3 = 69)
 
-::(x, y) {x / y =>} > myFunction
+::(x, y) {=> x / y} > myFunction
 myFunction(28980, 420) > \out #myFunction will print 69 (28980 / 420 = 69)
 ```
 
@@ -1284,7 +1284,7 @@ Callbacks (
 
 	# A reference to a function with two Bool parameters, a Bool return value and a default implementation
 	callback6 ::(a Bool, b Bool) => Bool _ ::{
-		a & b =>
+		=> a & b
 	}
 
 	#{
@@ -1332,7 +1332,7 @@ Callbacks (
 	#	Invoke a callback and print its return value 69 times
 	#	@param callback ::(iteration index)
 	#	@code
-	#	aFunction4(::(index){index^2 =>})
+	#	aFunction4(::(index){=> index^2})
 	#}
 	aFunction4(callback ::(Int) => Int){
 		for i in 0..69 do {
@@ -1380,7 +1380,7 @@ c.callback2() # will print txt num times
 		txt > \out
 	}
 	# return true if number is even
-	num < 10 =>
+	=> num < 10
 } > c.callback3
 
 c.callback3() > result Bool # will print txt num times, and return true if num is less than 10
@@ -1388,7 +1388,7 @@ c.callback3() > result Bool # will print txt num times, and return true if num i
 
 ```bash
 ::{
-	true =>
+	=> true
 } > c.callback4
 
 c.callback4() > result Bool # will return true
@@ -1409,7 +1409,7 @@ c.callback5() # will print "default hello world"
 
 ```bash
 ::(a, b) {
-	a | b =>
+	=> a | b
 } > c.callback6
 c.callback6(true, false) > result Bool # will return true if a OR b are true
 
@@ -1492,7 +1492,7 @@ printShelfTableHTML(shelf [Book]) {
 }
 
 toRowHTML(book Book) => Text {
-	"{
+	=> "{
 	<tr>
 		<td>${book.name}</td>
 		<td>${book.description}</td>
@@ -1500,7 +1500,7 @@ toRowHTML(book Book) => Text {
 		<td>${book.pageCount}</td>
 		<td>${book.author}</td>
 	</tr>
-	"} =>
+	"}
 }
 
 
@@ -1596,7 +1596,7 @@ recursivePrintList(root)
 findMinElement(list [Text]) => Text {
 	if list@{%} < 1 do {
 		"list is empty" > \error
-		"" =>
+		=> ""
 	}
 	list@0 > min Text
 	for element in list do {
@@ -1604,13 +1604,13 @@ findMinElement(list [Text]) => Text {
 			element > min
 		}
 	}
-	min =>
+	=> min
 }
 
 findMinElementIndex(list [Text]) => Int {
 	if list@{%} < 1 do {
 		"list is empty" > \out
-		-1 =>
+		=> -1
 	}
 	0 > min Int
 	for index in list@{@} do {
@@ -1618,7 +1618,7 @@ findMinElementIndex(list [Text]) => Int {
 			index > min
 		}
 	}
-	min =>
+	=> min
 }
 
 ["z" "s" "a" "h" "j" "h" "w" "f"] > letters [Text]
@@ -1682,3 +1682,6 @@ div(1, 2)
 	> errorDescription Text
 
 ```
+
+## Module system
+

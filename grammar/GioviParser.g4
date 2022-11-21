@@ -15,7 +15,8 @@ program: statement*;
 block: '{' statement* '}';
 
 statement
-	: ifStatement
+	: statement SEMICOLON
+	| ifStatement
 	| switchStatement
 	| repeatStatement
 	| forStatement
@@ -36,7 +37,7 @@ forStatement: FOR iterators IN collection=expression DO block;
 
 iterators: identifier (',' identifier)* ;
 
-returnStatement: expression? RETURN;
+returnStatement: RETURN expression?;
 
 breakStatement: BREAK;
 
@@ -98,13 +99,15 @@ functionParameter: (identifier ':')? expression;
 ////////////////////////////////////////////////
 // FLOW CONTROL
 
-ifStatement: IF expression DO ifBody=block (ELSE elseBody=block)? ;
-	
-switchStatement: IF expression switchBlock (ELSE elseBody=block)? ;
+statementOrBlock: statement | block;
+
+ifStatement: IF expression DO ifBody=statementOrBlock (ELSE elseBody=statementOrBlock)? ;
+
+switchStatement: IF expression switchBlock (ELSE elseBody=statementOrBlock)? ;
 
 switchBlock: '{' switchLabel+ '}';
 
-switchLabel: caseMatch DO block;
+switchLabel: caseMatch DO body=statementOrBlock;
 
 caseMatch
 	: '{' caseMatch '}'                                      #parenthesizedCaseMatch
