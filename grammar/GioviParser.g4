@@ -31,9 +31,11 @@ statement
 	| expression
 	;
 
-repeatStatement: REPEAT (IF expression)? block;
+statementOrBlock: statement | block;
 
-forStatement: FOR iterators IN collection=expression DO block;
+repeatStatement: REPEAT (IF expression)? statementOrBlock;
+
+forStatement: FOR iterators IN collection=expression DO statementOrBlock;
 
 iterators: identifier (',' identifier)* ;
 
@@ -98,8 +100,6 @@ functionParameter: (identifier ':')? expression;
 
 ////////////////////////////////////////////////
 // FLOW CONTROL
-
-statementOrBlock: statement | block;
 
 ifStatement: IF expression DO ifBody=statementOrBlock (ELSE elseBody=statementOrBlock)? ;
 
