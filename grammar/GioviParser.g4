@@ -64,7 +64,7 @@ redirectionOperator
 
 constantDeclaration: CONSTANT identifier type expression;
 
-varDeclaration: identifier type;
+varDeclaration: identifier type defaultDefinition?;
 
 defaultDefinition: defaultLiteral expression;
 

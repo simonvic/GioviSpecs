@@ -345,6 +345,18 @@ _ > someText          # This will set someText to empty string
 _ > someBoolean       # This will set someBoolean to false
 ```
 
+It is also possible to overwrite a variable default value
+```bash
+69 > number Natural _ 420
+69.69 > someOtherNumber Real _ 4.20
+"This is a text" > someText Text _ "default text"
+false > someBoolean Bool _ true
+
+_ > number            # This will set number to 420
+_ > someOtherNumber   # This will set someOtherNumber to 4.20
+_ > someText          # This will set someText to "default text"
+_ > someBoolean       # This will set someBoolean to true
+```
 
 ### Struct default value
 
