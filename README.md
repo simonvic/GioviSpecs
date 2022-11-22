@@ -72,13 +72,13 @@ The idea is to make a data-centric, typed scripting language, easy to read but m
 
 ### Primitive Types
 
-| Type name | Possible values | Default value |
-| --------- | --------------- | ------------- |
-| Natural   | 0 .. +inf       | 0             |
-| Int       | -inf .. +inf    | 0             |
-| Real      | -inf .. +inf    | 0.0           |
-| Bool      | false / true    | false         |
-| Text      |                 | (empty text)  |
+| Type name | Possible values                  | Default value |
+| --------- | -------------------------------- | ------------- |
+| Natural   | 0 .. +4,294,967,295              | 0             |
+| Int       | -2,147,483,648 .. +2,147,483.647 | 0             |
+| Real      | up to 16 decimal digits          | 0.0           |
+| Bool      | false / true                     | false         |
+| Text      |                                  | (empty text)  |
 
 ```bash
 # Declaration
@@ -599,19 +599,19 @@ A list is a collection of variables that can be accessed via the index. The inde
 
 ### Operators
 
-| Operation         | Symbol | Example        |
-| ----------------- | ------ | -------------- |
-| Assignment        | >      | [1 2 3] > list |
-| Insert            | >+     | 4 >+ list      |
-| Remove            | >-     | 4 >- list      |
+| Operation  | Symbol | Example        |
+| ---------- | ------ | -------------- |
+| Assignment | >      | [1 2 3] > list |
+| Insert     | >+     | 4 >+ list      |
+| Remove     | >-     | 4 >- list      |
 
 #### Relational
 
-| Operation               | Symbol | Example              |
-| ----------------------- | ------ | -------------------- |
-| Equal                   | =      | if [1 2 3] = [1 2 3] |
-| Contains                | =~     | if list =~ 2         |
-| Is contained            | ~=     | if 2 ~= list         |
+| Operation    | Symbol | Example              |
+| ------------ | ------ | -------------------- |
+| Equal        | =      | if [1 2 3] = [1 2 3] |
+| Contains     | =~     | if list =~ 2         |
+| Is contained | ~=     | if 2 ~= list         |
 
 
 ```bash
@@ -1684,4 +1684,10 @@ div(1, 2)
 ```
 
 ## Module system
-
+```bash
+import some.fully.qualified.module
+import [
+	some.fully.qualified.module
+	someother.fully.qualified.module
+]
+```
