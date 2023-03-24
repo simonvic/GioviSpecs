@@ -52,6 +52,7 @@ redirection
 	: expression bop = '>' varDeclaration                   # redirectionToVarDeclaration
 	| expression bop = '>' primitiveDestination             # redirectionToPrimitiveDestination
 	| expression bop = redirectionOperator identifier       # redirectionToIdentifier
+	| expression bop = redirectionOperator expression       # redirectionToExpression //@TODO this will definitely cause some problems
 	| expression bop = redirectionOperator collectionAccess # redirectionToCollectionAccess
 	;
 
@@ -80,9 +81,10 @@ structBodyDefinition: (structAttributeDefinition | structDefinition | functionDe
 
 structAttributeDefinition: identifier type defaultDefinition? ';'?;
 
-structCreation: (identifier ':')? '(' structAttribute+ ')' ';'?;
-
-structAttribute: (identifier ':')? expression ';'?;
+namedStructCreation: (structType = identifier '.')? '(' namedStructAttribute+ ')' ';'?;
+namedStructAttribute: identifier ':' expression ';'?;
+unnamedStructCreation: (structType = identifier '.')? '(' unnamedStructAttribute+ ')' ';'?;
+unnamedStructAttribute: expression ';'?;
 
 ////////////////////////////////////////////////
 // FUNCTIONS
@@ -125,23 +127,24 @@ caseMatch
 //expressionList: expression (',' expression)*;
 
 expression
-	: '{' expression '}'                               # parenthesizedExpression
-	| expression bop = '.' (identifier | functionCall) # dotExpression
-	| collectionAccess                                 # collectionAccessExpression
-	| listCreation                                     # listCreationExpression
-	| mapCreation                                      # mapCreationExpression
-	| structCreation                                   # structCreationExpression
-	| functionCall                                     # functionCallExpression
-	| prefix = ('+' | '-') expression                  # prefixedExpression
-	| prefix = '!' expression                          # notExpression
-	| expression bop = '^' expression                  # powerExpression
-	| expression bop = ('*' | '/' | '%') expression    # multiplicativeExpression
-	| expression bop = ('+' | '-') expression          # additiveExpression
-	| expression bop = ('<=' | '>=' | '>' | '<')       # relationalExpression
-	| expression bop = ('=' | '!=') expression         # equalityExpression
-	| expression bop = ('~=' | '=~') expression        # containmentExpression
-	| expression bop = ('&' | '|') expression          # boolExpression
-	| primary                                          # primaryExpression
+	: '{' expression '}'                                     # parenthesizedExpression
+	| expression bop = '.' (identifier | functionCall)       # dotExpression
+	| collectionAccess                                       # collectionAccessExpression
+	| listCreation                                           # listCreationExpression
+	| mapCreation                                            # mapCreationExpression
+	| namedStructCreation                                    # namedStructCreationExpression
+	| unnamedStructCreation                                    # unnamedStructCreationExpression
+	| functionCall                                           # functionCallExpression
+	| prefix = ('+' | '-') expression                        # prefixedExpression
+	| prefix = '!' expression                                # notExpression
+	| expression bop = '^' expression                        # powerExpression
+	| expression bop = ('*' | '/' | '%') expression          # multiplicativeExpression
+	| expression bop = ('+' | '-') expression                # additiveExpression
+	| expression bop = ('<=' | '>=' | '>' | '<') expression  # relationalExpression
+	| expression bop = ('=' | '!=') expression               # equalityExpression
+	| expression bop = ('~=' | '=~') expression              # containmentExpression
+	| expression bop = ('&' | '|') expression                # boolExpression
+	| primary                                                # primaryExpression
 	;
 
 primary: literal | identifier;
