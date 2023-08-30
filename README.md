@@ -5,7 +5,7 @@ The idea is to make a data-centric, typed scripting language, easy to read but m
 
 ## Comments
 
-```bash
+```ruby
 # Single line comment
 
 #{
@@ -45,27 +45,27 @@ The idea is to make a data-centric, typed scripting language, easy to read but m
 
 ## Relational
 
-| Operation                  | Symbol | Example    |
-| -------------------------- | ------ | ---------- |
-| More than value            | >      | if 10 > 2  |
-| Less than value            | <      | if 2 < 10  |
-| More or equal to the value | >=     | if 10 >= 2 |
-| Less or equal to the value | <=     | if 2 <= 10 |
-| Equal                      | =      | if 10 = 10 |
-| Not equal                  | !=     | if 10 != 2 |
+| Operation                  | Symbol | Example |
+| -------------------------- | ------ | ------- |
+| More than value            | >      | 10 > 2  |
+| Less than value            | <      | 2 < 10  |
+| More or equal to the value | >=     | 10 >= 2 |
+| Less or equal to the value | <=     | 2 <= 10 |
+| Equal                      | =      | 10 = 10 |
+| Not equal                  | !=     | 10 != 2 |
 
 
 
 ## Text related
 
-| Operation                      | Symbol | Example                       | Output                     |
-| ------------------------------ | ------ | ----------------------------- | -------------------------- |
-| Concatenation                  | +      | "Hello" + " " + "World"       | "Hello World"              |
-| Remove substring               | -      | "Hello world" - "world"       | "Hello "                   |
-| Append to variable             | >+     | "Hello world" >+ someText     | "$someText Hello world"    |
-| Remove substring from variable | >-     | "substring" >- someText       | someText without substring |
-| Text contains                  | =~     | if "Hello world" =~ "lo worl" | true                       |
-| Text is contained              | ~=     | if "lo worl" ~= "Hello world" | true                       |
+| Operation                      | Symbol | Example                    | Output                     |
+| ------------------------------ | ------ | -------------------------- | -------------------------- |
+| Concatenation                  | +      | "Hello" + " " + "World"    | "Hello World"              |
+| Remove substring               | -      | "Hello world" - "world"    | "Hello "                   |
+| Append to variable             | >+     | "Hello world" >+ someText  | "$someText Hello world"    |
+| Remove substring from variable | >-     | "substring" >- someText    | someText without substring |
+| Text contains                  | =~     | "Hello world" =~ "lo worl" | true                       |
+| Text is contained              | ~=     | "lo worl" ~= "Hello world" | true                       |
 
 
 ## Variables
@@ -80,7 +80,7 @@ The idea is to make a data-centric, typed scripting language, easy to read but m
 | Bool      | false / true                     | false         |
 | Text      |                                  | (empty text)  |
 
-```bash
+```ruby
 # Declaration
 index Int                 # Example declaration of int
 age Natural               # Example declaration of natural
@@ -115,7 +115,7 @@ Pretty empty
 ```
 
 Assign variables to other variables is possible
-```bash
+```ruby
 number Int
 copyOfNumber Int
 
@@ -127,7 +127,7 @@ number > copyOfNumber
 
 Double quotes will interpret variables (dollar sign will need escaping)
 Single quotes will not
-```bash
+```ruby
 "Simone" > name Text
 "Vicinanza" > surname Text
 
@@ -138,7 +138,7 @@ fullName Text
 ```
 
 If you need to have something immediately after the variable, without a space, you can wrap the variable name in curly braces
-```bash
+```ruby
 "Mario" > name Text
 "Rossi" > surname Text
 
@@ -152,7 +152,7 @@ If you need to have something immediately after the variable, without a space, y
 ```
 
 Text can also interpret code block (see Functions)
-```bash
+```ruby
 getName() => Text { 
 	=> "simonvic"
 }
@@ -164,10 +164,10 @@ I'm am ${getName()}
 ```
 
 If you don't want variables/code to be interpteted, use single quotes (`'`) strings/text block
-```bash
+```ruby
 '{
 Hello,
-I have $69
+I have $USD 69
 '}
 ```
 
@@ -202,11 +202,9 @@ The general rules for naming variables are:
 
 ### Struct
 
-A Struct is a structured data type that you can define.
+A Struct is a structured data type that you can define; it can contains primitive types or other Structs.
 
-It can contains primitive types or other Structs. It can also be a recursive struct (a Struct containing a Struct of the same type), but a default value must be specified. See Linked List example.
-
-```bash
+```ruby
 # Definition
 
 Color (
@@ -216,14 +214,14 @@ Color (
 )
 
 Person (
-	Car (     # Nested struct definition
-		model Text        # it will be reusable from now on
-		paint Color       # within the Person scope
-	)
 	name Text
 	surname Text
 	age Natural
 	favoriteColor Color
+	Car (     # Nested struct definition
+		model Text        # it will be reusable within the Person scope
+		paint Color
+	)
 	favoriteCar Car
 	ownedCar Car
 )
@@ -234,15 +232,17 @@ red Color  # (0 0 0)
 (255 0 0) > red
 (255 0 255) > magenta Color
 
-(	"Simon"              # Name
+(
+	"Simon"              # Name
 	"Vic"                # Surname
 	22                   # Age
 	red                  # Favorite color
 	("Ferrari" red)      # Favorite car
-	("Fiat 600" magenta) # Owned car
+	("Fiat600" magenta)  # Owned car
 ) > me Person
 
 # Setting struct attribute
+23 > me.age
 (237 144 45) > me.favoriteColor
 
 # Accessing struct attributes
@@ -250,12 +250,19 @@ me.name > myName Text
 me.favoriteColor > myFavoriteColor Color
 ```
 
-To improve readability you can use named attribute
+When creating a struct, you can name the fields to improve readeability.
+When using named fields, the order does not matter.
 
-```bash
-(	age: 22
+```ruby
+(
+	age: 22
 	surname: "Vic"
-	favoriteColor: red
+	name: "Simon"
+	favoriteColor: (
+		red: 255
+		green: 69
+		blue: 42
+	)
 	favoriteCar: (
 		model: "Ferrari"
 		paint: red
@@ -263,21 +270,96 @@ To improve readability you can use named attribute
 ) > me Person
 ```
 
-When creating a struct, its type is inferred, but you can optionally specify its type
-
-```bash
-Color::(255 255 255)
-
-Person::(
-	22
-	"Vic"
-	red
-	Car::("Ferrari" red)
+You can also specify a subset of the fields; unspecified fields will be
+initialized with their default value.
+Note that this is not possible when the field names are not specified.
+```ruby
+(
+	age: 23
+	favoriteCar: (
+		model: "Ferrari"
+	)
 ) > me Person
 ```
 
-Struct functions @candidate
-```bash
+
+When creating a struct, its type is inferred, but you can optionally specify its type
+
+```ruby
+Color.(255 0 0) > red Color
+
+Person.(
+	age: 22
+	surname: "Vic"
+	favoriteColor: red
+	favoriteCar: Car.(
+		model: "Ferrari"
+		color: red
+	)
+) > me Person
+```
+
+Creating a struct with a type but no fields, will create a default struct of
+that type
+```ruby
+Color.() > defaultColor Color
+```
+
+#### Nested struct @candidate
+
+You can define struct within struct.
+```ruby
+Car (
+	Engine (
+		horsePower Real
+		isElectric Bool
+	)
+	model Text
+	primaryEngine Engine
+	secondaryEngine Engine
+)
+Person (
+	name Text
+	favoriteCar Car
+)
+```
+The nested struct definition will be evaluated immediately and can be used by
+other fields. But it's good practice to put it on top.
+
+You can access the nested struct using the dot notation
+```ruby
+engine Car.Engine
+```
+
+You can also define nested struct inline (immediately after the field
+definition), but the type definition won't be immediately available, hence
+not usable from fields defined before.
+```ruby
+Person (
+	name Text
+	age Natural
+	# someColor Color
+	#           ^^^^^ Error! Color not defined
+	favoriteColor Color (
+		red Natural
+		green Natural
+		blue Natural
+	)
+)
+```
+
+#### Recursive struct @candidate
+
+You can define recursive struct (struct defined with itself)
+```ruby
+Node (
+	data Text
+	nextNode Node _ null
+)
+```
+
+#### Struct functions @candidate
+```ruby
 Vehicle (
 	speedKmH Int
 	
@@ -299,10 +381,89 @@ car.accelerate(10)
 "${car.speedToMilesPerHour()} MPH" > \out
 ```
 
+
+
+#### Structs inheritance
+
+A struct can inherit the fields from another struct.
+It can define new fields and override the default value of an inherited field.
+```ruby
+Vehicle (
+	paint Color
+	wheelCount Natural
+)
+
+Vehicle : Car (
+	wheelCount Natural _ 4
+	licensePlate Text
+)
+
+Vehicle : Bike (
+	wheelCount Natural _ 2
+	tireType Text
+)
+
+Bike : MotorBike (
+	isOffroad Bool
+)
+```
+
+#### Nested structs definition inheritance @candidate
+
+Nested definition are "static" and are not inherited.
+```ruby
+Vehicle (
+	engine Engine (
+		horsePower Real
+	)
+	wheelsCount Int
+)
+Vehicle : Car (
+	wheelsCount Int _ 4
+	plate Text _ "xxx"
+	# secondaryEngine Engine
+	#                 ^^^^^^ Error! Engine not defined
+)
+```
+
+But you can use the dot notation
+```ruby
+Vehicle (
+	engine Engine (
+		horsePower Real
+	)
+	wheelsCount Int
+)
+Vehicle : Car (
+	wheelsCount Int _ 4
+	plate Text _ "xxx"
+	secondaryEngine Vehicle.Engine
+)
+```
+
+or you can also specialize the nested struct
+```ruby
+Vehicle (
+	engine Engine (
+		horsePower Real
+	)
+	wheelsCount Int
+)
+Vehicle : Car (
+	wheelsCount Int _ 4
+	plate Text _ "xxx"
+	Vehicle.Engine : Engine (
+		fuelType Text
+	)
+	secondaryEngine Engine
+	#               ^^^^^^ Car.Engine, which inherits from Vehicle.Engine
+)
+```
+
 ### Constants
 
-Constants are readonly, its value is defined at declaration
-```bash
+Constants are readonly; its value is defined at declaration and cannot change.
+```ruby
 # constant <VARIABLE_NAME> <type> <value>
 constant LIGHT_SPEED Natural 299792458
 constant EARTH_GRAVITY Real 9.81
@@ -331,7 +492,7 @@ constant NAME_LIST [Text] [
 
 The `_` (underscore) symbol represent the default value of a type
 
-```bash
+```ruby
 69 > number Natural
 -420 > anotherNumber Integer
 69.69 > someOtherNumber Real
@@ -346,7 +507,7 @@ _ > someBoolean       # This will set someBoolean to false
 ```
 
 It is also possible to overwrite a variable default value
-```bash
+```ruby
 69 > number Natural _ 420
 69.69 > someOtherNumber Real _ 4.20
 "This is a text" > someText Text _ "default text"
@@ -358,18 +519,17 @@ _ > someText          # This will set someText to "default text"
 _ > someBoolean       # This will set someBoolean to true
 ```
 
-### Struct default value
+#### Struct default value
 
 Struct default value is a struct with all primitives default
 
-```bash
+```ruby
 someColor Color           # By default structs values will have their type default value   
 (255 255 0) > someColor   # Setting someColor to (255 255 0)
 _ > someColor             # This will set someColor to (0 0 0)
-_ > someOtherColor Color  # This will be initialized with default values
 ```
 
-```bash
+```ruby
 # Color with overridden defaults
 Color (
 	red Natural _ 255
@@ -382,7 +542,7 @@ _ > someColor                  # Set someColor to default (255 255 255)
 ```
 
 If the default is not defined, the type default will be used
-```bash
+```ruby
 Person (
 	Car (
 		model Text
@@ -405,59 +565,34 @@ somebody Person
 # somebody.favoriteCar is ("" (40 40 40))
 # somebody.ownedCar is ("" (40 40 40))
 
-( "Fiat 600" (10 100 20)) > somebody.ownedCar
+("Fiat 600" (10 100 20)) > somebody.ownedCar
 # somebody.ownedCar is now ("Fiat 600" (10 100 20))
 
 _ > somebody.ownedCar
 # somebody.ownedCar is now ("" (40 40 40))
 
 
-( "Ferrari" (255 255 255)) > somebody.favoriteCar
+("Ferrari" (255 255 255)) > somebody.favoriteCar
 # somebody.favoriteCar is now ("Ferrari" (255 255 255))
 
 _ > somebody.favoriteCar.paint
 # somebody.favoriteCar is now ("Ferrari" (40 40 40 ))
 ```
 
-A default value of a specific attribute can be accessed with the struct name
-
-```bash
+A default value of a specific attribute can be accessed with the struct name @candidate
+```ruby
 Person.name > defaultPersonName Text              # defaultPersonName will be "No name"
 Person.favoriteColor > defaultFavoriteColor Color # defaultFavoriteColor will be (255 0 0)
 ```
 
 
-### Structs inheritance @candidate
-
-```bash
-Vehicle (
-	paint Color
-	wheelCount Natural
-)
-
-Vehicle : Car (
-	wheelCount _ 4
-	licensePlate Text
-)
-
-Vehicle : Bike (
-	wheelCount _ 2
-	tireType Text
-)
-
-Bike : MotorBike (
-	isOffroad Bool
-)
-```
-
-
 ## Logical operators
 
-| Operation | Symbol | Example            |
-| --------- | ------ | ------------------ |
-| And       | &      | if 10 > 2 & 10 > 5 |
-| Or        | \|     | if 10 > 2 \| 5 > 2 |
-| Not       | !      | if !{2 > 10}       |
+| Operation | Symbol | Example         |
+| --------- | ------ | --------------- |
+| And       | &      | 10 > 2 & 10 > 5 |
+| Or        | \|     | 10 > 2 \| 5 > 2 |
+| Not       | !      | !{2 > 10}       |
 
 
 ## Control structure
@@ -479,7 +614,7 @@ if <condition> do {
 
 Example:
 
-```bash
+```ruby
 1 > x Int
 69 > y Int
 
@@ -496,7 +631,7 @@ if x > y & x > 10 do {
 
 Curly braces are used to optionally wrap conditions. The followings will evaluate the same conditions
 
-```bash
+```ruby
 if x < 0 & x > 10 do {}
 if {x < 0 & x > 10} do {}
 if {x < 0} & {x > 10} do {}
@@ -525,7 +660,7 @@ if <variable> {
 
 Example:
 
-```bash
+```ruby
 69 > x Int
 
 if x {
@@ -535,7 +670,7 @@ if x {
 	}
 
 	# x is equal 2 or equal 3
-	{= 2} | {= 3} do {
+	= 2 | = 3 do {
 		# body
 	}
 
@@ -553,8 +688,6 @@ if x {
 	= _ do {
 		# body
 	}
-
-
 } else {
 	# no conditions have been met
 }
@@ -571,7 +704,7 @@ if name {
 
 
 Comparing struct
-```bash
+```ruby
 FullName (
 	name Text
 	surname Text
@@ -597,7 +730,8 @@ if myFullName do {
 	= ("Simone" "Vicinanza") | = ("Alessio" "Vicinanza") do {}
 
 	# myFullName is adminName or ("Paolo" adminName.surname)
-	{= adminName} | {=("Paolo" adminName.surname)} do {}
+	= adminName
+	| = ("Paolo" adminName.surname) do {}
 
 }
 ```
@@ -619,14 +753,14 @@ A list is a collection of variables that can be accessed via the index. The inde
 
 #### Relational
 
-| Operation    | Symbol | Example              |
-| ------------ | ------ | -------------------- |
-| Equal        | =      | if [1 2 3] = [1 2 3] |
-| Contains     | =~     | if list =~ 2         |
-| Is contained | ~=     | if 2 ~= list         |
+| Operation    | Symbol | Example           |
+| ------------ | ------ | ----------------- |
+| Equal        | =      | [1 2 3] = [1 2 3] |
+| Contains     | =~     | list =~ 2         |
+| Is contained | ~=     | 2 ~= list         |
 
 
-```bash
+```ruby
 # Declaration
 # NOTE: Default value is an empty list
 listOfNames [Text]
@@ -657,7 +791,7 @@ listOfNames [Text]
 
 List type inference @candidate
 
-```bash
+```ruby
 # List type can be omitted when declaring and initializing
 # It will be inferred from the first element inserted
 [1.0 0.5 2.5] > listOfReal []                  # List of Real ([Real])
@@ -677,13 +811,13 @@ List type inference @candidate
 
 Accessing list elements is done with the `@` symbol followed by the index (optionally wrapped in curly braces)
 
-```bash
+```ruby
 <list>@<index>
 or
 <list>@{<index or expression>}
 ```
 
-```bash
+```ruby
 # Defining a list of Text
 [ "a" "b" "c" "d" ] > letters [Text]
 
@@ -719,7 +853,7 @@ letters@{-12} > secondToLastElement Text
 
 The List collection have some special accessor
 
-```bash
+```ruby
 [ "a" "b" "c" ] > letters [Text]
 
 # List length
@@ -738,7 +872,7 @@ for index in letters@{@} do {
 ```
 
 Comparing Lists
-```bash
+```ruby
 numbers [Int]
 [ 1 2 3 4 ] > numbers
 
@@ -751,7 +885,8 @@ if numbers {
 	= [1 2 3] do {}
 	
 	# if equal to a list of [1 2 3 4] or [4 5 6 7]
-	= [1 2 3 4] | = [4 5 6 7] do {}
+	= [1 2 3 4]
+	| = [4 5 6 7] do {}
 	
 	# if equal to a list of [1 2 3 4] or elements count equal to 10
 	= [1 2 3 4] | numbers@{%} = 10 do {}
@@ -772,7 +907,7 @@ if numbers {
 
 A multidimensional list (matrix) can be defined as follows
 
-```bash
+```ruby
 identityMatrix [[Real]]
 
 [	
@@ -786,7 +921,7 @@ Values can be accessed as normal lists
 
 `nameOfList@row@column`
 
-```bash
+```ruby
 # Example of a Rubik cube multidimensional list
 # for simplicity, we're storing color name instead of a Color struct
 rubikCube [[[Text]]]
@@ -835,7 +970,7 @@ A set is an unordered collections in which duplicates element are not allowed
 
 A map contains values on the basis of key, i.e. key and value pair. Each key and value pair is known as an entry. Map keys are unique.
 
-```bash
+```ruby
 carCount [Text : Int]
 
 [ "Audi" : 1 ] >+ carCount    # Insert new key "Audi"
@@ -853,21 +988,21 @@ carCount [Text : Int]
 
 Default values can be used
 
-```bash
+```ruby
 [ "Fiat" : _ ] >+ carCount
 _ > carCount@{"Fiat"}
 ```
 
 Values can be accessed by key
 
-```bash
+```ruby
 carCount@{"BMW"} > bmwCount Int     # Get value of key "BMW"
 ```
 
 
 ### Special characters
 
-```
+```ruby
 carCount@{%} > entriesCount Int  # Get count of key/value pairs
 carCount@{@} > keys [Text]       # Get all keys
 carCount@{*} > values [Int]      # Get all values
@@ -875,7 +1010,7 @@ carCount@{*} > values [Int]      # Get all values
 
 Examples
 
-```bash
+```ruby
 bank [Text : Real]
 [
 	"Simone" : 69.0
@@ -902,28 +1037,28 @@ for money in bank@{*} do {
 ## Sequence operator
 
 The sequence operator lets you quickly define a sequence of elements
-```bash
+```ruby
 [0..5] > fromZeroToFive [Int]         # List of Integer equal to [0 1 2 3 4 5]
 [3..5] > fromThreeToFiveReal [Real]   # List of Real equal to [3.0 4.0 5.0]
 ["a".."d"] > fromAtoZ [Text]          # List of Text equal to [a b c d]
 ```
 
 Descending sequences can be defined
-```bash
+```ruby
 [5..0] > fromZeroToFive [Int]         # List of Integer equal to [5 4 3 2 1]
 [5..3] > fromThreeToFiveReal [Real]   # List of Real equal to [5.0 4.0 3.0]
 ["d".."a"] > fromAtoZ [Text]          # List of Text equal to [d c b a]
 ```
 
 A step value can also be used
-```bash
+```ruby
 [0..10..2] > evenNumbers [Int]        # List of Integer equal to [0 2 4 6 8 10]
 [0..1..0.1] > fromZeroToOne [Real]    # List of Real equal to [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 ["a".."g"..2] > listOfLetters [Text]  # List of Text equal to [a c e g]
 ```
 
 Variables can be used
-```bash
+```ruby
 0 > start Int
 10 > end Int
 2 > step Int
@@ -949,7 +1084,7 @@ The continue keyword will skip the current iteration, and continue with the next
 
 ## repeat keyword
 
-```bash
+```ruby
 repeat {
 	<body> # the body will be repeated for an undefined amount of time
 }
@@ -960,7 +1095,7 @@ repeat if <condition> {
 ```
 
 A do-while loop can be achieved like so
-```bash
+```ruby
 repeat {
 	<body>  # the body will be executed once and repeated if the condition is false
 	if <condition> do {
@@ -972,25 +1107,21 @@ repeat {
 
 ## For loop
 
-The for loop is mainly used to iterate over List
-```bash
+The for loop is used to iterate over lists, maps, or sequences
+```
 # <variable> type will be inferred from the List type
-for <variable> in <List> do {
+for <variable> in <list|map|sequence> do {
 	<body>
 }
+
+# Single statement can be used
+for <variable> in <list|map|sequence> do <statement>
 ```
 
-```bash
-[0 1 2 3 4] > numbers [Int]
-for number in numbers do {}
-
-["Simone" "Luca" "Paolo"] > names [Text]
-for name in names do {}
-
-["Simone":69 "Luca":420 "Paolo":10] > bank [Test : Int]
-for key value in bank do {}
-
-# The sequence operator can be used
+```ruby
+for number in [1 2 3 4] do {}
+for name in ["Simone" "Luca" "Paolo"] do {}
+for key value in ["Simone":69 "Luca":420 "Paolo":10] do {}
 for i in 0..10 do {}
 
 # Iterating list over indeces
@@ -999,14 +1130,14 @@ for i in 0..names@{%} do {}
 
 Iterating over list of struct
 
-```bash
+```ruby
 [(0 255 0) (55 0 255) (255 255 255)] > colors [Color]
 for color in colors do {}
 ```
 
 The for loop also tries to deconstruct the struct if the variables are the same of the struct
 
-```bash
+```ruby
 [(0 255 0) (55 0 255) (255 255 255)] > colors [Color]
 for red green blue in colors do {}
 ```
@@ -1029,7 +1160,7 @@ for red green blue in colors do {}
 
 Print to standard output
 
-```bash
+```ruby
 "Hello world" > \out
 
 "I'm going to print the lorem ipsum" > \out
@@ -1046,7 +1177,7 @@ Pariatur nam nobis placeat. Consequuntur laborum consequatur accusantium totam o
 
 Print to standard error
 
-```bash
+```ruby
 "Some error happened" > \error
 
 "I'm going to print some details:" > \error
@@ -1076,7 +1207,7 @@ Functions are special types of code block
 }
 ```
 
-```bash
+```ruby
 printHelloWorld() {
 	"Hello World" > \out
 }
@@ -1111,18 +1242,24 @@ fibonacci(maxCount Natural) => Natural {
 	}
 	=> sum
 }
-
 ```
 
-```bash
+```ruby
 printHelloWorld()
 greetPerson()
 sum(2, 2) > sumResult Int
 division(10, 3) > divisionResult Real
 ```
 
+To return a value, you can alternatively use the return keyword @candidate
+```ruby
+sum(x Int, y Int) => Int {
+	return x + y
+}
+```
+
 Function parameters can also have default values
-```bash
+```ruby
 # if num is not specified when calling the
 # function, num will be 10
 count(num Natural _ 10) {
@@ -1148,7 +1285,7 @@ greet("Simone")
 ```
 
 Functions parameters can be explicitly specified, so the order won't matter
-```bash
+```ruby
 greet(name Text, age Natural) {
 	"My name is $name" > \out
 	"My age is $age" > \out
@@ -1160,7 +1297,7 @@ greet(age:22, name:"Simone")
 ```
 
 Recursion can be used
-```bash
+```ruby
 fibonacci(count Natural) => Natural {
 	if {count = 0} | {count = 1} do {
 		=> count
@@ -1176,13 +1313,23 @@ factorial(n Natural) {
 }
 ```
 
+### Statement functions @candidate
+
+Functions can have a single statement instead of a body; in case the function
+returns a value, it's return type can be omitted as it will be inferred
+```ruby
+sum(x Int, y Int) => x + y
+isEven(x Int) => x % 2 = 0
+greet(name Text) name > \out
+```
+
 ### Function reference @candidate
 
 The reference of a function is used to refer to the function itself.
 It is represented with `::` (double colon).
 
 It can be stored in variables and struct, and can be passed as a parameter to other functions as well.
-```bash
+```ruby
 printSomething(txt Text) {
 	txt > \out
 }
@@ -1201,7 +1348,7 @@ Function types are defined as follows
 ```
 
 Anonymous function can also be defined
-```bash
+```ruby
 functionRef ::()
 
 # Assign an anonymouse function to functionRef
@@ -1214,28 +1361,28 @@ functionRef()
 ```
 
 When the function has parameters, their names can be omitted in the signature; but naming the parameters is advised for better redeability
-```bash
+```ruby
 # both are valid definitions of a reference to a function with a signature of (Text,Int) => Bool
 stringContainsNumber1 ::(myText Text, myNumber Int) => Bool
 stringContainsNumber2 ::(Text, Int) => Bool
 ```
 
 A function type can also have a default value (implementation)
-```bash
+```ruby
 functionRef ::(Text) _ ::(txt Text) {
 	txt > \out
 }
 ```
 
 The types and return type can be inferred, making the definition less verbose
-```bash
+```ruby
 # A verbose definition of a function reference which takes a Int and return an Int
 # with a default implementation which returns the sum of the parameters
 
 # variable ::(params)   => return  _ default implementation
 myFunction ::(Int, Int) => Int     _ ::(x Int, y Int) => Int {=> x + y}
 ```
-```bash
+```ruby
 # the default implementation can infer the type and return value
 # variable ::(params)   => return  _ default implementation
 myFunction ::(Int, Int) => Int     _ ::(x, y) {=> x + y}
@@ -1247,7 +1394,7 @@ myFunction ::(x Int, y Int) => Int     _ ::{=> x + y}
 ```
 
 Some more examples
-```bash
+```ruby
 myFunction ::(Int, Int) => Int
 
 ::(x, y) {=> x + y} > myFunction
@@ -1264,7 +1411,7 @@ myFunction(28980, 420) > \out #myFunction will print 69 (28980 / 420 = 69)
 ```
 
 If the function doesn't take parameters, the parenthesis can be omitted
-```bash
+```ruby
 functionRef ::()
 ::{"hello world" > \out} > functionRef
 ```
@@ -1272,7 +1419,7 @@ functionRef ::()
 Some more complex examples.
 
 A struct called `Callbacks`, holding a bunch of function references
-```bash
+```ruby
 Callbacks (
 	# A reference to a function with no parameters and no return value
 	callback0 ::()
@@ -1357,7 +1504,7 @@ c Callbacks
 ```
 
 Let's assign some functions
-```bash
+```ruby
 ::{
 	"hello world" > \out
 } > c.callback0
@@ -1365,7 +1512,7 @@ Let's assign some functions
 c.callback0() # will print "hello world"
 ```
 
-```bash
+```ruby
 ::(num Int) {
 	for i in 0..num do {
 		"hello world" > \out
@@ -1375,7 +1522,7 @@ c.callback0() # will print "hello world"
 c.callback1() # will print "hello world" num times
 ```
 
-```bash
+```ruby
 ::(num, txt) { # the types are inferred
 	for i in 0..num do {
 		txt > \out
@@ -1385,7 +1532,7 @@ c.callback1() # will print "hello world" num times
 c.callback2() # will print txt num times
 ```
 
-```bash
+```ruby
 # the return type can be inferred too, but for redeability here it is explicit
 ::(num, txt) => Bool {
 	for i in 0..num do {
@@ -1398,7 +1545,7 @@ c.callback2() # will print txt num times
 c.callback3() > result Bool # will print txt num times, and return true if num is less than 10
 ```
 
-```bash
+```ruby
 ::{
 	=> true
 } > c.callback4
@@ -1406,7 +1553,7 @@ c.callback3() > result Bool # will print txt num times, and return true if num i
 c.callback4() > result Bool # will return true
 ```
 
-```bash
+```ruby
 c.callback5() # will print "default hello world"
 
 ::{
@@ -1419,7 +1566,7 @@ _ > c.callback5
 c.callback5() # will print "default hello world"
 ```
 
-```bash
+```ruby
 ::(a, b) {
 	=> a | b
 } > c.callback6
@@ -1429,7 +1576,7 @@ _ > c.callback5
 c.callback6(true, false) > defaultResult Bool # will return true if a AND b are true (default implementation)
 ```
 
-```bash
+```ruby
 someFunction() {
 	"Hello from someFunction" > \out
 }
@@ -1445,7 +1592,7 @@ c.aFunction1(3, ::someFunction)
 
 ## Book store
 
-```bash
+```ruby
 Author (
 	name Text
 	surname Text
@@ -1562,49 +1709,9 @@ printShelfStandard(shelf)
 printShelfTableHTML(shelf)
 ```
 
-
-## Linked List
-
-```bash
-Node (
-	text Text
-	next Node _ null
-)
-
-("This is the root"
-	("This is the second node"
-		("This is the third node")
-	)
-) > root Node
-
-#{
-	it could also be written like so
-(
-	text:"This is the root"
-	node:(
-		text:"This is the second node"
-		node:(
-			text:"This is the third node"
-		)
-	)
-) > root Node
-
-#}
-
-recursivePrintList(node Node) {
-	node.text > \out
-	if node != null do {
-		recursivePrintList(node)
-	}
-}
-
-recursivePrintList(root)
-```
-
-
 ## Find min value in a list
 
-```bash
+```ruby
 findMinElement(list [Text]) => Text {
 	if list@{%} < 1 do {
 		"list is empty" > \error
@@ -1658,7 +1765,7 @@ List: $letters
 
 ## multiple return channels
 
-```bash
+```ruby
 # non terminating return: >
 # terminating return: =>
 
@@ -1696,10 +1803,61 @@ div(1, 2)
 ```
 
 ## Module system
-```bash
+```ruby
 import some.fully.qualified.module
 import [
 	some.fully.qualified.module
 	someother.fully.qualified.module
 ]
 ```
+
+## Launch entry point (args)
+```shell
+giovi myFile.giovi -s --long --long_attr=69 -abc
+```
+
+```ruby
+# main() {}
+# main() => Int {}
+# main(args Args) {}
+main(args Args) => Int {
+	args.s > shortFlag Bool
+	args.long > longFlag Bool
+	args.long_attr > longAttrOption Text
+	args.a > aFlag Bool
+	args.b > bFlag Bool
+	args.c > cFlag Bool
+}
+```
+
+## Stdin
+```shell
+echo "hello" | giovi myFile.giovi
+```
+```ruby
+main(stdin Text) => Int {
+
+}
+```
+
+## Files
+
+
+```bash
+"hello" > ./somefile.txt
+"hello" > ./somedir/somefile.txt
+"hello" > /somefileInRoot.txt
+"hello" > ../somefile.txt
+"hello" > ./somedir/$dirname/somefile_$date.txt
+
+"appended" >+ ./somefile.txt
+
+./somefile.txt > fileContent Txt
+```
+
+## Regex
+```ruby
+`/something/`
+```
+
+

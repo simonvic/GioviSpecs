@@ -53,7 +53,7 @@ RETURN:	'=>';
 
 WS:				[ \t\r\n\u000C]+ -> skip;
 COMMENT:		'#' ~[\r\n]* -> skip;
-COMMENT_BLOCK:	'#{' .*? '#}' -> skip;
+COMMENT_BLOCK:	'#{' .*? '#}'? -> skip;
 
 INTEGER_LITERAL:	DecimalIntegerLiteral;
 NATURAL_LITERAL:	DecimalIntegerLiteral;

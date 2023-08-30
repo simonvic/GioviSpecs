@@ -77,14 +77,19 @@ structDefinition
 	: (parentName = identifier ':')? structName = identifier '(' structBodyDefinition ')'
 	;
 
-structBodyDefinition: (structAttributeDefinition | structDefinition | functionDeclaration)+;
+structBodyDefinition: (structFieldDefinition | structDefinition | functionDeclaration)+;
 
-structAttributeDefinition: identifier type defaultDefinition? ';'?;
-
-namedStructCreation: (structType = identifier '.')? '(' namedStructAttribute+ ')' ';'?;
-namedStructAttribute: identifier ':' expression ';'?;
-unnamedStructCreation: (structType = identifier '.')? '(' unnamedStructAttribute+ ')' ';'?;
-unnamedStructAttribute: expression ';'?;
+structFieldDefinition: identifier type defaultDefinition? ';'?;
+structCreation: (structType=identifier '.')? '(' structFields? ')';
+structFields
+	: expression+
+	| namedStructField+
+	;
+namedStructField: identifier ':' expression ;
+// namedStructCreation: (structType = identifier '.')? '(' namedStructField+ ')' ';'?;
+// namedStructField: identifier ':' expression ';'?;
+// unnamedStructCreation: (structType = identifier '.')? '(' unnamedStructField+ ')' ';'?;
+// unnamedStructField: expression ';'?;
 
 ////////////////////////////////////////////////
 // FUNCTIONS
@@ -132,8 +137,7 @@ expression
 	| collectionAccess                                       # collectionAccessExpression
 	| listCreation                                           # listCreationExpression
 	| mapCreation                                            # mapCreationExpression
-	| namedStructCreation                                    # namedStructCreationExpression
-	| unnamedStructCreation                                    # unnamedStructCreationExpression
+	| structCreation                                         # structCreationExpression
 	| functionCall                                           # functionCallExpression
 	| prefix = ('+' | '-') expression                        # prefixedExpression
 	| prefix = '!' expression                                # notExpression
