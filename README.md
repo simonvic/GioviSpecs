@@ -1560,9 +1560,9 @@ A loop is block of code that will be repeated (looped)
 
 The break keyword will break the loop
 
-### continue
+### skip
 
-The continue keyword will skip the current iteration, and continue with the next
+The skip keyword will skip the current iteration, and continue with the next
 
 ## repeat keyword
 
@@ -1580,9 +1580,7 @@ A do-while loop can be achieved like so
 ```ruby
 repeat {
 	<body>  # the body will be executed once and repeated if the condition is false
-	if <condition> do {
-		break
-	}
+	if <condition> do break
 }
 ```
 
@@ -1614,14 +1612,14 @@ for i in 0..names@{%} do {}
 Iterating over list of struct
 
 ```ruby
-[(0 255 0) (55 0 255) (255 255 255)] > colors [Color]
+[.(0 255 0) .(55 0 255) .(255 255 255)] > colors [Color]
 for color in colors do {}
 ```
 
 The for loop also tries to deconstruct the struct if the variables are the same of the struct
 
 ```ruby
-[(0 255 0) (55 0 255) (255 255 255)] > colors [Color]
+[.(0 255 0) .(55 0 255) .(255 255 255)] > colors [Color]
 for red green blue in colors do {}
 ```
 
