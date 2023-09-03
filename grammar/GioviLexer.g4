@@ -1,85 +1,96 @@
 lexer grammar GioviLexer
-    ;
+	;
 
-PLUS:                       '+';
-MINUS:                      '-';
-MULTIPLICATION:             '*';
-DIVISION:                   '/';
-MODULO:                     '%';
-EXPONENTIAL:                '^';
-REDIRECTION_PLUS:           '>+';
-REDIRECTION_MINUS:          '>-';
-REDIRECTION_MULTIPLICATION: '>*';
-REDIRECTION_DIVISION:       '>/';
-EQUAL:                      '=';
-NOT_EQUAL:                  '!=';
-TILDE:                      '~';
-EQUAL_TILDE:                '=~';
-TILDE_EQUAL:                '~=';
-GREATER_EQUAL:              '>=';
-LESS_EQUAL:                 '<=';
-NOT:                        '!';
-AND:                        '&';
-OR:                         '|';
-BRACKET_ROUND_OPEN:         '(';
-BRACKET_ROUND_CLOSE:        ')';
-BRACKET_SQUARE_OPEN:        '[';
-BRACKET_SQUARE_CLOSE:       ']';
-BRACKET_CURLY_OPEN:         '{';
-BRACKET_CURLY_CLOSE:        '}';
-BRACKET_ANGULAR_OPEN:       '<';
-BRACKET_ANGULAR_CLOSE:      '>';
-DOT:                        '.';
-RANGE:                      '..';
-COMMA:                      ',';
-UNDERSCORE:                 '_';
-BACKSLASH:                  '\\';
-COLON:                      ':';
-SEMICOLON:                  ';';
-HASHTAG:                    '#';
-AT:                         '@';
-IF:                         'if';
-DO:                         'do';
-ELSE:                       'else';
-FOR:                        'for';
-IN:                         'in';
-REPEAT:                     'repeat';
-BREAK:                      'break';
-CONTINUE:                   'continue';
-CONSTANT:                   'constant';
-NULL:                       'null';
-RETURN:                     '=>';
+PLUS:							'+';
+MINUS:							'-';
+MULTIPLICATION:					'*';
+DIVISION:						'/';
+MODULO:							'%';
+EXPONENTIAL:					'^';
+REDIRECTION_PLUS:				'>+';
+REDIRECTION_MINUS:				'>-';
+REDIRECTION_MULTIPLICATION:		'>*';
+REDIRECTION_DIVISION:			'>/';
+REDIRECTION_PLUS_RTL:			'+<';
+REDIRECTION_MINUS_RTL:			'-<';
+REDIRECTION_MULTIPLICATION_RTL:	'*<';
+REDIRECTION_DIVISION_RTL:		'/<';
+EQUAL:							'=';
+NOT_EQUAL:						'!=';
+TILDE:							'~';
+EQUAL_TILDE:					'=~';
+TILDE_EQUAL:					'~=';
+GREATER_EQUAL:					'>=';
+LESS_EQUAL:						'<=';
+RETURN_ARROW:					'=>';
+NOT:							'!';
+AND:							'&';
+OR:								'|';
+BRACKET_ROUND_OPEN:				'(';
+BRACKET_ROUND_CLOSE:			')';
+BRACKET_SQUARE_OPEN:			'[';
+BRACKET_SQUARE_CLOSE:			']';
+BRACKET_CURLY_OPEN:				'{';
+BRACKET_CURLY_CLOSE:			'}';
+BRACKET_ANGULAR_OPEN:			'<';
+BRACKET_ANGULAR_CLOSE:			'>';
+DOT:							'.';
+RANGE:							'..';
+COMMA:							',';
+UNDERSCORE:						'_';
+BACKSLASH:						'\\';
+COLON:							':';
+SEMICOLON:						';';
+HASHTAG:						'#';
+AT:								'@';
+IF:								'if';
+DO:								'do';
+ELSE:							'else';
+FOR:							'for';
+IN:								'in';
+REPEAT:							'repeat';
+BREAK:							'break';
+CONTINUE:						'skip';
+CONSTANT:						'constant';
+NULL:							'null';
+RETURN:							'return';
+IMPORT:							'import';
+DEFAULT:						'default';
+ALIAS:							'alias';
+AS:								'as';
+SELF:							'self';
 
-WS:            [ \t\r\n\u000C]+ -> skip;
-COMMENT:       '#' ~[\r\n]* -> skip;
-COMMENT_BLOCK: '#{' .*? '#}'? -> skip;
+WS:				[ \t\r\n\u000C]+ -> skip;
+COMMENT_BLOCK:	('#{' | '#?{') .*? ('}#' | EOF) -> channel(HIDDEN);
+COMMENT:		'#' ~[{?] ~[\r\n]* -> channel(HIDDEN);
 
-INTEGER_LITERAL: DecimalIntegerLiteral;
-NATURAL_LITERAL: DecimalIntegerLiteral;
+INTEGER_LITERAL:	DecimalIntegerLiteral;
+NATURAL_LITERAL:	DecimalIntegerLiteral;
 
-REAL_LITERAL:                         DecimalFloatingPointLiteral;
-fragment DecimalFloatingPointLiteral: Digit+ '.' Digit+;
+REAL_LITERAL:							DecimalFloatingPointLiteral;
+fragment DecimalFloatingPointLiteral:	Digit+ '.' Digit+;
 
 BOOL_LITERAL: 'true' | 'false';
 
-TEXT_BLOCK_LITERAL: '"{' [ \t]* [\r\n]* (. | EscapeSequence)*? '"}';
-TEXT_LITERAL:       '"' (~["\\\r\n] | EscapeSequence)* '"';
-
-EXACT_TEXT_BLOCK_LITERAL: '\'{' [ \t]* [\r\n]* (. | EscapeSequence)*? '\'}';
-EXACT_TEXT_LITERAL:       '\'' (~['\\\r\n] | EscapeSequence)* '\'';
+TEXT_BLOCK_LITERAL:			'"{' (. | EscapeSequence)*? '}"';
+TEXT_LITERAL:				'"' (~["\\\r\n] | EscapeSequence)* '"';
+EXACT_TEXT_BLOCK_LITERAL:	'\'{' (. | EscapeSequence)*? '}\'';
+EXACT_TEXT_LITERAL:			'\'' (~['\\\r\n] | EscapeSequence)* '\'';
 
 IDENTIFIER: Letter LetterOrDigitOrUnderscore*;
 
 fragment EscapeSequence
-    : '\\' [btnfr"'\\]
-    | '\\' ([0-3]? [0-7])? [0-7]
-    | '\\' 'u'+ HexDigit HexDigit HexDigit HexDigit
-    | '\\$'
-    ;
-fragment HexDigit:                  [0-9a-fA-F];
-fragment DecimalIntegerLiteral:     DecimalNumeral;
-fragment DecimalNumeral:            Digit+;
-fragment Digit:                     [0-9];
-fragment Letter:                    [a-zA-Z];
-fragment LetterOrDigit:             Letter | Digit;
-fragment LetterOrDigitOrUnderscore: LetterOrDigit | '_';
+	: '\\' [btnfr"'\\]
+	| '\\' ([0-3]? [0-7])? [0-7]
+	| '\\' 'u'+ HexDigit HexDigit HexDigit HexDigit
+	| '\\$'
+	;
+fragment HexDigit:					[0-9a-fA-F];
+fragment DecimalIntegerLiteral:		DecimalNumeral;
+fragment DecimalNumeral:			Digit+;
+fragment Digit:						[0-9];
+fragment Letter:					[a-zA-Z];
+fragment LetterOrDigit:				Letter | Digit;
+fragment LetterOrDigitOrUnderscore:	LetterOrDigit | '_';
+
+// TODO do variable interpolation here

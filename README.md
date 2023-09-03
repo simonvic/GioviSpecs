@@ -29,22 +29,22 @@ x Int #? Some number that means something
 y Int
 
 #?{
-#   @brief Sum two values
-#   @param x
-#       @pre x has some precodition
-#       @post x has some postcondition
-#   @param y
-#       @pre y has some precodition
-#       @post y has some postcondition
-#   @return x + y
+#	@brief Sum two values
+#	@param x
+#		@pre x has some precodition
+#		@post x has some postcondition
+#	@param y
+#		@pre y has some precodition
+#		@post y has some postcondition
+#	@return x + y
 #
-#   @code
-#       sum(1, 2) > \out
+#	@code
+#		sum(1, 2) > \out
 #
-#   @see Math
+#	@see Math
 #}
 sum(x Int, y Int) => Int {
-    => x + y
+	=> x + y
 }
 ```
 
@@ -61,27 +61,16 @@ sum(x Int, y Int) => Int {
 | Modulo         | %      | 10 % 5  |
 | Exponential    | ^      | 2 ^ 64  |
 
-
-## Assignment
-
-| Operation           | Symbol | Example                      |
-| ------------------- | ------ | ---------------------------- |
-| Content redirection | >      | "Hello world" > message Text |
-| Increment by value  | >+     | 10 >+ count                  |
-| Decrement by value  | >-     | 10 >- count                  |
-| Multiply by value   | >*     | 10 >* count                  |
-| Divide by value     | >/     | 10 >/ count                  |
-
 ## Relational
 
-| Operation                  | Symbol | Example |
-| -------------------------- | ------ | ------- |
-| More than value            | >      | 10 > 2  |
-| Less than value            | <      | 2 < 10  |
-| More or equal to the value | >=     | 10 >= 2 |
-| Less or equal to the value | <=     | 2 <= 10 |
-| Equal                      | =      | 10 = 10 |
-| Not equal                  | !=     | 10 != 2 |
+| Operation        | Symbol | Example |
+| ---------------- | ------ | ------- |
+| Greater than     | >      | 10 > 2  |
+| Less than        | <      | 2 < 10  |
+| Greater or equal | >=     | 10 >= 2 |
+| Less or equal    | <=     | 2 <= 10 |
+| Equal            | =      | 10 = 10 |
+| Not equal        | !=     | 10 != 2 |
 
 ## Logical operators
 
@@ -91,43 +80,153 @@ sum(x Int, y Int) => Int {
 | Or        | \|     | 10 > 2 \| 5 > 2 |
 | Not       | !      | !{2 > 10}       |
 
+## Redirection (assignment)
+
+| Operation           | Symbol | Example                      |
+| ------------------- | ------ | ---------------------------- |
+| Content redirection | >      | "Hello world" > message Text |
+| Increment by value  | >+     | 10 >+ count                  |
+| Decrement by value  | >-     | 10 >- count                  |
+| Multiply by value   | >*     | 10 >* count                  |
+| Divide by value     | >/     | 10 >/ count                  |
+
+### Inverse redirection
+
+| Operation           | Symbol | Example                      |
+| ------------------- | ------ | ---------------------------- |
+| Content redirection | <      | "Hello world" > message Text |
+| Increment by value  | +<     | count +< 10                  |
+| Decrement by value  | -<     | count -< 10                  |
+| Multiply by value   | *<     | count *< 10                  |
+| Divide by value     | /<     | count /< 10                  |
+
 ## Access operator
 
 The access operator `@` is used to access special properties of variable/type.<br>
 The "key" used for access can be a special symbol, a literal (e.g. `Int`) or a variable
 
-```ruby
-accessed@key
+```
+<accessed>@<key>
 ```
 
 A key can also be an expression, but it must be enclosed in braces
 
-```ruby
-accessed@{key}
+```
+<accessed>@{<key>}
 ```
 
 The output of the access depends on the "key" and to what type you're accessing.<br>
-See:
-- [Text access](#text-access)
-- [List access](#list-access)
-- [Map access](#map-access)
-- [Struct access](#struct-access)
+> See:
+> - [Text access](#text-access)
+> - [List access](#list-access)
+> - [Map access](#map-access)
+> - [Struct access](#struct-access)
+
+# Redirection
+
+Giovi "moves" data (content) to destinations; this is done through
+redirection.<br>
+It can be done left to right...
+
+```
+<content>   >   <destination>
+```
+
+```ruby
+69 > index
+22 > age
+1.70 > height
+"Simone" > name
+true > isAuthor
+```
+
+...or right to left
+
+```
+<destination>   <   <content>
+```
+
+```ruby
+index < 69
+age < 22
+height < 1.79
+name < "Simone"
+isAuthor < true
+```
+
+There is no difference between the two directions, except for readability.
+Sometimes it's just better to use one instead of the other
+
+```ruby
+"hello world" > \out     # Printing
+counter +< 1             # Increasing counter by one
+acceleration >+ velocity # Increasing velocity by "acceleration"
+```
+
+## Standard content @candidate
+
+| Destination     | Symbol |
+| --------------- | ------ |
+| Standard input  | \in    |
+
+## Standard destinations
+
+| Destination     | Symbol |
+| --------------- | ------ |
+| Standard output | \out   |
+| Standard error  | \error |
+
+### Standard output
+
+Print to standard output
+
+```ruby
+"Hello world" > \out
+
+"I'm going to print the lorem ipsum" > \out
+
+"{
+Qui odit molestias commodi omnis magni sunt. Et et et dolorem mollitia eum
+repellendus fuga qui. Numquam sint numquam sed delectus. Necessitatibus
+pariatur voluptatem ad ut eos in eos quo. Cupiditate et ut fuga. Aut enim aut
+amet non.
+
+Pariatur nam nobis placeat. Consequuntur laborum consequatur accusantium totam
+occaecati possimus illo repellat. In fuga earum ea modi ut perspiciatis iusto.
+Iste voluptate qui at. Eos eaque cumque quisquam non nemo tenetur quo fugit.
+}" > \out
+```
+
+### Standard error
+
+Print to standard error
+
+```ruby
+"Some error happened" > \error
+
+"I'm going to print some details:" > \error
+
+"{
+This program has crashed
+because you tried to perform a
+division by zero.
+}" > \error
+```
 
 # Variables
 
-A variable is identified by a unique name and its of a specified type
+A variable is identified by a unique name, and it is of a specific type
 
 ## Variable naming rules
 
 The general rules for naming variables are:
   - Names must be unique
-  - Names can contain letters, digits, underscores and dashes
+  - Names can contain letters, digits and underscores
   - Names must begin with a letter
   - Names cannot contain whitespace
   - Names are case-sensitive ("myVar" and "myvar" are different variables)
-  - Types and Structs name cannot be used as names
+  - Type and Struct names cannot be used as names
   - Reserved words cannot be used as names
-
 
 # Data types
 
@@ -143,42 +242,15 @@ The general rules for naming variables are:
 
 ### Declaration
 
+```
+<identifier> <type>
+```
+
 ```ruby
-# <identifier> <type>
 index Int
 age Natural
 height Real
 name Text
-```
-
-### Assignment
-
-```ruby
-# <value> > <identifier>
-69 > index
-22 > age
-1.70 > height
-
-"Simone" > name         
-
-# Text blocks. Spaces, new lines and tabs will be kept
-# Work similar to Java (https://docs.oracle.com/en/java/javase/13/text_blocks/index.html)
-"{
-Aut quod excepturi officia tempore.
-Quia non molestiae non aut.
-Sit quos saepe exercitationem dolor voluptatem.
-Et culpa voluptatem quos eligendi.
-"} > loremIpsum
-
-# Initialization (declaration and assignment)
-420.50 > money Real
-"Alessio" > secondName Text
-
-"{
-This is my biography.
-Lol
-Pretty empty
-"} > biography Text
 ```
 
 ### Text type
@@ -206,100 +278,174 @@ Pretty empty
 
 ```ruby
 "hello world" > text Text
-text@0 # will print "h"
-text@1 # will print "e"
+text@0         # "h"
+text@1         # "e"
 
 # Out of bounds indexes can be used to "cycle" the chars.
 # Bound checking is left to the business logic to do.
 letters@12     # "e"
 letters@{-2}   # "l"
 
-text@1..6     # "ello w"
-text@0..10..2 # "hlowrd"
-text@10..0    # will print "dlrow olleh"
+text@1..6      # "ello w"
+text@0..10..2  # "hlowrd"
+text@10..0     # will print "dlrow olleh"
 
-text@% # 11 (chars count)
-text@@ # 0..10 (range)
-text@* # [ "h" "e" "l" "l" "o" " " "w" "o" "r" "l" "d" ]
+text@%         # 11 (chars count)
+text@@         # 0..10 (range)
+text@*         # [ "h" "e" "l" "l" "o" " " "w" "o" "r" "l" "d" ]
 ```
 
+### Text block
+
+Text blocks can span over multiple lines, without having to worry about
+escaping quotes or other characters.<br>
+
+```
+"{
+<text>
+}"
+```
+
+```ruby
+loremIpsum Text < "{
+	Aut quod excepturi officia tempore.
+	  Quia non molestiae non aut.
+		Sit quos saepe exercitationem dolor voluptatem.
+	  Et culpa voluptatem quos eligendi.
+	}"
+```
+
+White spaces (spaces, newlines, tabs) will be kept, unless they're "incidental".
+Incidental white spaces are those needed for code indentation. <br>
+The amount of "incidental" whitespaces is defined by the line that has less of
+them.<br>
+Only one type of white space can be used; in case of mixed types, it will be
+used the type of the first incidental whitespace of the first line (excluding
+the line with the opening text block tag).<br>
+So please be consistent with formatting to avoid ambiguities and undesired side
+effects.
+
+```ruby
+aFunction() {
+	if true do {
+		json Text < "{
+			{
+				"field": "value",
+				"anotherField": {
+					"someField": "value"
+				}
+			}
+			}"
+# ^^^^^^^^^^ these are "incidental" tabs and won't be included in "json"
+	}
+}
+```
+
+Even though it's possible to open and close a text block on the same line, it's
+recommended to immediately go on a new line after the opening text block tag,
+followed by a 1-level deep indent; this is to avoid any possible ambiguities.
+
+```ruby
+t Text < "{these are some fancy quotes: """"""}"
+t Text < "{
+	but this is preferred
+	}"
+```
+
+A new line will be automatically be appended at the last line. If you don't
+want that, put the closing tag on the previous line
+
+```ruby
+t Text < "{
+	hello world}"
+```
 
 #### Text interpolation
 
-Double quotes will interpret variables (dollar sign will need escaping)<br>
-Single quotes will not
+Double quotes will interpolate variables (dollar sign will need escaping)<br>
+Single quotes will not.
+
+```
+$<identifier>
+${<expression>}
+```
+
 ```ruby
-"Simone" > name Text
-"Vicinanza" > surname Text
+name Text < "Simone"  
+surname Text < "Vicinanza"  
 
 fullName Text
-"$name $surname" > fullName        # fullName will be equal to "Simone Vicinanza"
-'$name $surname' > fullName        # fullName will be equal to "$name $surname"
-"$name \$surname" > fullName       # fullName will be equal to "Simone $surname"
+fullName < "$name $surname"   # Simone Vicinanza
+fullName < '$name $surname'   # $name $surname
+fullName < "$name \$surname"  # Simone $surname
 ```
 
 If you need to have something immediately after the variable, without a space,
 you can wrap the variable name in curly braces
-```ruby
-"Mario" > name Text
-"Rossi" > surname Text
 
-"${name}_${surname}" > fullName Text
+```ruby
+name Text < "Mario"  
+surname Text < "Rossi"  
+fullName Text < "${name}_${surname}"  
 
 # Writing this would have been an error
-"$name_$surname" > fullName Text
-# since the name_ variable doesn't exists
-# (the underscore is a valid character for a variable name)
-
+fullName Text < "$name_$surname"  
+          # ERROR ^^^^^ the name_ variable doesn't exists
+          # (the underscore is a valid character for a variable name)
 ```
 
-Text can also interpret code blocks
+Text can also interpolate expressions
+
 ```ruby
-x Int
-y Int
+x Int < 59
+y Int < 10
 "Sum is ${x + y}" > \out
+# Sum is 69
 
 getName() => Text { => "simonvic" }
 
-"{
-Hello world
-I'm am ${getName()}
-"} > someText Text
+helloWorld Text < "{
+	Hello world
+	I'm am ${getName()}
+	}"
+# Hello world
+# I'm simonvic
 ```
 
-If you don't want variables/code to be interpreted, use single quotes (`'`)
-text block
+If you don't want variables/code to be interpolated, use single quotes (`'`)
+
 ```ruby
 '{
 Hello,
 I have $USD 69
-'}
+}'
 ```
 
 #### Text types @candidate
+
 ```ruby
 Raw."hello how are you?"
-Sql.""{
-    SELECT * 
-    FROM table
-        FILTER BY name
-    }""
+Sql."{
+	SELECT * 
+	FROM table
+		FILTER BY name
+	}"
 Sql."SELECT * FROM table"
 
-Json."{"field": "value"}"
-Json.""{
-    {
-        "field": "value",
-        "field2": "value2"
-    }
-    }""
+Json."{{"field": "value"}}"
+Json."{
+	{
+		"field": "value",
+		"field2": "value2"
+	}
+	}"
 
 Xml."<test attr='true'>yeah</test>"
-Xml.""{
-    <test attr="true">
-        yeah
-    </test>
-    }""
+Xml."{
+	<test attr="true">
+		yeah
+	</test>
+	}"
 
 fetchData(query Text.Sql) => Text.Json {}
 ```
@@ -308,283 +454,14 @@ fetchData(query Text.Sql) => Text.Json {}
 
 ```ruby
 Text : Yaml (
-    format() => Text {}
-    isValid() => Bool {}
+	format() => Text {}
+	isValid() => Bool {}
 )
-Yaml.""{
-    something:
-      - awfawf
-      - awfaw
-    }""
-```
-
-### Other primitive types
-
-#### Function reference @candidate
-
-The reference of a function is used to refer to the function itself.<br>
-It is represented with `::` (double colon).
-
-It can be stored in variables and struct, and can be passed as a parameter to
-other functions as well.
-```ruby
-printSomething(txt Text) {
-	txt > \out
-}
-
-functionRef ::(Text)
-
-::printSomething > functionRef
-
-# functionRef is now a reference to printSomething function
-functionRef("hello world") # will print "hello world"
-```
-
-Function types are defined as follows
-```
-::([parameters]) [=> return type] [_ default implementation]
-```
-
-Anonymous function can also be defined
-```ruby
-functionRef ::()
-
-# Assign an anonymouse function to functionRef
-::{
-	"hello world" > \out
-} > functionRef
-
-# I can now invoke functionRef
-functionRef()
-```
-
-When the function has parameters, their names can be omitted in the signature;
-but naming the parameters is advised for better readability
-```ruby
-# both are valid definitions of a reference to a function with a signature of (Text,Int) => Bool
-stringContainsNumber1 ::(myText Text, myNumber Int) => Bool
-stringContainsNumber2 ::(Text, Int) => Bool
-```
-
-A function type can also have a default value (implementation)
-```ruby
-functionRef ::(Text) _ ::(txt Text) {
-	txt > \out
-}
-```
-
-The types and return type can be inferred, making the definition less verbose
-```ruby
-# A verbose definition of a function reference which takes a Int and return an Int
-# with a default implementation which returns the sum of the parameters
-
-# variable ::(params)   => return  _ default implementation
-myFunction ::(Int, Int) => Int     _ ::(x Int, y Int) => Int {=> x + y}
-```
-```ruby
-# the default implementation can infer the type and return value
-# variable ::(params)   => return  _ default implementation
-myFunction ::(Int, Int) => Int     _ ::(x, y) {=> x + y}
-
-
-# Alternatively, if parameters are named...
-# variable ::(params)       => return  _ default implementation
-myFunction ::(x Int, y Int) => Int     _ ::{=> x + y}
-```
-
-Some more examples
-```ruby
-myFunction ::(Int, Int) => Int
-
-::(x, y) {=> x + y} > myFunction
-myFunction(60, 9) > \out #myFunction will print 69 (60 + 9 = 69)
-
-::(x, y) {=> x - y} > myFunction
-myFunction(79, 10) > \out #myFunction will print 69 (79 - 10 = 69)
-
-::(x, y) {=> x * y} > myFunction
-myFunction(23, 3) > \out #myFunction will print 69 (23 * 3 = 69)
-
-::(x, y) {=> x / y} > myFunction
-myFunction(28980, 420) > \out #myFunction will print 69 (28980 / 420 = 69)
-```
-
-If the function doesn't take parameters, the parenthesis can be omitted
-```ruby
-functionRef ::()
-::{"hello world" > \out} > functionRef
-```
-
-Some more complex examples.
-
-A struct called `Callbacks`, holding a bunch of function references
-```ruby
-Callbacks (
-	# A reference to a function with no parameters and no return value
-	callback0 ::()
-
-	# A reference to a function with an Int parameter
-	callback1 ::(Int)
-
-	# A reference to a function with an Int and a Text parameter
-	callback2 ::(Int,Text)
-
-	# A reference to a function with an Int and a Text parameter, with a Bool return type
-	callback3 ::(Int,Text) => Bool
-
-	# A reference to a function with no parameters with a Bool return type
-	callback4 ::() => Bool
-
-	# A reference to a function with a default implementation
-	callback5 ::() _ ::{
-		"default hello world" > \out
-	}
-
-	# A reference to a function with two Bool parameters, a Bool return value and a default implementation
-	callback6 ::(a Bool, b Bool) => Bool _ ::{
-		=> a & b
-	}
-
-	#{
-	#	Invoke callback "count" times
-	#	@param count
-	#	@param callback
-	#}
-	aFunction1(count Int, callback ::()) {
-		for i in 0..count do {
-			callback()
-		}
-	}
-
-	#{
-	#	Invoke callback "count" times
-	#	@param count
-	#	@param callback with default implementation that prints hello world
-	#	@code
-	#	# will print "hello world" 69 times
-	#	aFunction2(69)
-	#
-	#	@code
-	#	# will print "something else" 69 times
-	#	aFunction2(69, ::{
-	#		"something else" > \out
-	#	})
-	#}
-	aFunction2(count Int, callback ::() _ ::{"hello world" > \out}) {
-		for i in 0..count do {
-			callback()
-		}
-	}
-
-	#{
-	#	Invoke a callback 69 times
-	#	@param callback ::(iteration index)
-	#}
-	aFunction3(callback ::(Int)){
-		for i in 0..69 do {
-			callback(i)
-		}
-	}
-	
-	#{
-	#	Invoke a callback and print its return value 69 times
-	#	@param callback ::(iteration index)
-	#	@code
-	#	aFunction4(::(index){=> index^2})
-	#}
-	aFunction4(callback ::(Int) => Int){
-		for i in 0..69 do {
-			callback(i) > \out
-		}
-	}
-)
-
-c Callbacks
-```
-
-Let's assign some functions
-```ruby
-::{
-	"hello world" > \out
-} > c.callback0
-
-c.callback0() # will print "hello world"
-```
-
-```ruby
-::(num Int) {
-	for i in 0..num do {
-		"hello world" > \out
-	}
-} > c.callback1
-
-c.callback1() # will print "hello world" num times
-```
-
-```ruby
-::(num, txt) { # the types are inferred
-	for i in 0..num do {
-		txt > \out
-	}
-} > c.callback2
-
-c.callback2() # will print txt num times
-```
-
-```ruby
-# the return type can be inferred too, but for redeability here it is explicit
-::(num, txt) => Bool {
-	for i in 0..num do {
-		txt > \out
-	}
-	# return true if number is even
-	=> num < 10
-} > c.callback3
-
-c.callback3() > result Bool # will print txt num times, and return true if num is less than 10
-```
-
-```ruby
-::{
-	=> true
-} > c.callback4
-
-c.callback4() > result Bool # will return true
-```
-
-```ruby
-c.callback5() # will print "default hello world"
-
-::{
-	'hello world' > \out
-} > c.callback5
-
-c.callback5() # will print "hello world"
-
-_ > c.callback5
-c.callback5() # will print "default hello world"
-```
-
-```ruby
-::(a, b) {
-	=> a | b
-} > c.callback6
-c.callback6(true, false) > result Bool # will return true if a OR b are true
-
-_ > c.callback5
-c.callback6(true, false) > defaultResult Bool # will return true if a AND b are true (default implementation)
-```
-
-```ruby
-someFunction() {
-	"Hello from someFunction" > \out
-}
-
-c.aFunction1(3, ::{
-	"hello from anonymous function" > \out
-})
-
-c.aFunction1(3, ::someFunction)
+Yaml."{
+	something:
+	  - awfawf
+	  - awfaw
+	}"
 ```
 
 ## Composite types
@@ -612,9 +489,11 @@ The indexes are 0-based
 
 #### Syntax
 
+```
+<identifier> [<element type>]
+```
+
 ```ruby
-# <identifier> [<entry type>]
-# NOTE: Default value is an empty list
 listOfNames [Text]
 
 # Assignment
@@ -634,19 +513,18 @@ listOfNames [Text]
 ```ruby
 # List type can be omitted when declaring and initializing
 # It will be inferred from the first element inserted
-[1.0 0.5 2.5] > listOfReal []                  # List of Real ([Real])
-[1 2 3 4 5] > listOfNatural []                 # List of Natural ([Natural])
-[-1 0 4 5] > listOfInteger []                  # List of Integer ([Int])
-[4 5 6 7] > listOfInteger [Int]                # List of Integer
-["Simone" "Luca" "Paolo"] > listOfText []      # List of Text ([Text])
+listOfInteger [] < [-1 0 4 5]     # [Int]
+listOfReal [] < [1.0 0.5 2.5]     # [Real]
+listOfText [] < ["Luca" "Paolo"]  # [Text]
+listOfBool [] < [true false true] # [Bool]
 
 # When creating list of Struct, the type must be declared
-[ .(62 65 10) .(0 64 0) .(12 50 255) ] > listOfColors [Color]
-
-[	.("Simone" "Vicinanza")
-	.("Mario" "Rossi")
-	.("Luigi" "Bianchi")
-] > listOfFullNames [FullName]
+listOfColors [Color] < [ .(62 65 10) .(0 64 0) .(12 50 255) ]  
+listOfFullNames [FullName] < [
+		.("Simone" "Vicinanza")
+		.("Mario" "Rossi")
+		.("Luigi" "Bianchi")
+	]
 ```
 
 #### List Access
@@ -659,14 +537,14 @@ listOfNames [Text]
 | @     | Range from 0 to length - 1 |
 
 ```ruby
-["a" "b" "c" "d" "e" "f" "g" "h" "i" "j"] > letters [Text]
+letters [Text] < ["a" "b" "c" "d" "e" "f" "g" "h" "i" "j"]  
 
 letters@0 > \out    # "a"
 
 # Indexes out of bounds can be used to "cycle" the list.
 # Bound checking is left to the business logic to do.
-letters@15     # "f"
-letters@{-2}   # "i"
+letters@15          # "f"
+letters@{-2}        # "i"
 
 letters@2..5        # ["c" "d" "e" "f"]
 letters@0..10..2    # ["a" "c" "e" "g" "i"]
@@ -679,10 +557,9 @@ letters@@ > \out    # 0..9 (range) useful when you need to iterate a list with i
 Comparing Lists
 
 ```ruby
-numbers [Int]
-[ 1 2 3 4 ] > numbers
+numbers [Int] < [ 1 2 3 4 ]  
 
-if numbers = _ do {
+if numbers = default do {
 	# if list is equal to List default (empty list)
 }
 
@@ -698,10 +575,10 @@ if numbers {
 	= [1 2 3 4] | numbers@{%} = 10 do {}
 	
 	# if empty list or elements count less then 3
-	= _ | numbers@{%} < 3 do {}
+	= default | numbers@{%} < 3 do {}
 	
 	# if empty list and first element equal to 6
-	= _ & numbers@0 = 6 do {}
+	= default & numbers@0 = 6 do {}
 
 	# if contains 69
 	=~ 69 do {}
@@ -709,18 +586,17 @@ if numbers {
 }
 ```
 
-##### Multidimensional list (matrix) @candidate
+##### Multidimensional list (matrix)
 
 A multidimensional list (matrix) can be defined as follows
 
 ```ruby
-identityMatrix [[Real]]
-
-[	
-	[1 0 0]
-	[0 1 0]
-	[0 0 1]
-] > matrix
+# A list of list of real
+identityMatrix [[Real]] < [	
+		[1 0 0]
+		[0 1 0]
+		[0 0 1]
+	]
 ```
 
 Values can be accessed as normal lists
@@ -730,39 +606,38 @@ Values can be accessed as normal lists
 ```ruby
 # Example of a Rubik cube multidimensional list
 # for simplicity, we're storing color name instead of a Color struct
-rubikCube [[[Text]]]
-[
-	[
-		[ "Red" "Red" "Red" ]
-		[ "Red" "Red" "Red" ]
-		[ "Red" "Red" "Red" ]
+rubikCube [[[Text]]] < [
+		[
+			[ "Red" "Red" "Red" ]
+			[ "Red" "Red" "Red" ]
+			[ "Red" "Red" "Red" ]
+		]
+		[
+			[ "White" "White" "White" ]
+			[ "White" "White" "White" ]
+			[ "White" "White" "White" ]
+		]
+		[
+			[ "Green" "Green" "Green" ]
+			[ "Green" "Green" "Green" ]
+			[ "Green" "Green" "Green" ]
+		]
+		[
+			[ "Yellow" "Yellow" "Yellow" ]
+			[ "Yellow" "Yellow" "Yellow" ]
+			[ "Yellow" "Yellow" "Yellow" ]
+		]
+		[
+			[ "Blue" "Blue" "Blue" ]
+			[ "Blue" "Blue" "Blue" ]
+			[ "Blue" "Blue" "Blue" ]
+		]
+		[
+			[ "Orange" "Orange" "Orange" ]
+			[ "Orange" "Orange" "Orange" ]
+			[ "Orange" "Orange" "Orange" ]
+		]
 	]
-	[
-		[ "White" "White" "White" ]
-		[ "White" "White" "White" ]
-		[ "White" "White" "White" ]
-	]
-	[
-		[ "Green" "Green" "Green" ]
-		[ "Green" "Green" "Green" ]
-		[ "Green" "Green" "Green" ]
-	]
-	[
-		[ "Yellow" "Yellow" "Yellow" ]
-		[ "Yellow" "Yellow" "Yellow" ]
-		[ "Yellow" "Yellow" "Yellow" ]
-	]
-	[
-		[ "Blue" "Blue" "Blue" ]
-		[ "Blue" "Blue" "Blue" ]
-		[ "Blue" "Blue" "Blue" ]
-	]
-	[
-		[ "Orange" "Orange" "Orange" ]
-		[ "Orange" "Orange" "Orange" ]
-		[ "Orange" "Orange" "Orange" ]
-	]
-] > rubikCube
 
 rubikCube@2@1@1   # will refer to the central tile of green face
 ```
@@ -801,25 +676,24 @@ Map keys are unique.
 
 ```ruby
 carCount [Text : Int]
+[ "Audi" : 1 ] >+ carCount  # Insert new key "Audi" with value 1
+[ "Audi" : 5 ] >+ carCount  # Set "Audi" key value to 5
 
-[ "Audi" : 1 ] >+ carCount    # Insert new key "Audi" with value 1
-[ "Audi" : 5 ] >+ carCount    # Set "Audi" key value to 5
+carCount +< [               # Insert/Set new key value pair
+		"Mercedes" : 10
+		"Audi" : 7
+		"BMW" : 15
+		"Ferrari" : 20
+	]
 
-[                          # Insert/Set new key value pair
-	"Mercedes" : 10
-	"Audi" : 7
-	"BMW" : 15
-	"Ferrari" : 20
-] >+ carCount
-
-26 > carCount@{"Ferrari"}  # Set "Ferrari" value to 26
+carCount@{"Ferrari"} < 26   # Set "Ferrari" value to 26
 ```
 
 Default values can be used
 
 ```ruby
-[ "Fiat" : _ ] >+ carCount
-_ > carCount@{"Fiat"}
+[ "Fiat" : default ] >+ carCount
+default > carCount@{"Fiat"}
 ```
 
 #### Map Access
@@ -832,12 +706,12 @@ _ > carCount@{"Fiat"}
 | *             | List of map elements       |
 
 ```ruby
-[
-	"Mercedes" : 10
-	"Audi" : 7
-	"BMW" : 15
-	"Ferrari" : 20
-] > carCount [Text : Int]
+carCount [Text : Int] < [
+		"Mercedes" : 10
+		"Audi" : 7
+		"BMW" : 15
+		"Ferrari" : 20
+	]
 
 carCount@"Audi"  # 7
 carCount@%       # 4
@@ -848,12 +722,11 @@ carCount@*       # [10 7 15 20]
 Examples
 
 ```ruby
-bank [Text : Real]
-[
-	"Simone" : 69.0
-	"Alessio" : 15.50
-	"Francesco" : 125.15
-] > bank
+bank [Text : Real] < [
+		"Simone" : 69.0
+		"Alessio" : 15.50
+		"Francesco" : 125.15
+	]
 
 for name money in bank do {
 	"$name has $money € in his wallet" > \out
@@ -878,9 +751,12 @@ heterogeneous types (primitive or composite)
 
 #### Syntax
 
+```
+<name> ( <fields> )
+```
+
 ```ruby
 # Definition
-# <name> ( <fields> )
 Color (
 	red Natural
 	green Natural
@@ -904,35 +780,35 @@ Person (
 ##### Creation
 
 ```ruby
-Color.(255 0 0) > red Color
-Person.(
-	"Simon"
-	"Vic"
-	22
-	red
-	("Ferrari" red)
-	("Fiat600" magenta)
-) > me Person
+red Color < Color.(255 0 0)  
+me Person < Person.(
+		"Simon"
+		"Vic"
+		22
+		red
+		("Ferrari" red)
+		("Fiat600" magenta)
+	)
 ```
 
 When creating a struct, you can name the fields to improve readability.
 By doing so, the order of the fields won't matter
 
 ```ruby
-Person.(
-	age: 22
-	surname: "Vic"
-	name: "Simon"
-	favoriteColor: Color.(
-		red: 255
-		green: 69
-		blue: 42
+me Person < Person.(
+		age: 22
+		surname: "Vic"
+		name: "Simon"
+		favoriteColor: Color.(
+			red: 255
+			green: 69
+			blue: 42
+		)
+		favoriteCar: Car.(
+			model: "Ferrari"
+			paint: red
+		)
 	)
-	favoriteCar: Car.(
-		model: "Ferrari"
-		paint: red
-	)
-) > me Person
 ```
 
 You can also specify a subset of the fields; unspecified fields will be
@@ -940,14 +816,15 @@ initialized with their default value.
 Note that this is not possible when the field names are not specified.
 
 ```ruby
-Person.(
-	age: 23
-	favoriteCar: Car.(model: "Ferrari")
-) > me Person
+me.Person < Person.(
+		age: 23
+		favoriteCar: Car.(model: "Ferrari")
+	)
 ```
 
 Creating a struct with a type but no fields, will create a default struct of
 that type
+
 ```ruby
 Color.() > \out
 ```
@@ -958,13 +835,14 @@ When creating a struct the type can be omitted, hence creating an anonymous
 struct (aka tuple)
 
 Tuples can be named (fields are indexed by names) or unnamed (fields are
-indexed by 0-based index)
+indexed by a 0-based index)
+
 ```ruby
 # Named tuple with three fields
 .(
-    field1: "a"
-    field2: true
-    field3: 420.69
+	field1: "a"
+	field2: true
+	field3: 420.69
 )
 
 # Unnamed tuple with three fields
@@ -977,15 +855,13 @@ of the tuple; in this case only the fields in the subset will change in the
 assigned struct
 
 ```ruby
-me Person
-
-.(
-    name: "Simon"
-    age: 23
-    favoriteCar: .(
-        model: "Ferrari"
-    )
-) > me Person
+me Person < .(
+		name: "Simon"
+		age: 23
+		favoriteCar: .(
+			model: "Ferrari"
+		)
+	)
 ```
 
 When assigning with an unnamed tuple, all fields must be specified for the
@@ -993,28 +869,28 @@ tuple to be compatible
 
 ```ruby
 color Color
-.(255 255 255) > color
-.(255) > color # Error! Incompatible structs
-.(red: 255) > color # Ok!
+color < .(255 255 255)  
+color < .(255)  # ERROR Incompatible structs
+color < .(red: 255)  # Ok!
 ```
 
 This allows for a less verbose variable declaration
 
 ```ruby
 # From most verbose to less verbose
-Color.(
-    red: 255
-    blue: 255
-    green: 255
-) > c Color
+c Color < Color.(
+		red: 255
+		blue: 255
+		green: 255
+	)
 
-.(
-    red: 255
-    blue: 255
-    green: 255
-) > c Color
+c Color < .(
+	red: 255
+	blue: 255
+	green: 255
+)
 
-.(255 255 255) > c Color
+c Color < .(255 255 255)
 ```
 
 #### Struct Access
@@ -1027,11 +903,12 @@ Color.(
 
 ```ruby
 Color (
-    red Natural
-    green Natural
-    blue Natural
+	red Natural
+	green Natural
+	blue Natural
 )
-.(255 100 50) > color Color
+
+color Color < .(255 100 50)  
 
 color@0  # 255
 color@%  # 3
@@ -1042,14 +919,14 @@ You can access fields by their name with the dot notation
 
 ```ruby
 Color (
-    red Natural
-    green Natural
-    blue Natural
+	red Natural
+	green Natural
+	blue Natural
 )
-.(255 100 50) > color Color
+color Color < .(255 100 50)  
 
 color.red > \out
-255 > color.blue # setting blue channel to 255
+color.blue < 255  # setting blue channel to 255
 ```
 
 ##### Nested struct @candidate
@@ -1090,7 +967,7 @@ Person (
 	name Text
 	age Natural
 	# someColor Color
-	#           ^^^^^ Error! Color not defined
+	#           ^^^^^ ERROR Color not defined
 	favoriteColor Color (
 		red Natural
 		green Natural
@@ -1106,7 +983,7 @@ You can define recursive struct (struct defined with itself)
 ```ruby
 Node (
 	data Text
-	nextNode Node _ null
+	nextNode Node default null
 )
 ```
 
@@ -1121,10 +998,10 @@ Vehicle (
 	}
 	
 	brake() {
-		1 >- speed
+		speed -< 1
 	}
 
-	speedToMilesPerHour() => Int{
+	speedToMilesPerHour() => Int {
 		=> speed / 1.6093
 	}
 )
@@ -1138,17 +1015,17 @@ car.accelerate(10)
 
 ```ruby
 Car (
-    speed Real
+	speed Real
 
-    # non-static
-    self accelerate() {
-        self.speed +< 2
-    }
-    
-    # static
-    accelerate(car Car) {
-        car.speed +< 2
-    }
+	# non-static
+	self accelerate() {
+		self.speed +< 2
+	}
+
+	# static
+	accelerate(car Car) {
+		car.speed +< 2
+	}
 )
 
 c Car
@@ -1168,12 +1045,12 @@ Vehicle (
 )
 
 Vehicle : Car (
-	wheelCount Natural _ 4
+	wheelCount Natural default 4
 	licensePlate Text
 )
 
 Vehicle : Bike (
-	wheelCount Natural _ 2
+	wheelCount Natural default 2
 	tireType Text
 )
 
@@ -1194,10 +1071,10 @@ Vehicle (
 	wheelsCount Int
 )
 Vehicle : Car (
-	wheelsCount Int _ 4
-	plate Text _ "xxx"
+	wheelsCount Int default 4
+	plate Text default "xxx"
 	# secondaryEngine Engine
-	#                 ^^^^^^ Error! Engine not defined
+	#                 ^^^^^^ ERROR Engine not defined
 )
 ```
 
@@ -1211,8 +1088,8 @@ Vehicle (
 	wheelsCount Int
 )
 Vehicle : Car (
-	wheelsCount Int _ 4
-	plate Text _ "xxx"
+	wheelsCount Int default 4
+	plate Text default "xxx"
 	secondaryEngine Vehicle.Engine
 )
 ```
@@ -1227,8 +1104,8 @@ Vehicle (
 	wheelsCount Int
 )
 Vehicle : Car (
-	wheelsCount Int _ 4
-	plate Text _ "xxx"
+	wheelsCount Int default 4
+	plate Text default "xxx"
 	Vehicle.Engine : Engine (
 		fuelType Text
 	)
@@ -1246,53 +1123,57 @@ Constants are read-only; its value is defined at declaration and cannot change.
 constant LIGHT_SPEED Natural 299792458
 constant EARTH_GRAVITY Real 9.81
 constant BEST_LANGUAGE Text "Giovi"
-constant ORIGIN Vector .(0 0 0)
-
 constant RED Color .(
-	255
-	0
-	0
-)
+		255
+		0
+		0
+	)
 
 constant NAME_LIST [Text] [
-	"Simone"
-	"Luca"
-	"Alessio"
-	"Giada"
-	"Francesca"
-	"Paolo"
-]
+		"Simone"
+		"Luca"
+		"Alessio"
+		"Giada"
+		"Francesca"
+		"Paolo"
+	]
 ```
 
 # Default value
 
-The `_` (underscore) symbol represent the default value of a type
+The default keyword can be used in redirections and other statements
 
 ```ruby
-69 > number Natural
--420 > anotherNumber Integer
-69.69 > someOtherNumber Real
-"This is a text" > someText Text
-true > someBoolean Bool
+number Natural < 69  
+anotherNumber Integer < -420  
+someOtherNumber Real < 69.69  
+someText Text < "This is a text"  
+someBoolean Bool < true  
 
-_ > number            # This will set number to 0
-_ > anotherNumber     # This will set anotherNumber to 0
-_ > someOtherNumber   # This will set someOtherNumber to 0.0
-_ > someText          # This will set someText to empty string
-_ > someBoolean       # This will set someBoolean to false
+default > number            # This will set number to 0
+default > anotherNumber     # This will set anotherNumber to 0
+default > someOtherNumber   # This will set someOtherNumber to 0.0
+default > someText          # This will set someText to empty string
+default > someBoolean       # This will set someBoolean to false
 ```
 
 It is also possible to overwrite a variable default value
-```ruby
-69 > number Natural _ 420
-69.69 > someOtherNumber Real _ 4.20
-"This is a text" > someText Text _ "default text"
-false > someBoolean Bool _ true
 
-_ > number            # This will set number to 420
-_ > someOtherNumber   # This will set someOtherNumber to 4.20
-_ > someText          # This will set someText to "default text"
-_ > someBoolean       # This will set someBoolean to true
+```ruby
+number Natural default 420
+someOtherNumber Real default 4.20
+someText Text default "default text"
+someBoolean Bool default true
+
+69 > number
+6.9 > someOtherNumber
+"hello" > someText
+false > someBoolean
+
+default > number            # This will set number to 420
+default > someOtherNumber   # This will set someOtherNumber to 4.20
+default > someText          # This will set someText to "default text"
+default > someBoolean       # This will set someBoolean to true
 ```
 
 ## Struct default value
@@ -1302,33 +1183,34 @@ default value
 
 ```ruby
 someColor Color
-.(255 255 0) > someColor  # Setting someColor to (255 255 0)
-_ > someColor             # This will set someColor to (0 0 0)
+someColor < .(255 255 0)  
+default > someColor  # This will set someColor to (0 0 0)
 ```
 
 ```ruby
 # Color with overridden defaults
 Color (
-	red Natural _ 255
-	green Natural _ 255
-	blue Natural _ 255
+	red Natural default 255
+	green Natural default 255
+	blue Natural default 255
 )
 
-.(0 255 0) > someColor Color
-_ > someColor                  # Set someColor to default (255 255 255)
+someColor Color < .(0 255 0)  
+_ > someColor  # Set someColor to default (255 255 255)
 ```
 
 If the default is not defined, the type default will be used
+
 ```ruby
 Person (
 	Car (
 		model Text
-		paint Color _ .(40 40 40) 
+		paint Color default .(40 40 40) 
 	)
-	name Text _ "No name"
-	surname Text _ "No surname"
+	name Text default "No name"
+	surname Text default "No surname"
 	age Natural
-	favoriteColor Color _ .(255 0 0)
+	favoriteColor Color default .(255 0 0)
 	favoriteCar Car 
 	ownedCar Car
 )
@@ -1342,17 +1224,17 @@ somebody Person
 # somebody.favoriteCar is ("" (40 40 40))
 # somebody.ownedCar is ("" (40 40 40))
 
-.("Fiat 600" .(10 100 20)) > somebody.ownedCar
+somebody.ownedCar < .("Fiat 600" .(10 100 20))  
 # somebody.ownedCar is now ("Fiat 600" (10 100 20))
 
-_ > somebody.ownedCar
+default > somebody.ownedCar
 # somebody.ownedCar is now ("" (40 40 40))
 
 
-.("Ferrari" .(255 255 255)) > somebody.favoriteCar
+somebody.favoriteCar < .("Ferrari" .(255 255 255))  
 # somebody.favoriteCar is now ("Ferrari" (255 255 255))
 
-_ > somebody.favoriteCar.paint
+default > somebody.favoriteCar.paint
 # somebody.favoriteCar is now ("Ferrari" (40 40 40 ))
 ```
 
@@ -1362,8 +1244,6 @@ A default value of a specific attribute can be accessed with the struct name @ca
 Person.name > defaultPersonName Text              # defaultPersonName will be "No name"
 Person.favoriteColor > defaultFavoriteColor Color # defaultFavoriteColor will be (255 0 0)
 ```
-
-
 
 # Control structure
 
@@ -1385,8 +1265,8 @@ if <condition> do {
 Example:
 
 ```ruby
-1 > x Int
-69 > y Int
+x Int < 1  
+y Int < 69  
 
 if x > y do {
 	# x is greater than y
@@ -1431,7 +1311,7 @@ if <variable> {
 Example:
 
 ```ruby
-69 > x Int
+x Int < 69  
 
 if x {
 	# x is equal 1
@@ -1455,16 +1335,16 @@ if x {
 	}
 
 	# when x is equal to its type default value (zero)
-	= _ do {
+	= default do {
 		# body
 	}
 } else {
 	# no conditions have been met
 }
 
-"Simone" > name Text
+name Text < "Simone"  
 if name {
-	= _ do {}                # name is empty string
+	= default do {}                # name is empty string
 	= "Simone" do {}         # name is Simone
 	= "Alessio" do {}        # name is Alessio
 	= "Paolo" do {}          # name is Paolo
@@ -1472,8 +1352,8 @@ if name {
 }
 ```
 
-
 Comparing struct
+
 ```ruby
 FullName (
 	name Text
@@ -1483,12 +1363,12 @@ FullName (
 myFullName FullName
 adminName FullName
 
-.("Simone" "Vicinanza") > myFullName
-myFullName > adminName
+myFullName < .("Simone" "Vicinanza")  
+adminName < myFullName  
 
 if myFullName do {
 	# myFullName is default FullName value
-	= _ do {}
+	= default do {}
 
 	# myFullName is ("Max" "Power")
 	= .("Max" "Power") do {}
@@ -1516,43 +1396,45 @@ expanded.
 
 ## Syntax
 
+```
+<start>..<end>
+<start>..<end>..<step>
+```
+
 ```ruby
-# <start>..<end>
-# <start>..<end>..<step>
-[0..5] > fromZeroToFive [Int]         # List of Integer equal to [0 1 2 3 4 5]
-[3..5] > fromThreeToFiveReal [Real]   # List of Real equal to [3.0 4.0 5.0]
-["a".."d"] > fromAtoZ [Text]          # List of Text equal to [a b c d]
+[0..5] > fromZeroToFive [Int]         # [0 1 2 3 4 5]
+[3..5] > fromThreeToFiveReal [Real]   # [3.0 4.0 5.0]
+["a".."d"] > fromAtoZ [Text]          # [a b c d]
 ```
 
 Descending ranges can be defined
 
 ```ruby
-[5..0] > fromZeroToFive [Int]         # List of Integer equal to [5 4 3 2 1]
-[5..3] > fromThreeToFiveReal [Real]   # List of Real equal to [5.0 4.0 3.0]
-["d".."a"] > fromAtoZ [Text]          # List of Text equal to [d c b a]
+[5..0] > fromZeroToFive [Int]         # [5 4 3 2 1]
+[5..3] > fromThreeToFiveReal [Real]   # [5.0 4.0 3.0]
+["d".."a"] > fromAtoZ [Text]          # [d c b a]
 ```
 
 A step value can also be used
 
 ```ruby
-[0..10..2] > evenNumbers [Int]        # List of Integer equal to [0 2 4 6 8 10]
-[0..1..0.1] > fromZeroToOne [Real]    # List of Real equal to [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-["a".."g"..2] > listOfLetters [Text]  # List of Text equal to [a c e g]
+[0..10..2] > evenNumbers [Int]        # [0 2 4 6 8 10]
+[0..1..0.1] > fromZeroToOne [Real]    # [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+["a".."g"..2] > listOfLetters [Text]  # [a c e g]
 ```
 
 Variables can be used
 
 ```ruby
-0 > start Int
-10 > end Int
-2 > step Int
-[start..end..step] > list [Int]   # List of Integer equal to [0 2 4 6 8 10]
+start Int < 0  
+end Int < 10  
+step Int < 2  
+list [Int] < [start..end..step]  # [0 2 4 6 8 10]
 ```
 
 # Loops
 
 A loop is block of code that will be repeated (looped)
-
 
 ## Loop control
 
@@ -1584,7 +1466,6 @@ repeat {
 }
 ```
 
-
 ## for loop
 
 The for loop is used to iterate over lists, maps or ranges
@@ -1612,93 +1493,23 @@ for i in 0..names@{%} do {}
 Iterating over list of struct
 
 ```ruby
-[.(0 255 0) .(55 0 255) .(255 255 255)] > colors [Color]
+colors [Color] < [.(0 255 0) .(55 0 255) .(255 255 255)]  
 for color in colors do {}
 ```
 
 The for loop also tries to deconstruct the struct if the variables are the same of the struct
 
 ```ruby
-[.(0 255 0) .(55 0 255) .(255 255 255)] > colors [Color]
+colors [Color] < [.(0 255 0) .(55 0 255) .(255 255 255)]  
 for red green blue in colors do {}
 ```
 
-# Content redirection
-
-`content` > `destination`
-
-## Standard content
-
-| Destination     | Symbol |
-| --------------- | ------ |
-| Standard input  | \in    |
-
-## Standard destinations
-
-| Destination     | Symbol |
-| --------------- | ------ |
-| Standard output | \out   |
-| Standard error  | \error |
-
-
-### Standard output
-
-Print to standard output
-
-```ruby
-"Hello world" > \out
-
-"I'm going to print the lorem ipsum" > \out
-
-"{
-Qui odit molestias commodi omnis magni sunt. Et et et dolorem mollitia eum repellendus fuga qui. Numquam sint numquam sed delectus. Necessitatibus pariatur voluptatem ad ut eos in eos quo. Cupiditate et ut fuga. Aut enim aut amet non.
-
-Pariatur nam nobis placeat. Consequuntur laborum consequatur accusantium totam occaecati possimus illo repellat. In fuga earum ea modi ut perspiciatis iusto. Iste voluptate qui at. Eos eaque cumque quisquam non nemo tenetur quo fugit.
-"} > \out
-```
-
-
-### Standard error
-
-Print to standard error
-
-```ruby
-"Some error happened" > \error
-
-"I'm going to print some details:" > \error
-
-"{
-This program has crashed
-because you tried to perform a
-division by zero.
-"} > \error
-```
-
-### Reverse redirection @candidate
-
-```ruby
-x Int < 69
-x Point < (1 2 3)
-x < (1 2 3)
-x Point < (
-    1
-    2
-    3
-)
-x +< 1
-x -< 1
-x *< 1
-x /< 2
-```
-
-### Cascade redirection @candidate
-Multiple redirection can be achieved like so
-
-`content` > `destination` > `destination2`
 
 # Functions
 
 Functions are special types of code block
+
+<!-- TODO: rework functions to be more like structs and anonymous struct -->
 
 ```
 <function name>(<param name> <param type> <default value>, <other params>) => <return type> {
@@ -1761,27 +1572,19 @@ sum(x Int, y Int) => Int {
 
 Function parameters can also have default values
 
+<!-- TODO change this once the placeholder symbol (_) has been defined -->
+
 ```ruby
+count(num Natural default 10) { }
 # if num is not specified when calling the
 # function, num will be 10
-count(num Natural _ 10) {
-	for i in [0..num] {
-		i > \out
-	}
-}
 
+greet(name Text default default ) { }
 # if name is not specified when calling the function
 # its type default value will be used
-greet(name Text __ ){
-	if name = _ do {
-		"Greetings everybody!" > \out
-	} else {
-		"Hello $name" > \out
-	}
-}
 
-count()          # Will count to 10
-count(69)        # Will count to 69
+count()
+count(69)
 greet()
 greet("Simone")
 ```
@@ -1803,7 +1606,7 @@ Recursion can be used
 
 ```ruby
 fibonacci(count Natural) => Natural {
-	if {count = 0} | {count = 1} do {
+	if count = 0 | count = 1 do {
 		=> count
 	}
 	=> fibonacci(count - 1) + fibonacci(count - 2)
@@ -1828,6 +1631,98 @@ isEven(x Int) => x % 2 = 0
 greet(name Text) name > \out
 ```
 
+### Function reference @candidate
+
+The reference of a function is used to refer to the function itself.<br>
+It is represented with `::` (double colon).
+
+```
+::()
+::(<parameters>)
+::(<parameters>) => <return type>
+```
+
+It can be stored in variables and struct, and can be passed as a parameter to
+other functions as well, just like any other type.
+
+```ruby
+printSomething(txt Text) {
+	txt > \out
+}
+
+functionRef ::(Text) < ::printSomething
+
+# functionRef is now a reference to printSomething function
+functionRef("hello world") # will print "hello world"
+```
+
+Anonymous function references can also be defined
+
+```
+::{<code block>}
+::() <statement> 
+::() {<statements>} 
+::(<parameters>) <statement> 
+::(<parameters>) {<statements>} 
+::(<parameters>) => <return type> <statement>
+::(<parameters>) => <return type> {<statements>}
+```
+
+```ruby
+functionRef ::()
+
+# Assign an anonymous function reference to functionRef
+functionRef < ::{
+		"hello world" > \out
+	}
+
+# I can now invoke functionRef
+functionRef()
+```
+
+When the function has parameters, their names can be omitted in the signature;
+but naming the parameters is advised for better readability
+
+```ruby
+# both are valid definitions of a function reference with a signature of (Text,Int) => Bool
+stringContainsNumber1 ::(myText Text, myNumber Int) => Bool
+stringContainsNumber2 ::(Text, Int) => Bool
+```
+
+Like other data types, a function reference can have a default value (a default
+implementation in this case)
+
+```ruby
+functionRef ::(Text) default ::(txt Text) {
+	txt > \out
+}
+```
+
+A function reference with many parameters, a return type and a default
+implementation could be very verbose and cluttered
+
+```ruby
+# A verbose definition of a function reference which takes a Int and return an Int
+# with a default implementation which returns the sum of the parameters
+
+# <variable> ::(<params>)     => <return> default ::(<params>)     => <return> <statement
+myFunction   ::(x Int, y Int) => Int      default ::(x Int, y Int) => Int      => x + y
+```
+
+But the default implementation signature can be inferred
+
+```ruby
+myFunction ::(x Int, y Int) => Int default ::{=> x + y}
+```
+
+Alternatively, if you don't specify parameters names in the signature, you'll
+have to specify them in the default implementation signature
+
+```ruby
+myFunction ::(Int, Int) => Int default ::(x, y) => x + y
+```
+
+
 # Code examples
 
 ## Book store
@@ -1847,9 +1742,15 @@ Book (
 	pagesCount Natural
 )
 
-printShelfStandard(shelf [Book]) {
+#?{
+#	@brief Convert a list of book to text
+#	@param shelf - list of book
+#	@return list of text
+}#
+shelfToText(shelf [Book]) => [Text] {
+	books [Text]
 	for book in shelf do {
-		"{
+		books +< "{
 		Title:        ${book.title}
 		Description:  ${book.description }
 		Price:        ${book.price}
@@ -1858,99 +1759,109 @@ printShelfStandard(shelf [Book]) {
 			Name:       ${book.author.name}
 			Surname:    ${book.author.surname}
 			Age:        ${book.author.age}
-		"} > \out
+		}"
 	}
+	=> books
 }
 
-printShelfTableHTML(shelf [Book]) {
-	table Text
-	"{
-	<table>
-		<thead>
-			<tr>
-				<th>Title</th>
-				<th>Description</th>
-				<th>Price(€)</th>
-				<th>Page Count</th>
-				<th>Author</th>
-			</tr>
-		</thead>
-	<tbody>
-	"} > table
+#?{
+#	@brief Convert a list of book to a HTML table
+#	@param shelf - list of book
+#	@return text - html table
+}#
+shelfToHTML(shelf [Book]) => [Text] {
+	table Text < "{
+		<table>
+			<thead>
+				<tr>
+					<th>Title</th>
+					<th>Description</th>
+					<th>Price(€)</th>
+					<th>Page Count</th>
+					<th>Author</th>
+				</tr>
+			</thead>
+		<tbody>
+		}"
 
 	for book in shelf do {
 		"${toRowHTML(book)}" >+ table
 	}
 
-	"{
-		</tbody>
-	</table>
-	"} >+ table
+	table +< "{
+			</tbody>
+		</table>
+		}"
 
 	table > \out
 }
 
+#?{
+#	@brief Convert Book to a HTML table row
+#	@param book
+#	@return html table row
+}#
 toRowHTML(book Book) => Text {
 	=> "{
-	<tr>
-		<td>${book.name}</td>
-		<td>${book.description}</td>
-		<td>${book.price}</td>
-		<td>${book.pageCount}</td>
-		<td>${book.author}</td>
-	</tr>
-	"}
+		<tr>
+			<td>${book.name}</td>
+			<td>${book.description}</td>
+			<td>${book.price}</td>
+			<td>${book.pageCount}</td>
+			<td>${book.author}</td>
+		</tr>
+		}"
 }
 
 
 
-.("Simone" "Vicinanza" 22) > author1 Author
-.("Mario" "Rossi" 35) > author2 Author
+author1 Author < .("Simone" "Vicinanza" 22)  
+author2 Author < .("Mario" "Rossi" 35)  
 
-[
-	.(
-		title: "Giovi for dummies"
-		description: "A book describing very easily the Giovi"
-		author: author1
-		price: 0.0
-		pageCount: 69
-	)
-	.(
-		title: "How to make a new Language"
-		description: "{
-		    A step by step guide on how to build a new language from scratch
-		    It even has pictures!!!
-		    "}
-		author: author2
-		price: 6.9
-		pageCount: 420
-	)
-	.(
-		title: "How to make a new Language | 2 edition"
-		description: "{
-		    A step by step guide on how to build a new language from scratch
-		    It even has pictures!!!
-		    Revisioned edition
-		    "}
-		author: author2
-		price: 4.2
-		pageCount: 690
-	)
-	.(
-		title: "Story of a bored programmer"
-		description: "Biography of a bored programmer"
-		author: .(
-		        name:"Luigi"
-		        surname: "Bianchi"
-		        age: 55
+shelf [Book] < [
+		.(
+			title: "Giovi for dummies"
+			description: "A book describing very easily the Giovi"
+			author: author1
+			price: 0.0
+			pageCount: 69
 		)
-		price: 10.5
-		pageCount: 120
-	)
-] > shelf [Book]
+		.(
+			title: "How to make a new Language"
+			description: "{
+		    	A step by step guide on how to build a new language from scratch
+		    	It even has pictures!!!
+		    	"}
+			author: author2
+			price: 6.9
+			pageCount: 420
+		)
+		.(
+			title: "How to make a new Language | 2 edition"
+			description: "{
+		    	A step by step guide on how to build a new language from scratch
+		    	It even has pictures!!!
+		    	Revisioned edition
+		    	"}
+			author: author2
+			price: 4.2
+			pageCount: 690
+		)
+		.(
+			title: "Story of a bored programmer"
+			description: "Biography of a bored programmer"
+			author: .(
+		        	name:"Luigi"
+		        	surname: "Bianchi"
+		        	age: 55
+			)
+			price: 10.5
+			pageCount: 120
+		)
+	]
 
-printShelfStandard(shelf)
-printShelfTableHTML(shelf)
+shelfToText(shelf) > \out
+shelfToHTML(shelf) > \out
 ```
 
 ## Find min value in a list
@@ -2071,7 +1982,7 @@ Regex."^[a-zA-Z]+:\s*([0-9]+).*$" > regex Text.Regex
 ```ruby
 .("^[a-zA-Z]+:\s*([0-9]+).*$") > regex Regex
 if regex.matches("cpu temp: 69C") do {
-    regex.groups@0 > \out
+	regex.groups@0 > \out
 }
 ```
 
@@ -2087,30 +1998,30 @@ default > x
 if x = default do { }
 if x = 69 | x = default do { }
 if x {
-    = 69 do { }
-    = default do { }
+	= 69 do { }
+	= default do { }
 }
 
 greet(name Text, times Int default 69, present Text default _)  { }
 Person (
-    name Text default "aw"
-    age Int default 69
-    car Car (
-        color Color default (0 0 0)
-        plate Text
-    )
+	name Text default "aw"
+	age Int default 69
+	car Car (
+		color Color default (0 0 0)
+		plate Text
+	)
 )
 ```
 
 # Struct syntax @candidate
 ```ruby
 Person {
-    name Text default "aw"
-    age Int default 69
-    car Car {
-        color Color default {0 0 0}
-        plate Text
-    }
+	name Text default "aw"
+	age Int default 69
+	car Car {
+		color Color default {0 0 0}
+		plate Text
+	}
 }
 
 Person.{} > \out
@@ -2118,19 +2029,19 @@ Person.{} > \out
 .{"simone" 69} > p
 .{name: "simone"; age: 69;} > p
 .{
-    name: "awfwf"
-    car: {
-        color: {1 2 3}
-        plate: "awaw"
-    }
+	name: "awfwf"
+	car: {
+		color: {1 2 3}
+		plate: "awaw"
+	}
 } > p
 
 greet(p Person default .{}) => Greetings {
-    if true do return .{
-        name: p.name
-        times: 69
-    }
-    return .{}
+	if true do return .{
+		name: p.name
+		times: 69
+	}
+	return .{}
 }
 
 greet(.{"simone"})
@@ -2139,7 +2050,7 @@ greet(Person.{"simone"})
 greet(Person.{name: "simone"})
 
 if {p = .{} & p.car = .{engine: .{}}} | p = default do {
-    => .{ }
+	=> .{ }
 }
 ```
 
@@ -2153,8 +2064,8 @@ join()
 fork ::fetchData > result Text.Json
 fork ::{doSomethingBlocking()}
 fork ::{
-    "yeah" > \out
-    doSomethingBlocking();
+	"yeah" > \out
+	doSomethingBlocking();
 }
 join
 ```
@@ -2225,9 +2136,10 @@ alias AVeryVerboseAndLongStructName as SomeStruct
 SomeStruct.() > \out
 
 aVeryLonglyNamedFunction() => Text {
-    => "hello world"
+	=> "hello world"
 }
 
 alias aVeryLonglyNamedFunction as f
 f() > \out
 ```
+

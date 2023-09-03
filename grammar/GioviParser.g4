@@ -22,8 +22,9 @@ statement
 	| repeatStatement
 	| forStatement
 	| breakStatement
-	| continueStatement
+	| skipStatement
 	| redirection
+	| redirectionRTL
 	| structDefinition
 	| constantDeclaration
 	| varDeclaration
@@ -36,25 +37,33 @@ statementOrBlock: statement | block;
 
 repeatStatement: REPEAT (IF expression)? statementOrBlock;
 
-sequenceOrExpression: sequence | expression;
+rangeOrExpression: range | expression;
 
-forStatement: FOR iterators IN sequenceOrExpression DO statementOrBlock;
+forStatement: FOR iterators IN rangeOrExpression DO statementOrBlock;
 
 iterators: identifier (',' identifier)*;
 
-returnStatement: RETURN expression?;
+returnStatement: (RETURN | RETURN_ARROW) expression?;
 
 breakStatement: BREAK;
 
-continueStatement: CONTINUE;
+skipStatement: CONTINUE;
 
 redirection
-	: expression bop='>' varDeclaration						# redirectionToVarDeclaration
-	| expression bop='>' primitiveDestination				# redirectionToPrimitiveDestination
-	| expression bop=redirectionOperator identifier			# redirectionToIdentifier
-	| expression bop=redirectionOperator expression			# redirectionToExpression //@TODO this will definitely cause some problems
-	| expression bop=redirectionOperator collectionAccess	# redirectionToCollectionAccess
+	: redirectionContent bop='>' varDeclaration				# redirectionToVarDeclaration
+	| redirectionContent bop='>' primitiveDestination		# redirectionToPrimitiveDestination
+	| redirectionContent bop=redirectionOperator identifier	# redirectionToIdentifier
+	| redirectionContent bop=redirectionOperator expression	# redirectionToExpression
 	;
+
+redirectionRTL
+	: varDeclaration bop='<' redirectionContent					# redirectionToVarDeclarationRTL
+	| primitiveDestination bop='<' redirectionContent			# redirectionToPrimitiveDestinationRTL
+	| identifier bop=redirectionOperatorRTL redirectionContent	# redirectionToIdentifierRTL
+	| expression bop=redirectionOperatorRTL redirectionContent	# redirectionToExpressionRTL
+	;
+
+redirectionContent: primitiveContent | expression;
 
 redirectionOperator
 	: '>'
@@ -62,6 +71,14 @@ redirectionOperator
 	| REDIRECTION_MULTIPLICATION
 	| REDIRECTION_PLUS
 	| REDIRECTION_MINUS
+	;
+
+redirectionOperatorRTL
+	: '<'
+	| REDIRECTION_DIVISION_RTL
+	| REDIRECTION_MULTIPLICATION_RTL
+	| REDIRECTION_PLUS_RTL
+	| REDIRECTION_MINUS_RTL
 	;
 
 constantDeclaration: CONSTANT identifier type expression;
@@ -81,7 +98,7 @@ structBodyDefinition: (structFieldDefinition | structDefinition | functionDeclar
 
 structFieldDefinition: identifier type defaultDefinition? ';'?;
 
-structCreation: (structType=identifier '.')? '(' structFields? ')';
+structCreation: structType=identifier? '.' '(' structFields? ')';
 
 structFields: expression+ | namedStructField+;
 
@@ -93,7 +110,7 @@ namedStructField: identifier ':' expression;
 ////////////////////////////////////////////////
 // FUNCTIONS
 
-functionDeclaration: identifier '(' formalParameters? ')' (RETURN type)? block;
+functionDeclaration: identifier '(' formalParameters? ')' (RETURN_ARROW type)? block;
 
 formalParameters: formalParameterDefinition (',' formalParameterDefinition)*;
 
@@ -133,13 +150,13 @@ caseMatch
 expression
 	: '{' expression '}'									# parenthesizedExpression
 	| expression bop='.' (identifier | functionCall)		# dotExpression
-	| collectionAccess										# collectionAccessExpression
 	| listCreation											# listCreationExpression
 	| mapCreation											# mapCreationExpression
 	| structCreation										# structCreationExpression
 	| functionCall											# functionCallExpression
 	| prefix=('+' | '-') expression							# prefixedExpression
 	| prefix='!' expression									# notExpression
+	| expression bop='@' accessKey							# accessExpression
 	| expression bop='^' expression							# powerExpression
 	| expression bop=('*' | '/' | '%') expression			# multiplicativeExpression
 	| expression bop=('+' | '-') expression					# additiveExpression
@@ -152,9 +169,11 @@ expression
 
 primary: literal | identifier;
 
-sequence: start=expression '..' end=expression ('..' step=expression)?;
+range: start=expression '..' end=expression ('..' step=expression)?;
 
-primitiveDestination: '\\' identifier?;
+primitiveContent: '\\' identifier;
+
+primitiveDestination: '\\' identifier;
 
 type: collectionType | identifier;
 
@@ -163,19 +182,18 @@ collectionType: listType | mapType;
 ////////////////////////////////////////////////
 // COLLECTIONS
 
-collectionAccess: identifier '@' collectionAccessor;
-collectionAccessor
-	: '{' (specialAccessor | literal | expression) '}'	# collectionParenthesizedAccessor
-	| specialAccessor									# collectionSpecialAccessor
-	| literal											# collectionLiteralAccessor
+access: identifier '@' accessKey;
+accessKey
+	: '{' expression '}'	# parenthesizedAccessKey
+	| key=('%' | '@' | '*')	# specialAccessKey
+	| range					# rangeAccessKey
+	| literal				# literalAccessKey
 	;
-
-specialAccessor: '%' | '@' | '*';
 
 listType:		'[' type ']';
 listCreation:	'[' listEntries ']';
 listEntries:	listEntry*;
-listEntry:		expression | sequence;
+listEntry:		expression | range;
 
 mapType:		'[' mapKeyType=type ':' mapValueType=type ']';
 mapCreation:	'[' mapEntries ']';
@@ -204,9 +222,10 @@ integerLiteral:			INTEGER_LITERAL;
 naturalLiteral:			NATURAL_LITERAL;
 realLiteral:			REAL_LITERAL;
 boolLiteral:			BOOL_LITERAL;
-textBlockLiteral:		TEXT_BLOCK_LITERAL;
-textLiteral:			TEXT_LITERAL;
-exactTextBlockLiteral:	EXACT_TEXT_BLOCK_LITERAL;
-exactTextLiteral:		EXACT_TEXT_LITERAL;
+textBlockLiteral:		(identifier '.')? TEXT_BLOCK_LITERAL;
+textLiteral:			(identifier '.')? TEXT_LITERAL;
+exactTextBlockLiteral:	(identifier '.')? EXACT_TEXT_BLOCK_LITERAL;
+exactTextLiteral:		(identifier '.')? EXACT_TEXT_LITERAL;
 nullLiteral:			NULL;
-defaultLiteral:			UNDERSCORE;
+defaultLiteral:			DEFAULT;
+placeholderLiteral:		UNDERSCORE;
