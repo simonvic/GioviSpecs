@@ -50,10 +50,11 @@ breakStatement: BREAK;
 skipStatement: CONTINUE;
 
 redirection
-	: redirectionContent bop='>' varDeclaration				# redirectionToVarDeclaration
-	| redirectionContent bop='>' primitiveDestination		# redirectionToPrimitiveDestination
-	| redirectionContent bop=redirectionOperator identifier	# redirectionToIdentifier
-	| redirectionContent bop=redirectionOperator expression	# redirectionToExpression
+	: redirectionContent bop='>' varDeclaration						# redirectionToVarDeclaration
+	| redirectionContent bop='>' primitiveDestination				# redirectionToPrimitiveDestination
+	| redirectionContent bop=redirectionOperator identifier			# redirectionToIdentifier
+	| redirectionContent bop=redirectionOperator constantIdentifier	# redirectionToConstantIdentifier
+	| redirectionContent bop=redirectionOperator expression			# redirectionToExpression
 	;
 
 redirectionRTL
@@ -81,7 +82,7 @@ redirectionOperatorRTL
 	| REDIRECTION_MINUS_RTL
 	;
 
-constantDeclaration: CONSTANT identifier type expression;
+constantDeclaration: CONSTANT? constantIdentifier type expression;
 
 varDeclaration: identifier type defaultDefinition?;
 
@@ -91,14 +92,14 @@ defaultDefinition: defaultLiteral expression;
 // STRUCT
 
 structDefinition
-	: (parentName=identifier ':')? structName=identifier '(' structBodyDefinition ')'
+	: (parentName=typeIdentifier ':')? structName=typeIdentifier '(' structBodyDefinition ')'
 	;
 
-structBodyDefinition: (structFieldDefinition | structDefinition | functionDeclaration)+;
+structBodyDefinition: (structFieldDefinition | structDefinition | functionDeclaration)*;
 
 structFieldDefinition: identifier type defaultDefinition? ';'?;
 
-structCreation: structType=identifier? '.' '(' structFields? ')';
+structCreation: structType=typeIdentifier? '.' '(' structFields? ')';
 
 structFields: expression+ | namedStructField+;
 
@@ -112,13 +113,13 @@ namedStructField: identifier ':' expression;
 
 functionDeclaration: identifier '(' formalParameters? ')' (RETURN_ARROW type)? block;
 
-formalParameters: formalParameterDefinition (',' formalParameterDefinition)*;
+formalParameters: formalParameterDefinition (',' formalParameterDefinition)* ','?;
 
 formalParameterDefinition: identifier type defaultDefinition?;
 
 functionCall: identifier '(' functionParameterList? ')';
 
-functionParameterList: functionParameter (',' functionParameter)*;
+functionParameterList: functionParameter (',' functionParameter)* ','?;
 
 functionParameter: (identifier ':')? expression;
 
@@ -149,7 +150,8 @@ caseMatch
 
 expression
 	: '{' expression '}'									# parenthesizedExpression
-	| expression bop='.' (identifier | functionCall)		# dotExpression
+	| expression 'as' type									# castExpression
+	| expression bop='.' (anyIdentifier | functionCall)		# dotExpression
 	| listCreation											# listCreationExpression
 	| mapCreation											# mapCreationExpression
 	| structCreation										# structCreationExpression
@@ -167,22 +169,22 @@ expression
 	| primary												# primaryExpression
 	;
 
-primary: literal | identifier;
+primary: literal | anyIdentifier | primitiveContent;
 
 range: start=expression '..' end=expression ('..' step=expression)?;
 
-primitiveContent: '\\' identifier;
+primitiveContent: '\\' 'in';
 
 primitiveDestination: '\\' identifier;
 
-type: collectionType | identifier;
+type: collectionType | typeIdentifier;
 
 collectionType: listType | mapType;
 
 ////////////////////////////////////////////////
 // COLLECTIONS
 
-access: identifier '@' accessKey;
+access: anyIdentifier '@' accessKey;
 accessKey
 	: '{' expression '}'	# parenthesizedAccessKey
 	| key=('%' | '@' | '*')	# specialAccessKey
@@ -213,19 +215,23 @@ literal
 	| exactTextBlockLiteral
 	| exactTextLiteral
 	| nullLiteral
-	| identifier
+	| anyIdentifier
 	| defaultLiteral
 	;
 
+anyIdentifier:			identifier | constantIdentifier | typeIdentifier;
 identifier:				IDENTIFIER;
+constantIdentifier:		ALLUPPERCASE_IDENTIFIER;
+typeIdentifier:			UPPERCASE_IDENTIFIER | ALLUPPERCASE_IDENTIFIER;
 integerLiteral:			INTEGER_LITERAL;
 naturalLiteral:			NATURAL_LITERAL;
 realLiteral:			REAL_LITERAL;
 boolLiteral:			BOOL_LITERAL;
-textBlockLiteral:		(identifier '.')? TEXT_BLOCK_LITERAL;
-textLiteral:			(identifier '.')? TEXT_LITERAL;
-exactTextBlockLiteral:	(identifier '.')? EXACT_TEXT_BLOCK_LITERAL;
-exactTextLiteral:		(identifier '.')? EXACT_TEXT_LITERAL;
+textBlockLiteral:		(typeIdentifier '.')? TEXT_BLOCK_LITERAL;
+textLiteral:			(typeIdentifier '.')? TEXT_LITERAL;
+exactTextBlockLiteral:	(typeIdentifier '.')? EXACT_TEXT_BLOCK_LITERAL;
+exactTextLiteral:		(typeIdentifier '.')? EXACT_TEXT_LITERAL;
 nullLiteral:			NULL;
 defaultLiteral:			DEFAULT;
 placeholderLiteral:		UNDERSCORE;
+

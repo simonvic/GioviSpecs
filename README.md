@@ -221,12 +221,28 @@ A variable is identified by a unique name, and it is of a specific type
 
 The general rules for naming variables are:
   - Names must be unique
+  - Names must begin with a lower case letter
   - Names can contain letters, digits and underscores
-  - Names must begin with a letter
   - Names cannot contain whitespace
   - Names are case-sensitive ("myVar" and "myvar" are different variables)
-  - Type and Struct names cannot be used as names
-  - Reserved words cannot be used as names
+  - Type (primitive and struct) names cannot be used
+  - Reserved words cannot be used
+    - if
+    - do
+    - else
+    - for
+    - in
+    - repeat
+    - break
+    - skip
+    - constant
+    - null
+    - return
+    - import
+    - default
+    - alias
+    - as
+    - self
 
 # Data types
 
@@ -243,7 +259,7 @@ The general rules for naming variables are:
 ### Declaration
 
 ```
-<identifier> <type>
+<identifier> <Type>
 ```
 
 ```ruby
@@ -251,6 +267,39 @@ index Int
 age Natural
 height Real
 name Text
+```
+
+### Numbers
+
+Numbers type (i.e. Natural, Int, Real) can be defined in more advanced ways.<br>
+You can add a type suffix
+
+```ruby
+0n # Natural
+0i # Int
+0r # Real
+```
+
+You can specify in which base they're represented
+
+```ruby
+0b01000101 # Base 2 (binary)
+0o105      # Base 8 (octal)
+0x123AAFF  # Base 16 (hexadecimal)
+```
+
+You can use underscores to separate digits groups for readability
+
+```ruby
+1_000_000_000 # a billion
+0b1000_0110_0010_1100
+```
+
+You can use the exponent notation
+
+```ruby
+1e+8 # 1 * 10^8
+1e-8 # 1 * 10^-8
 ```
 
 ### Text type
@@ -261,6 +310,7 @@ name Text
 | ------------------------------ | ------ | -------------------------- | -------------------------- |
 | Concatenation                  | +      | "Hello" + " " + "World"    | "Hello World"              |
 | Remove substring               | -      | "Hello world" - "world"    | "Hello "                   |
+| Split                          | /      | "hello:world" / ":"        | ["hello" "world"]          |
 | Append to variable             | >+     | "Hello world" >+ someText  | "$someText Hello world"    |
 | Remove substring from variable | >-     | "substring" >- someText    | someText without substring |
 | Text contains                  | =~     | "Hello world" =~ "lo worl" | true                       |
@@ -336,7 +386,7 @@ aFunction() {
 				}
 			}
 			}"
-# ^^^^^^^^^^ these are "incidental" tabs and won't be included in "json"
+#^		^ these are "incidental" tabs and won't be included in "json"
 	}
 }
 ```
@@ -421,6 +471,16 @@ I have $USD 69
 }'
 ```
 
+#### Unicode escapes
+
+Text can also contain Unicode escapes, which will be interpolated with the
+character at the specified codepoint.
+
+```ruby
+"\u0068\u0065\u006c\u006c\u006f\u0020\u0077\u006f\u0072\u006c\u0064" > \out
+# hello world
+```
+
 #### Text types @candidate
 
 ```ruby
@@ -490,7 +550,7 @@ The indexes are 0-based
 #### Syntax
 
 ```
-<identifier> [<element type>]
+<identifier> [<ElementType>]
 ```
 
 ```ruby
@@ -674,6 +734,11 @@ Map keys are unique.
 
 #### Syntax
 
+
+```
+<identifier> [<KeyType> : <ElementType>]
+```
+
 ```ruby
 carCount [Text : Int]
 [ "Audi" : 1 ] >+ carCount  # Insert new key "Audi" with value 1
@@ -754,6 +819,10 @@ heterogeneous types (primitive or composite)
 ```
 <name> ( <fields> )
 ```
+
+The name must start with an Uppercase letter and can contain letters, digits
+and underscores.<br>
+Primitive types cannot be used as name.
 
 ```ruby
 # Definition
@@ -1078,7 +1147,7 @@ Vehicle : Car (
 )
 ```
 
-But you can use the dot notation
+But you can use the dot notation...
 
 ```ruby
 Vehicle (
@@ -1094,7 +1163,7 @@ Vehicle : Car (
 )
 ```
 
-or you can also specialize the nested struct
+... or you can also specialize the nested struct
 
 ```ruby
 Vehicle (
@@ -1114,12 +1183,100 @@ Vehicle : Car (
 )
 ```
 
+### Enums @candidate
+
+Enums like behaviour can be achieved with a nested struct.<br>
+They can be simple enums...
+
+```ruby
+PizzaStatus (
+	ORDERED ()
+	READY ()
+	DELIVERED ()	
+)
+```
+
+... or have values
+
+```ruby
+Color (
+	RGB (r Natural; g Natural; b Natural)
+	RGBA (r Natural; g Natural; b Natural; a Natural)
+	ARGB (a Natural; r Natural; g Natural; b Natural)
+	HSL (hue Real; saturation Real; lightness Real)
+	HEX (hex Text)
+)
+```
+
+... or both, which can be quite handy along the if statement
+
+```ruby
+Result (
+	OK ()
+	ERROR (reason Text)
+)
+
+enterClub(age Int) => Result {
+	if age < 18 do
+		=> Result.ERROR.("user is underage")
+	=> Result.OK.()
+}
+
+if enterClub(69) {
+	= Result.OK.() do "Welcome" > \out
+	= Result.ERROR.(reason:_) do "Can't enter because $reason" > \out
+}
+```
+
+You can omit struct types, but beware of the matching order
+
+```ruby
+if enterClub(69) {
+	= .(reason: "underage") do "Too young, boy!" > \out
+	= .(reason: _) do "Can't enter because $reason" > \out
+	= .() do "Welcome" > \out
+}
+
+```
+
+# Explicit casting
+
+It's possible to explicitly casting a variable to another type (if supported).
+
+## Syntax
+
+```
+<variable> as <Type>
+```
+
+```ruby
+69 > i Int
+i as Real > \out
+
+"420.69" > t Text
+t as Real > \out
+
+p3d Point3D
+p3d as Point > p Point
+
+Point.() as Point3D > p3d
+```
+
 # Constants
 
 Constants are read-only; its value is defined at declaration and cannot change.
 
+## Syntax
+
+```
+constant <CONSTANT_NAME> <Type> <value>
+<CONSTANT_NAME> <Type> <value>
+```
+
+Constants name must be all UPPERCASE, must start with a letter and can contain
+digits and underscores.
+
 ```ruby
-# constant <VARIABLE_NAME> <type> <value>
 constant LIGHT_SPEED Natural 299792458
 constant EARTH_GRAVITY Real 9.81
 constant BEST_LANGUAGE Text "Giovi"
@@ -1290,7 +1447,7 @@ if {{x < 0} & {x > 10}} do {}
 
 
 
-## Multiple if (switch)
+## Multiple if (match)
 
 ```
 if <variable> {
@@ -1355,37 +1512,45 @@ if name {
 Comparing struct
 
 ```ruby
-FullName (
-	name Text
-	surname Text
-)
+ColorRGB (r Natural; g Natural; b Natural)
+ColorARGB (a natural; r Natural; g Natural; b Natural)
 
-myFullName FullName
-adminName FullName
+color ColorRGB < .(42 0 69)
+white ColorRGB < .(255 255 255)
+red ColorRGB < .(255 0 0)
+transparent ColorARGB < .(0 0 0 0)
 
-myFullName < .("Simone" "Vicinanza")  
-adminName < myFullName  
+if color do {
+	= default do "it's black" > \out
 
-if myFullName do {
-	# myFullName is default FullName value
-	= default do {}
+	= red do "it's red" > \out
 
-	# myFullName is ("Max" "Power")
-	= .("Max" "Power") do {}
+	= .(240 10 10) do "it's redish" > \out
 
-	# myFullName is ("Gian Carlo" "Esposito")
-	= .("Gian Carlo" "Esposito") do {}
+	= .(255 default 69) do "255 default green 69" > \out
+	
+	= white
+	| = .(200 200 200)
+	do "it's white or grey" > \out
 
-	# myFullName is ("Simone" "Vicinanza") or ("Alessio" "Vicinanza")
-	= .("Simone" "Vicinanza") | = .("Alessio" "Vicinanza") do {}
+	= .(_ _ 69) do "any red, any green, blue of 69" > \out
 
-	# myFullName is adminName or ("Paolo" adminName.surname)
-	= adminName
-	| = .("Paolo" adminName.surname) do {}
-
+	= .(_ _ _ _) do "It has at least 4 fields" > \out
 }
 ```
 
+It's also possible to deconstruct the struct by using named struct, so you can
+access the fields
+
+```ruby
+if color do {
+	= .(r:255 g:69 b:42) do "Something with $r $g and $b" > \out
+
+	= .(r:_ g:_ b:_) do "Something with $r $g and $b" > \out
+
+	= .(r:_ b:_) do "I only need $r and $b" > \out
+}
+```
 
 # Range
 
@@ -1512,11 +1677,14 @@ Functions are special types of code block
 <!-- TODO: rework functions to be more like structs and anonymous struct -->
 
 ```
-<function name>(<param name> <param type> <default value>, <other params>) => <return type> {
+<function name>(<param name> <Param type> <default value>, <other params>) => <Return type> {
 	<body>
 	=> <return value>
 }
 ```
+
+Functions names must start with a lower case letter, and can contain letters,
+digits and underscores.
 
 ```ruby
 printHelloWorld() {
@@ -1990,69 +2158,6 @@ if regex.matches("cpu temp: 69C") do {
 Regex.replace("my text 69 lol", "^my (.*)", "something $1")
 Regex.replace("my text 69 lol", "/^my (.*)/something $1/g")
 ```
-# default keyword @candidate
-```ruby
-x Int default 69
-420 > x
-default > x
-if x = default do { }
-if x = 69 | x = default do { }
-if x {
-	= 69 do { }
-	= default do { }
-}
-
-greet(name Text, times Int default 69, present Text default _)  { }
-Person (
-	name Text default "aw"
-	age Int default 69
-	car Car (
-		color Color default (0 0 0)
-		plate Text
-	)
-)
-```
-
-# Struct syntax @candidate
-```ruby
-Person {
-	name Text default "aw"
-	age Int default 69
-	car Car {
-		color Color default {0 0 0}
-		plate Text
-	}
-}
-
-Person.{} > \out
-.{} > p Person
-.{"simone" 69} > p
-.{name: "simone"; age: 69;} > p
-.{
-	name: "awfwf"
-	car: {
-		color: {1 2 3}
-		plate: "awaw"
-	}
-} > p
-
-greet(p Person default .{}) => Greetings {
-	if true do return .{
-		name: p.name
-		times: 69
-	}
-	return .{}
-}
-
-greet(.{"simone"})
-greet(.{name: "simone"})
-greet(Person.{"simone"})
-greet(Person.{name: "simone"})
-
-if {p = .{} & p.car = .{engine: .{}}} | p = default do {
-	=> .{ }
-}
-```
 
 # Parallel programming @candidate
 ```ruby
@@ -2068,62 +2173,6 @@ fork ::{
 	doSomethingBlocking();
 }
 join
-```
-
-# Explicit casting @candidate
-
-```ruby
-x Int < 69
-x as Real > \out
-p3d Point3D
-p3d as Point > p Point
-Point.{} as Point3D > p3d
-```
-
-# Advanced number definitions @candidate
-
-```ruby
-### Explicit type suffix
-0n > natural Natural
-0i > int Int
-0r > real Real
-
-### Numbers in non-10 base
-0b10011010 > int Int # base 2
-0o1234567 > int Int # base 8
-0xfa84 > int Int # base 16
-
-### Use underscore as spaces
-100_000_000 > money Int
-
-### Exponent
-1e-8
-1e+8
-```
-
-# Unicode escapes @candidate
-
-```ruby
-"\u4269" > \out
-```
-
-# Better text block syntax @candidate
-
-```ruby
-""{}"" > \out
-""{
-hello
-}"" > \out
-
-""{it's "cool"}"" > \out
-
-''{
-hello 
-}'' > \out
-
-##{
-hello 
-}##
 ```
 
 # Aliasing @candidate
@@ -2142,4 +2191,3 @@ aVeryLonglyNamedFunction() => Text {
 alias aVeryLonglyNamedFunction as f
 f() > \out
 ```
-
