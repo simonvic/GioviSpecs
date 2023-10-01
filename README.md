@@ -100,6 +100,20 @@ sum(x Int, y Int) => Int {
 | Multiply by value   | *<     | count *< 10                  |
 | Divide by value     | /<     | count /< 10                  |
 
+## Containment operator
+
+| Operation     | Symbol | Example                    |
+| ------------- | ------ | -------------------------- |
+| Contains      | =~     | "Hello world" =~ "lo worl" |
+| Is contained  | ~=     | "lo worl" ~= "Hello world" |
+
+The containment operator is used to check if a value is contained in another.
+
+To avoid confusion about the direction of the containment operator, remember
+about its "hamburger notation":<br>
+the hamburger (=) contains the lettuce (~) `hamburger =~ lettuce`
+the lettuce (~) is contained in the hamburger (=) `lettuce ~= hamburger`
+
 ## Access operator
 
 The access operator `@` is used to access special properties of variable/type.<br>
@@ -377,17 +391,17 @@ effects.
 
 ```ruby
 aFunction() {
-	if true do {
-		json Text < "{
-			{
-				"field": "value",
-				"anotherField": {
-					"someField": "value"
-				}
-			}
-			}"
-#^		^ these are "incidental" tabs and won't be included in "json"
-	}
+    if true do {
+        html Text < "{
+            <html>
+                <head></head>
+                <body>
+                    <p>Hello world</p>
+                <body>
+            </html>
+            }"
+#^^^^^^^^^^^ these are "incidental" whitespaces and won't be included in "html"
+    }
 }
 ```
 
@@ -456,10 +470,10 @@ getName() => Text { => "simonvic" }
 
 helloWorld Text < "{
 	Hello world
-	I'm am ${getName()}
+	I am ${getName()}
 	}"
 # Hello world
-# I'm simonvic
+# I am simonvic
 ```
 
 If you don't want variables/code to be interpolated, use single quotes (`'`)
@@ -467,7 +481,7 @@ If you don't want variables/code to be interpolated, use single quotes (`'`)
 ```ruby
 '{
 Hello,
-I have $USD 69
+I have 69 $USD in my wallet
 }'
 ```
 
@@ -825,11 +839,15 @@ and underscores.<br>
 Primitive types cannot be used as name.
 
 ```ruby
-# Definition
 Color (
 	red Natural
 	green Natural
 	blue Natural
+)
+
+Car (
+	model Text
+	paint Color
 )
 
 Person (
@@ -837,10 +855,6 @@ Person (
 	surname Text
 	age Natural
 	favoriteColor Color
-	Car (     # Nested struct definition
-		model Text        # it will be reusable within the Person scope
-		paint Color
-	)
 	favoriteCar Car
 	ownedCar Car
 )
@@ -855,8 +869,8 @@ me Person < Person.(
 		"Vic"
 		22
 		red
-		("Ferrari" red)
-		("Fiat600" magenta)
+		Car.("Ferrari" red)
+		Car.("Fiat600" Color.(0 0 255))
 	)
 ```
 
@@ -1101,6 +1115,44 @@ c Car
 c.accelerate()
 Car.accelerate(c)
 ```
+
+###### Self return @candidate
+
+A struct function can also return the struct itself, without having to
+explicitly return.<br>
+This comes very handy when you want to make "chainable" functions.
+
+```ruby
+Color (
+    r Natural
+    g Natural
+    b Natural
+
+    rgb(r Natural, g Natural, b Natural) => self {
+        self.r = r
+        self.g = g
+        self.b = b
+    }
+
+    brigthen() => self {
+        self.r *< 0.5
+        self.g *< 0.5
+        self.b *< 0.5
+    }
+
+    saturate() => self {
+        # however you do it
+    }
+)
+
+c Color < .(5 20 512)
+
+c.rgb(5, 20, 512)
+    .brigthen()
+    .saturate()
+    .brighten()
+```
+
 
 #### Structs inheritance
 
@@ -1436,7 +1488,7 @@ if x > y & x > 10 do {
 }
 ```
 
-Curly braces are used to optionally wrap conditions. The followings will evaluate the same conditions
+Curly braces are used to optionally wrap conditions. The followings will evaluate the same conditions...
 
 ```ruby
 if x < 0 & x > 10 do {}
@@ -1445,7 +1497,12 @@ if {x < 0} & {x > 10} do {}
 if {{x < 0} & {x > 10}} do {}
 ```
 
+... but these will be different
 
+```ruby
+if true & true | false do {}
+if true & {true | false} do {}
+```
 
 ## Multiple if (match)
 
@@ -1501,7 +1558,7 @@ if x {
 
 name Text < "Simone"  
 if name {
-	= default do {}                # name is empty string
+	= default do {}          # name is empty string
 	= "Simone" do {}         # name is Simone
 	= "Alessio" do {}        # name is Alessio
 	= "Paolo" do {}          # name is Paolo
@@ -1707,13 +1764,6 @@ division(x Real, y Real) => Real {
 	=> x / y
 }
 
-intToBool(x Int) => Bool {
-	if x <= 0 do {
-		=> false
-	}
-	=> true
-}
-
 fibonacci(maxCount Natural) => Natural {
 	sum Natural
 	for i in [0..maxCount] do {
@@ -1730,11 +1780,11 @@ sum(2, 2) > sumResult Int
 division(10, 3) > divisionResult Real
 ```
 
-To return a value, you can alternatively use the return keyword @candidate
+To return a value, you can alternatively use the return keyword
 
 ```ruby
-sum(x Int, y Int) => Int {
-	return x + y
+intToBool(i Int) => Bool {
+    return i > 0
 }
 ```
 
