@@ -97,11 +97,11 @@ structDefinition
 
 structBodyDefinition: (structFieldDefinition | structDefinition | functionDeclaration)*;
 
-structFieldDefinition: identifier type defaultDefinition? ';'?;
+structFieldDefinition: identifier type defaultDefinition? ','?;
 
 structCreation: structType=typeIdentifier? '.' '(' structFields? ')';
 
-structFields: expression+ | namedStructField+;
+structFields: (expression ','?)+ | (namedStructField ','?)+;
 
 namedStructField: identifier ':' expression;
 

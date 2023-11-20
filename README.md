@@ -119,8 +119,18 @@ The containment operator is used to check if a value is contained in another.
 
 To avoid confusion about the direction of the containment operator, remember
 about its "hamburger notation":<br>
-the hamburger (=) contains the lettuce (~) `hamburger =~ lettuce`
+the hamburger (=) contains the lettuce (~) `hamburger =~ lettuce`<br>
 the lettuce (~) is contained in the hamburger (=) `lettuce ~= hamburger`
+
+### Range containment @candidate
+
+```ruby
+69 ~= 0..420
+-5..5 =~ 0
+6.9 ~= 6.0 .. 8.0
+
+"b" ~= "a".."d"
+```
 
 ## Access operator
 
@@ -394,7 +404,7 @@ them.<br>
 Only one type of white space can be used; in case of mixed types, it will be
 used the type of the first incidental whitespace of the first line (excluding
 the line with the opening text block tag).<br>
-So please be consistent with formatting to avoid ambiguities and undesired side
+So be consistent with formatting to avoid ambiguities and undesired side
 effects.
 
 ```ruby
@@ -408,7 +418,8 @@ aFunction() {
                 <body>
             </html>
             }"
-#^^^^^^^^^^^ these are "incidental" whitespaces and won't be included in "html"
+#^^^^^^^^^^^
+# these are "incidental" whitespaces and won't be included in "html"
     }
 }
 ```
@@ -654,10 +665,10 @@ if numbers {
 	| = [4 5 6 7] do {}
 	
 	# if equal to a list of [1 2 3 4] or elements count equal to 10
-	= [1 2 3 4] | numbers@{%} = 10 do {}
+	= [1 2 3 4] | numbers@% = 10 do {}
 	
 	# if empty list or elements count less then 3
-	= default | numbers@{%} < 3 do {}
+	= default | numbers@% < 3 do {}
 	
 	# if empty list and first element equal to 6
 	= default & numbers@0 = 6 do {}
@@ -722,6 +733,14 @@ rubikCube [[[Text]]] < [
 	]
 
 rubikCube@2@1@1   # will refer to the central tile of green face
+```
+
+#### Multidimensional lists access @candidate
+
+```ruby
+cube [[[Int]]]
+cube@1@2@3 -> \out
+cube@{1, 2, 3} -> \out
 ```
 
 ### Set @candidate
@@ -918,6 +937,12 @@ that type
 
 ```ruby
 Color.() > \out
+When defining or creating a struct, the fields can optionally be separated by
+a comma
+
+```ruby
+Color <r Int, g Int, b Int>
+Color.<1, 2, 3> -> c Color
 ```
 
 ###### Anonymous structs (tuples)
@@ -2218,14 +2243,18 @@ Regex.replace("my text 69 lol", "/^my (.*)/something $1/g")
 ```
 
 # Parallel programming @candidate
+
 ```ruby
 fork(::fetchData) > result Text.Json
 fork(::(){doSomethingBlocking()})
+fork(::doSomethingBlocking)
 join()
 ```
+
 ```ruby
 fork ::fetchData > result Text.Json
 fork ::{doSomethingBlocking()}
+fork ::doSomethingBlocking
 fork ::{
 	"yeah" > \out
 	doSomethingBlocking();
@@ -2248,4 +2277,124 @@ aVeryLonglyNamedFunction() => Text {
 
 alias aVeryLonglyNamedFunction as f
 f() > \out
+# List initialization @candidate
+
+```ruby
+list [3 * Int] # [0 0 0]
+matrix [3 * [Int]] # [[] [] []]
+matrix [3 * [2 * Int]] # [[0 0] [0 0] [0 0]]
+```
+
+```ruby
+list [Int * 3] # [0 0 0]
+matrix [[Int] * 3] # [[] [] []]
+matrix [[Int * 2] * 3] # [[0 0] [0 0] [0 0]]
+```
+
+# Generics @candidate
+
+```ruby
+Person {T} <
+	name Text
+	money Real
+	favoriteColor T
+>
+
+Person{RGB}.<"simone" 69 <1 2 3>>
+Person{Text}.<"simone" 69 "red">
+Person{Int}.<"simone" 69 0xff0000>
+```
+
+```ruby
+me Person{Int} <- <"simone" 69 0xff0000>
+iColor Int <- me.favoriteColor
+```
+
+```ruby
+me Person{_} <- <"simone" 69 0xff0000>
+color Int <- me.favoriteColor # ERROR
+iColor Int <- me.favoriteColor as Int
+
+printPersons(persons [Person{_}]) {
+	for person in persons do {
+		\out <- "${person.name} has ${person.money} and likes ${person.favoriteColor}"
+	}
+}
+
+printFavColor(persons [Person{_}]) {
+	for person in persons do {
+		"${person.name} likes " ->+ \out
+		if person {
+			is p Person{Int} do p.favoriteColor > \out
+			is p Person{RGB} do "${p.favoriteColor.r} ${p.favoriteColor.g} ${p.favoriteColor.b}" -> \out
+		}
+	}
+}
+```
+
+```ruby
+Optional{T} <value T>
+
+doSomething(optional Optional{_}) {
+	if optional {
+		is opt Optional{Text} do opt.value -> \out
+		is opt Optional{Int} do opt.value -> \out
+	}
+}
+```
+
+## Generics inheritance @candidate
+
+```ruby
+Box{T} <color Text, something T>
+Box{Car} : CarBox < >
+Box{T} : MagicChest{T} < >
+
+cardboardBox Box{Book} <- <"brown" Book.<"Moby Dick">>
+shelf Box{[Book]} <- <"black" [Book.<"Moby Dick"> Book.<"Metro 2033">]>
+garage CarBox <- <"grey" Car.<"Ferrari">>
+chest MagicChest{Gift} <- <"blue" Gift.<"socks">>
+```
+
+# If expression (ternary operator like) @candidate
+
+Has to be exhaustive
+
+```ruby
+x Int <- if true do yield 69 else yield 420
+x Int <- if something {
+	= "awf" do yield 69
+	= "awawfwf" do yield 420
+} else do yield 69420
+
+x Int <- if true 69 else 420
+x Int <- if something {
+	= "awf" ~> 69
+	= "aaawfwf" ~> 420
+} else ~> 69420
+
+x Int <- if true do ~> 69 else ~> 420
+x Int <- if something {
+	= "awf" do ~> 69
+	= "awawfwf" do ~> 420
+} else do ~> 69420
+```
+
+# Error handling @candidate
+
+```ruby
+Result{T, E} <
+	value T
+	error E
+>
+
+Result{T, Void} : Ok{T} < >
+Result{Void, E} : Err{E} < >
+
+parseDate(text Text) => Result{Date, ParsingErro} {
+	if text = "" do => Err{ParsingError}.<"Input is empty">
+	# blah blah blah
+	parsedDate Date
+	=> Ok{Date}.<parsedDate>
+}
 ```
