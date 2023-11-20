@@ -1,8 +1,8 @@
 parser grammar GioviParser
-	;
+    ;
 
 options {
-	tokenVocab=GioviLexer;
+    tokenVocab=GioviLexer;
 }
 
 /*
@@ -16,22 +16,22 @@ program: statement*;
 block: '{' statement* '}';
 
 statement
-	: statement SEMICOLON
-	| ifStatement
-	| switchStatement
-	| repeatStatement
-	| forStatement
-	| breakStatement
-	| skipStatement
-	| redirection
-	| redirectionRTL
-	| structDefinition
-	| constantDeclaration
-	| varDeclaration
-	| functionDeclaration
-	| returnStatement
-	| expression
-	;
+    : statement SEMICOLON
+    | ifStatement
+    | switchStatement
+    | repeatStatement
+    | forStatement
+    | breakStatement
+    | skipStatement
+    | redirection
+    | redirectionRTL
+    | structDefinition
+    | constantDeclaration
+    | varDeclaration
+    | functionDeclaration
+    | returnStatement
+    | expression
+    ;
 
 statementOrBlock: statement | block;
 
@@ -50,37 +50,37 @@ breakStatement: BREAK;
 skipStatement: CONTINUE;
 
 redirection
-	: redirectionContent bop=REDIRECTION varDeclaration					# redirectionToVarDeclaration
-	| redirectionContent bop=redirectionOperator primitiveDestination	# redirectionToPrimitiveDestination
-	| redirectionContent bop=redirectionOperator identifier				# redirectionToIdentifier
-	| redirectionContent bop=redirectionOperator constantIdentifier		# redirectionToConstantIdentifier
-	| redirectionContent bop=redirectionOperator expression				# redirectionToExpression
-	;
+    : redirectionContent bop=REDIRECTION varDeclaration               # redirectionToVarDeclaration
+    | redirectionContent bop=redirectionOperator primitiveDestination # redirectionToPrimitiveDestination
+    | redirectionContent bop=redirectionOperator identifier           # redirectionToIdentifier
+    | redirectionContent bop=redirectionOperator constantIdentifier   # redirectionToConstantIdentifier
+    | redirectionContent bop=redirectionOperator expression           # redirectionToExpression
+    ;
 
 redirectionRTL
-	: varDeclaration bop=REDIRECTION_RTL redirectionContent					# redirectionToVarDeclarationRTL
-	| primitiveDestination bop=redirectionOperatorRTL redirectionContent	# redirectionToPrimitiveDestinationRTL
-	| identifier bop=redirectionOperatorRTL redirectionContent				# redirectionToIdentifierRTL
-	| expression bop=redirectionOperatorRTL redirectionContent				# redirectionToExpressionRTL
-	;
+    : varDeclaration bop=REDIRECTION_RTL redirectionContent              # redirectionToVarDeclarationRTL
+    | primitiveDestination bop=redirectionOperatorRTL redirectionContent # redirectionToPrimitiveDestinationRTL
+    | identifier bop=redirectionOperatorRTL redirectionContent           # redirectionToIdentifierRTL
+    | expression bop=redirectionOperatorRTL redirectionContent           # redirectionToExpressionRTL
+    ;
 
 redirectionContent: primitiveContent | expression;
 
 redirectionOperator
-	: REDIRECTION
-	| REDIRECTION_DIVISION
-	| REDIRECTION_MULTIPLICATION
-	| REDIRECTION_PLUS
-	| REDIRECTION_MINUS
-	;
+    : REDIRECTION
+    | REDIRECTION_DIVISION
+    | REDIRECTION_MULTIPLICATION
+    | REDIRECTION_PLUS
+    | REDIRECTION_MINUS
+    ;
 
 redirectionOperatorRTL
-	: REDIRECTION_RTL
-	| REDIRECTION_DIVISION_RTL
-	| REDIRECTION_MULTIPLICATION_RTL
-	| REDIRECTION_PLUS_RTL
-	| REDIRECTION_MINUS_RTL
-	;
+    : REDIRECTION_RTL
+    | REDIRECTION_DIVISION_RTL
+    | REDIRECTION_MULTIPLICATION_RTL
+    | REDIRECTION_PLUS_RTL
+    | REDIRECTION_MINUS_RTL
+    ;
 
 constantDeclaration: CONSTANT constantIdentifier type REDIRECTION_RTL expression;
 
@@ -92,8 +92,8 @@ defaultDefinition: defaultLiteral expression;
 // STRUCT
 
 structDefinition
-	: (parentName=typeIdentifier ':')? structName=typeIdentifier '<' structBodyDefinition '>'
-	;
+    : (parentName=typeIdentifier ':')? structName=typeIdentifier '<' structBodyDefinition '>'
+    ;
 
 structBodyDefinition: (structFieldDefinition | structDefinition | functionDeclaration)*;
 
@@ -135,13 +135,13 @@ switchBlock: '{' switchLabel+ '}';
 switchLabel: caseMatch DO body=statementOrBlock;
 
 caseMatch
-	: '{' caseMatch '}'							# parenthesizedCaseMatch
-	| op=('<=' | '>=' | '>' | '<') expression	# relationalCaseMatch
-	| op=(AND | AND_SYM | OR | OR_SYM) expression					# booleanCaseMatch
-	| op=('=' | '!=') expression				# equalityCaseMatch
-	| op=('~=' | '=~') expression				# containmentCaseMatch
-	| caseMatch bop=(AND | AND_SYM | OR | OR_SYM) caseMatch		# guardedCaseMatch
-	;
+    : '{' caseMatch '}'                                     # parenthesizedCaseMatch
+    | op=('<=' | '>=' | '>' | '<') expression               # relationalCaseMatch
+    | op=(AND | AND_SYM | OR | OR_SYM) expression           # booleanCaseMatch
+    | op=('=' | '!=') expression                            # equalityCaseMatch
+    | op=('~=' | '=~') expression                           # containmentCaseMatch
+    | caseMatch bop=(AND | AND_SYM | OR | OR_SYM) caseMatch # guardedCaseMatch
+    ;
 
 ////////////////////////////////////////////////
 // EXPRESSIONS
@@ -149,25 +149,25 @@ caseMatch
 //expressionList: expression (',' expression)*;
 
 expression
-	: '{' expression '}'									# parenthesizedExpression
-	| expression 'as' type									# castExpression
-	| expression bop='.' (anyIdentifier | functionCall)		# dotExpression
-	| listCreation											# listCreationExpression
-	| mapCreation											# mapCreationExpression
-	| structCreation										# structCreationExpression
-	| functionCall											# functionCallExpression
-	| prefix=('+' | '-') expression							# prefixedExpression
-	| prefix=(NOT | NOT_SYM) expression									# notExpression
-	| expression bop='@' accessKey							# accessExpression
-	| expression bop='^' expression							# powerExpression
-	| expression bop=('*' | '/' | '%') expression			# multiplicativeExpression
-	| expression bop=('+' | '-') expression					# additiveExpression
-	| expression bop=('<=' | '>=' | '>' | '<') expression	# relationalExpression
-	| expression bop=('=' | '!=') expression				# equalityExpression
-	| expression bop=('~=' | '=~') expression				# containmentExpression
-	| expression bop=(AND | AND_SYM | OR | OR_SYM) expression					# boolExpression
-	| primary												# primaryExpression
-	;
+    : '{' expression '}'                                      # parenthesizedExpression
+    | expression 'as' type                                    # castExpression
+    | expression bop='.' (anyIdentifier | functionCall)       # dotExpression
+    | listCreation                                            # listCreationExpression
+    | mapCreation                                             # mapCreationExpression
+    | structCreation                                          # structCreationExpression
+    | functionCall                                            # functionCallExpression
+    | prefix=('+' | '-') expression                           # prefixedExpression
+    | prefix=(NOT | NOT_SYM) expression                       # notExpression
+    | expression bop='@' accessKey                            # accessExpression
+    | expression bop='^' expression                           # powerExpression
+    | expression bop=('*' | '/' | '%') expression             # multiplicativeExpression
+    | expression bop=('+' | '-') expression                   # additiveExpression
+    | expression bop=('<=' | '>=' | '>' | '<') expression     # relationalExpression
+    | expression bop=('=' | '!=') expression                  # equalityExpression
+    | expression bop=('~=' | '=~') expression                 # containmentExpression
+    | expression bop=(AND | AND_SYM | OR | OR_SYM) expression # boolExpression
+    | primary                                                 # primaryExpression
+    ;
 
 primary: literal | anyIdentifier | primitiveContent;
 
@@ -186,53 +186,53 @@ collectionType: listType | mapType;
 
 access: anyIdentifier '@' accessKey;
 accessKey
-	: '{' expression '}'	# parenthesizedAccessKey
-	| key=('%' | '@' | '*')	# specialAccessKey
-	| range					# rangeAccessKey
-	| literal				# literalAccessKey
-	;
+    : '{' expression '}'    # parenthesizedAccessKey
+    | key=('%' | '@' | '*') # specialAccessKey
+    | range                 # rangeAccessKey
+    | literal               # literalAccessKey
+    ;
 
-listType:		'[' type ']';
-listCreation:	'[' listEntries ']';
-listEntries:	(listEntry ','?)*;
-listEntry:		expression | range;
+listType:     '[' type ']';
+listCreation: '[' listEntries ']';
+listEntries:  (listEntry ','?)*;
+listEntry:    expression | range;
 
-mapType:		'[' mapKeyType=type ':' mapValueType=type ']';
-mapCreation:	'[' mapEntries ']';
-mapEntries:		(mapEntry ','?)*;
-mapEntry:		mapKey=expression ':' mapValue=expression;
+mapType:     '[' mapKeyType=type ':' mapValueType=type ']';
+mapCreation: '[' mapEntries ']';
+mapEntries:  (mapEntry ','?)*;
+mapEntry:    mapKey=expression ':' mapValue=expression;
 
 ////////////////////////////////////////////////
 // TYPES
 
 literal
-	: integerLiteral
-	| naturalLiteral
-	| realLiteral
-	| boolLiteral
-	| textBlockLiteral
-	| textLiteral
-	| exactTextBlockLiteral
-	| exactTextLiteral
-	| nullLiteral
-	| anyIdentifier
-	| defaultLiteral
-	;
+    : integerLiteral
+    | naturalLiteral
+    | realLiteral
+    | boolLiteral
+    | textBlockLiteral
+    | textLiteral
+    | exactTextBlockLiteral
+    | exactTextLiteral
+    | nullLiteral
+    | anyIdentifier
+    | defaultLiteral
+    ;
 
-anyIdentifier:			identifier | constantIdentifier | typeIdentifier;
-identifier:				IDENTIFIER;
-constantIdentifier:		ALLUPPERCASE_IDENTIFIER;
-typeIdentifier:			UPPERCASE_IDENTIFIER | ALLUPPERCASE_IDENTIFIER;
-integerLiteral:			INTEGER_LITERAL;
-naturalLiteral:			NATURAL_LITERAL;
-realLiteral:			REAL_LITERAL;
-boolLiteral:			BOOL_LITERAL;
-textBlockLiteral:		(typeIdentifier '.')? TEXT_BLOCK_LITERAL;
-textLiteral:			(typeIdentifier '.')? TEXT_LITERAL;
-exactTextBlockLiteral:	(typeIdentifier '.')? EXACT_TEXT_BLOCK_LITERAL;
-exactTextLiteral:		(typeIdentifier '.')? EXACT_TEXT_LITERAL;
-nullLiteral:			NULL;
-defaultLiteral:			DEFAULT;
-placeholderLiteral:		UNDERSCORE;
+anyIdentifier:         identifier | constantIdentifier | typeIdentifier;
+identifier:            IDENTIFIER;
+constantIdentifier:    ALLUPPERCASE_IDENTIFIER;
+typeIdentifier:        UPPERCASE_IDENTIFIER | ALLUPPERCASE_IDENTIFIER;
+integerLiteral:        INTEGER_LITERAL;
+naturalLiteral:        NATURAL_LITERAL;
+realLiteral:           REAL_LITERAL;
+boolLiteral:           BOOL_LITERAL;
+textBlockLiteral:      (typeIdentifier '.')? TEXT_BLOCK_LITERAL;
+textLiteral:           (typeIdentifier '.')? TEXT_LITERAL;
+exactTextBlockLiteral: (typeIdentifier '.')? EXACT_TEXT_BLOCK_LITERAL;
+exactTextLiteral:      (typeIdentifier '.')? EXACT_TEXT_LITERAL;
+nullLiteral:           NULL;
+defaultLiteral:        DEFAULT;
+placeholderLiteral:    UNDERSCORE;
 
 // vim: ft=antlr
