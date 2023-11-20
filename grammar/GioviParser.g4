@@ -50,24 +50,24 @@ breakStatement: BREAK;
 skipStatement: CONTINUE;
 
 redirection
-	: redirectionContent bop='>' varDeclaration						# redirectionToVarDeclaration
-	| redirectionContent bop='>' primitiveDestination				# redirectionToPrimitiveDestination
-	| redirectionContent bop=redirectionOperator identifier			# redirectionToIdentifier
-	| redirectionContent bop=redirectionOperator constantIdentifier	# redirectionToConstantIdentifier
-	| redirectionContent bop=redirectionOperator expression			# redirectionToExpression
+	: redirectionContent bop=REDIRECTION varDeclaration					# redirectionToVarDeclaration
+	| redirectionContent bop=redirectionOperator primitiveDestination	# redirectionToPrimitiveDestination
+	| redirectionContent bop=redirectionOperator identifier				# redirectionToIdentifier
+	| redirectionContent bop=redirectionOperator constantIdentifier		# redirectionToConstantIdentifier
+	| redirectionContent bop=redirectionOperator expression				# redirectionToExpression
 	;
 
 redirectionRTL
-	: varDeclaration bop='<' redirectionContent					# redirectionToVarDeclarationRTL
-	| primitiveDestination bop='<' redirectionContent			# redirectionToPrimitiveDestinationRTL
-	| identifier bop=redirectionOperatorRTL redirectionContent	# redirectionToIdentifierRTL
-	| expression bop=redirectionOperatorRTL redirectionContent	# redirectionToExpressionRTL
+	: varDeclaration bop=REDIRECTION_RTL redirectionContent					# redirectionToVarDeclarationRTL
+	| primitiveDestination bop=redirectionOperatorRTL redirectionContent	# redirectionToPrimitiveDestinationRTL
+	| identifier bop=redirectionOperatorRTL redirectionContent				# redirectionToIdentifierRTL
+	| expression bop=redirectionOperatorRTL redirectionContent				# redirectionToExpressionRTL
 	;
 
 redirectionContent: primitiveContent | expression;
 
 redirectionOperator
-	: '>'
+	: REDIRECTION
 	| REDIRECTION_DIVISION
 	| REDIRECTION_MULTIPLICATION
 	| REDIRECTION_PLUS
@@ -75,14 +75,14 @@ redirectionOperator
 	;
 
 redirectionOperatorRTL
-	: '<'
+	: REDIRECTION_RTL
 	| REDIRECTION_DIVISION_RTL
 	| REDIRECTION_MULTIPLICATION_RTL
 	| REDIRECTION_PLUS_RTL
 	| REDIRECTION_MINUS_RTL
 	;
 
-constantDeclaration: CONSTANT? constantIdentifier type expression;
+constantDeclaration: CONSTANT constantIdentifier type REDIRECTION_RTL expression;
 
 varDeclaration: identifier type defaultDefinition?;
 
@@ -92,14 +92,14 @@ defaultDefinition: defaultLiteral expression;
 // STRUCT
 
 structDefinition
-	: (parentName=typeIdentifier ':')? structName=typeIdentifier '(' structBodyDefinition ')'
+	: (parentName=typeIdentifier ':')? structName=typeIdentifier '<' structBodyDefinition '>'
 	;
 
 structBodyDefinition: (structFieldDefinition | structDefinition | functionDeclaration)*;
 
 structFieldDefinition: identifier type defaultDefinition? ','?;
 
-structCreation: structType=typeIdentifier? '.' '(' structFields? ')';
+structCreation: (structType=typeIdentifier '.')? '<' structFields? '>';
 
 structFields: (expression ','?)+ | (namedStructField ','?)+;
 
@@ -235,3 +235,4 @@ nullLiteral:			NULL;
 defaultLiteral:			DEFAULT;
 placeholderLiteral:		UNDERSCORE;
 
+// vim: ft=antlr

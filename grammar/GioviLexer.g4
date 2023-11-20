@@ -7,14 +7,16 @@ MULTIPLICATION:					'*';
 DIVISION:						'/';
 MODULO:							'%';
 EXPONENTIAL:					'^';
-REDIRECTION_PLUS:				'>+';
-REDIRECTION_MINUS:				'>-';
-REDIRECTION_MULTIPLICATION:		'>*';
-REDIRECTION_DIVISION:			'>/';
-REDIRECTION_PLUS_RTL:			'+<';
-REDIRECTION_MINUS_RTL:			'-<';
-REDIRECTION_MULTIPLICATION_RTL:	'*<';
-REDIRECTION_DIVISION_RTL:		'/<';
+REDIRECTION:					'->';
+REDIRECTION_PLUS:				'->+';
+REDIRECTION_MINUS:				'->-';
+REDIRECTION_MULTIPLICATION:		'->*';
+REDIRECTION_DIVISION:			'->/';
+REDIRECTION_RTL:				'<-';
+REDIRECTION_PLUS_RTL:			'+<-';
+REDIRECTION_MINUS_RTL:			'-<-';
+REDIRECTION_MULTIPLICATION_RTL:	'*<-';
+REDIRECTION_DIVISION_RTL:		'/<-';
 EQUAL:							'=';
 NOT_EQUAL:						'!=';
 TILDE:							'~';
@@ -61,6 +63,7 @@ IMPORT:							'import';
 DEFAULT:						'default';
 ALIAS:							'alias';
 AS:								'as';
+IS:								'is';
 SELF:							'self';
 
 WS:				[ \t\r\n\u000C]+ -> skip;
@@ -153,3 +156,5 @@ fragment BinaryExponent:					BinaryExponentIndicator SignedInteger;
 fragment BinaryExponentIndicator:			'p';
 
 // TODO: do variable interpolation here
+
+// vim: ft=antlr
