@@ -194,12 +194,12 @@ accessKey
 
 listType:		'[' type ']';
 listCreation:	'[' listEntries ']';
-listEntries:	listEntry*;
+listEntries:	(listEntry ','?)*;
 listEntry:		expression | range;
 
 mapType:		'[' mapKeyType=type ':' mapValueType=type ']';
 mapCreation:	'[' mapEntries ']';
-mapEntries:		mapEntry*;
+mapEntries:		(mapEntry ','?)*;
 mapEntry:		mapKey=expression ':' mapValue=expression;
 
 ////////////////////////////////////////////////

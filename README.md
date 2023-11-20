@@ -601,6 +601,12 @@ listOfNames [Text]
 "Gian Luca" >+ listOfNames
 ```
 
+List entries can be optionally separated by a comma (trailing comma is allowed)
+
+```ruby
+[1, 2, 3, 4,]
+```
+
 ##### List type inference @candidate
 
 ```ruby
@@ -800,6 +806,17 @@ Default values can be used
 ```ruby
 [ "Fiat" : default ] >+ carCount
 default > carCount@{"Fiat"}
+```
+
+Map entries can be optionally separated by a comma (trailing comma is allowed)
+
+```ruby
+[
+	"Mercedes" : 10,
+	"Audi" : 7,
+	"BMW" : 15,
+	"Ferrari" : 20,
+]
 ```
 
 #### Map Access
