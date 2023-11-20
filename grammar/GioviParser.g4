@@ -137,10 +137,10 @@ switchLabel: caseMatch DO body=statementOrBlock;
 caseMatch
 	: '{' caseMatch '}'							# parenthesizedCaseMatch
 	| op=('<=' | '>=' | '>' | '<') expression	# relationalCaseMatch
-	| op=('&' | '|') expression					# booleanCaseMatch
+	| op=(AND | AND_SYM | OR | OR_SYM) expression					# booleanCaseMatch
 	| op=('=' | '!=') expression				# equalityCaseMatch
 	| op=('~=' | '=~') expression				# containmentCaseMatch
-	| caseMatch bop=('&' | '|') caseMatch		# guardedCaseMatch
+	| caseMatch bop=(AND | AND_SYM | OR | OR_SYM) caseMatch		# guardedCaseMatch
 	;
 
 ////////////////////////////////////////////////
@@ -157,7 +157,7 @@ expression
 	| structCreation										# structCreationExpression
 	| functionCall											# functionCallExpression
 	| prefix=('+' | '-') expression							# prefixedExpression
-	| prefix='!' expression									# notExpression
+	| prefix=(NOT | NOT_SYM) expression									# notExpression
 	| expression bop='@' accessKey							# accessExpression
 	| expression bop='^' expression							# powerExpression
 	| expression bop=('*' | '/' | '%') expression			# multiplicativeExpression
@@ -165,7 +165,7 @@ expression
 	| expression bop=('<=' | '>=' | '>' | '<') expression	# relationalExpression
 	| expression bop=('=' | '!=') expression				# equalityExpression
 	| expression bop=('~=' | '=~') expression				# containmentExpression
-	| expression bop=('&' | '|') expression					# boolExpression
+	| expression bop=(AND | AND_SYM | OR | OR_SYM) expression					# boolExpression
 	| primary												# primaryExpression
 	;
 

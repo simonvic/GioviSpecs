@@ -80,6 +80,14 @@ sum(x Int, y Int) => Int {
 | Or        | \|     | 10 > 2 \| 5 > 2 |
 | Not       | !      | !{2 > 10}       |
 
+### Logical operators alternatives
+
+| Operation | Symbol | Example           |
+| --------- | ------ | ----------------- |
+| And       | and    | 10 > 2 and 10 > 5 |
+| Or        | or     | 10 > 2 or 5 > 2   |
+| Not       | not    | not {2 > 10}      |
+
 ## Redirection (assignment)
 
 | Operation           | Symbol | Example                      |
