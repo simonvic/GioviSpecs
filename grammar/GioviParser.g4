@@ -140,6 +140,7 @@ caseMatch
     | op=(AND | AND_SYM | OR | OR_SYM) expression           # booleanCaseMatch
     | op=('=' | '!=') expression                            # equalityCaseMatch
     | op=('~=' | '=~') expression                           # containmentCaseMatch
+    | op=IS identifier? type                                # typeCheckCaseMatch
     | caseMatch bop=(AND | AND_SYM | OR | OR_SYM) caseMatch # guardedCaseMatch
     ;
 
@@ -150,7 +151,8 @@ caseMatch
 
 expression
     : '{' expression '}'                                      # parenthesizedExpression
-    | expression 'as' type                                    # castExpression
+    | expression AS type                                      # castExpression
+    | expression IS identifier? type                          # typeCheckExpression
     | expression bop='.' (anyIdentifier | functionCall)       # dotExpression
     | listCreation                                            # listCreationExpression
     | mapCreation                                             # mapCreationExpression
