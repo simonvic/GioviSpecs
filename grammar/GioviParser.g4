@@ -5,15 +5,13 @@ options {
     tokenVocab=GioviLexer;
 }
 
-/*
- @header { package it.simonvic.giovi; }
- */
-
 begin: program EOF;
 
 program: statement*;
 
 block: '{' statement* '}';
+
+//////////////////////////////////////////////////////////////////////////////// STATEMENTS
 
 statement
     : statement SEMICOLON
@@ -86,10 +84,9 @@ constantDeclaration: CONSTANT constantIdentifier type REDIRECTION_RTL expression
 
 varDeclaration: identifier type defaultDefinition?;
 
-defaultDefinition: defaultLiteral expression;
+defaultDefinition: literalDefault expression;
 
-////////////////////////////////////////////////
-// STRUCT
+/////////////////////////////////////////////////////////////////////////////// STRUCTS
 
 structDefinition
     : (parentName=typeIdentifier ':')? structName=typeIdentifier '<' structBodyDefinition '>'
@@ -105,11 +102,7 @@ structFields: (expression ','?)+ | (namedStructField ','?)+;
 
 namedStructField: identifier ':' expression;
 
-// namedStructCreation: (structType=identifier '.')? '(' namedStructField+ ')' ';'?; namedStructField: identifier ':' expression ';'?;
-// unnamedStructCreation: (structType=identifier '.')? '(' unnamedStructField+ ')' ';'?; unnamedStructField: expression ';'?;
-
-////////////////////////////////////////////////
-// FUNCTIONS
+//////////////////////////////////////////////////////////////////////////////// FUNCTIONS
 
 functionDeclaration: identifier '(' formalParameters? ')' (RETURN_ARROW type)? block;
 
@@ -123,8 +116,7 @@ functionParameterList: functionParameter (',' functionParameter)* ','?;
 
 functionParameter: (identifier ':')? expression;
 
-////////////////////////////////////////////////
-// FLOW CONTROL
+//////////////////////////////////////////////////////////////////////////////// FLOW CONTROL
 
 ifStatement: IF expression DO ifBody=statementOrBlock (ELSE elseBody=statementOrBlock)?;
 
@@ -144,10 +136,7 @@ caseMatch
     | caseMatch bop=(AND | AND_SYM | OR | OR_SYM) caseMatch # caseMatchGuarded
     ;
 
-////////////////////////////////////////////////
-// EXPRESSIONS
-
-//expressionList: expression (',' expression)*;
+//////////////////////////////////////////////////////////////////////////////// EXPRESSIONS
 
 expression
     : '{' expression '}'                                      # expressionParenthesized
@@ -179,12 +168,11 @@ primitiveContent: '\\' 'in';
 
 primitiveDestination: '\\' identifier;
 
-type: collectionType | typeIdentifier;
+type: typeComposite | typeIdentifier;
 
-collectionType: listType | mapType;
+typeComposite: typeList | typeMap;
 
-////////////////////////////////////////////////
-// COLLECTIONS
+//////////////////////////////////////////////////////////////////////////////// COMPOSITE TYPES
 
 access: anyIdentifier '@' accessKey;
 accessKey
@@ -194,47 +182,47 @@ accessKey
     | literal               # accessKeyLiteral
     ;
 
-listType:     '[' type ']';
+typeList:     '[' type ']';
 listCreation: '[' listEntries ']';
 listEntries:  (listEntry ','?)*;
 listEntry:    expression | range;
 
-mapType:     '[' mapKeyType=type ':' mapValueType=type ']';
+typeMap:     '[' mapKeyType=type ':' mapValueType=type ']';
 mapCreation: '[' mapEntries ']';
 mapEntries:  (mapEntry ','?)*;
 mapEntry:    mapKey=expression ':' mapValue=expression;
 
-////////////////////////////////////////////////
-// TYPES
-
+//////////////////////////////////////////////////////////////////////////////// LITERALS
 literal
-    : integerLiteral
-    | naturalLiteral
-    | realLiteral
-    | boolLiteral
-    | textBlockLiteral
-    | textLiteral
-    | exactTextBlockLiteral
-    | exactTextLiteral
-    | nullLiteral
+    : literalInteger
+    | literalNatural
+    | literalReal
+    | literalBool
+    | literalTextBlock
+    | literalText
+    | literalExactTextBlock
+    | literalExactText
+    | literalNull
+    | literalDefault
+    | literalPlaceholder
     | anyIdentifier
-    | defaultLiteral
     ;
 
 anyIdentifier:         identifier | constantIdentifier | typeIdentifier;
 identifier:            IDENTIFIER;
 constantIdentifier:    ALLUPPERCASE_IDENTIFIER;
 typeIdentifier:        UPPERCASE_IDENTIFIER | ALLUPPERCASE_IDENTIFIER;
-integerLiteral:        INTEGER_LITERAL;
-naturalLiteral:        NATURAL_LITERAL;
-realLiteral:           REAL_LITERAL;
-boolLiteral:           BOOL_LITERAL;
-textBlockLiteral:      (typeIdentifier '.')? TEXT_BLOCK_LITERAL;
-textLiteral:           (typeIdentifier '.')? TEXT_LITERAL;
-exactTextBlockLiteral: (typeIdentifier '.')? EXACT_TEXT_BLOCK_LITERAL;
-exactTextLiteral:      (typeIdentifier '.')? EXACT_TEXT_LITERAL;
-nullLiteral:           NULL;
-defaultLiteral:        DEFAULT;
-placeholderLiteral:    UNDERSCORE;
+
+literalInteger:        INTEGER_LITERAL;
+literalNatural:        NATURAL_LITERAL;
+literalReal:           REAL_LITERAL;
+literalBool:           BOOL_LITERAL;
+literalTextBlock:      (typeIdentifier '.')? TEXT_BLOCK_LITERAL;
+literalText:           (typeIdentifier '.')? TEXT_LITERAL;
+literalExactTextBlock: (typeIdentifier '.')? EXACT_TEXT_BLOCK_LITERAL;
+literalExactText:      (typeIdentifier '.')? EXACT_TEXT_LITERAL;
+literalNull:           NULL;
+literalDefault:        DEFAULT;
+literalPlaceholder:    UNDERSCORE;
 
 // vim: ft=antlr
