@@ -135,13 +135,13 @@ switchBlock: '{' switchLabel+ '}';
 switchLabel: caseMatch DO body=statementOrBlock;
 
 caseMatch
-    : '{' caseMatch '}'                                     # parenthesizedCaseMatch
-    | op=('<=' | '>=' | '>' | '<') expression               # relationalCaseMatch
-    | op=(AND | AND_SYM | OR | OR_SYM) expression           # booleanCaseMatch
-    | op=('=' | '!=') expression                            # equalityCaseMatch
-    | op=('~=' | '=~') expression                           # containmentCaseMatch
-    | op=IS identifier? type                                # typeCheckCaseMatch
-    | caseMatch bop=(AND | AND_SYM | OR | OR_SYM) caseMatch # guardedCaseMatch
+    : '{' caseMatch '}'                                     # caseMatchParenthesized
+    | op=('<=' | '>=' | '>' | '<') expression               # caseMatchRelational
+    | op=(AND | AND_SYM | OR | OR_SYM) expression           # caseMatchBoolean
+    | op=('=' | '!=') expression                            # caseMatchEquality
+    | op=('~=' | '=~') expression                           # caseMatchContainment
+    | op=IS identifier? type                                # caseMatchTypeCheck
+    | caseMatch bop=(AND | AND_SYM | OR | OR_SYM) caseMatch # caseMatchGuarded
     ;
 
 ////////////////////////////////////////////////
@@ -150,25 +150,25 @@ caseMatch
 //expressionList: expression (',' expression)*;
 
 expression
-    : '{' expression '}'                                      # parenthesizedExpression
-    | expression AS type                                      # castExpression
-    | expression IS identifier? type                          # typeCheckExpression
-    | expression bop='.' (anyIdentifier | functionCall)       # dotExpression
-    | listCreation                                            # listCreationExpression
-    | mapCreation                                             # mapCreationExpression
-    | structCreation                                          # structCreationExpression
-    | functionCall                                            # functionCallExpression
-    | prefix=('+' | '-') expression                           # prefixedExpression
-    | prefix=(NOT | NOT_SYM) expression                       # notExpression
-    | expression bop='@' accessKey                            # accessExpression
-    | expression bop='^' expression                           # powerExpression
-    | expression bop=('*' | '/' | '%') expression             # multiplicativeExpression
-    | expression bop=('+' | '-') expression                   # additiveExpression
-    | expression bop=('<=' | '>=' | '>' | '<') expression     # relationalExpression
-    | expression bop=('=' | '!=') expression                  # equalityExpression
-    | expression bop=('~=' | '=~') expression                 # containmentExpression
-    | expression bop=(AND | AND_SYM | OR | OR_SYM) expression # boolExpression
-    | primary                                                 # primaryExpression
+    : '{' expression '}'                                      # expressionParenthesized
+    | expression AS type                                      # expressionCast
+    | expression IS identifier? type                          # expressionTypeCheck
+    | expression bop='.' (anyIdentifier | functionCall)       # expressionDot
+    | listCreation                                            # expressionListCreation
+    | mapCreation                                             # expressionMapCreation
+    | structCreation                                          # expressionStructCreation
+    | functionCall                                            # expressionFunctionCall
+    | prefix=('+' | '-') expression                           # expressionPrefixed
+    | prefix=(NOT | NOT_SYM) expression                       # expressionNot
+    | expression bop='@' accessKey                            # expressionAccess
+    | expression bop='^' expression                           # expressionPower
+    | expression bop=('*' | '/' | '%') expression             # expressionMultiplicative
+    | expression bop=('+' | '-') expression                   # expressionAdditive
+    | expression bop=('<=' | '>=' | '>' | '<') expression     # expressionRelational
+    | expression bop=('=' | '!=') expression                  # expressionEquality
+    | expression bop=('~=' | '=~') expression                 # expressionContainment
+    | expression bop=(AND | AND_SYM | OR | OR_SYM) expression # expressionBool
+    | primary                                                 # expressionPrimary
     ;
 
 primary: literal | anyIdentifier | primitiveContent;
@@ -188,10 +188,10 @@ collectionType: listType | mapType;
 
 access: anyIdentifier '@' accessKey;
 accessKey
-    : '{' expression '}'    # parenthesizedAccessKey
-    | key=('%' | '@' | '*') # specialAccessKey
-    | range                 # rangeAccessKey
-    | literal               # literalAccessKey
+    : '{' expression '}'    # accessKeyParenthesized
+    | key=('%' | '@' | '*') # accessKeySpecial
+    | range                 # accessKeyRange
+    | literal               # accessKeyLiteral
     ;
 
 listType:     '[' type ']';
