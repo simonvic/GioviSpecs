@@ -277,6 +277,8 @@ The general rules for naming variables are:
     - is
     - self
 
+<!-- TODO: mention variables lifetime and scopes -->
+
 # Data types
 
 ## Primitive Types
@@ -344,6 +346,7 @@ You can use the exponent notation
 | Concatenation                  | +      | "Hello" + " " + "World"    | "Hello World"              |
 | Remove substring               | -      | "Hello world" - "world"    | "Hello "                   |
 | Split                          | /      | "hello:world" / ":"        | ["hello" "world"]          |
+| Repeat                         | *      | "o" * 4                    | "oooo"                     |
 | Append to variable             | ->+    | "Hello world" ->+ someText | "$someText Hello world"    |
 | Remove substring from variable | ->-    | "substring" ->- someText   | someText without substring |
 | Text contains                  | =~     | "Hello world" =~ "lo worl" | true                       |
@@ -364,16 +367,19 @@ You can use the exponent notation
 text@0         # "h"
 text@1         # "e"
 
-# Out of bounds indexes can be used to "cycle" the chars.
-# Bound checking is left to the business logic to do.
-letters@12     # "e"
-letters@{-2}   # "l"
+# Negative indexes can be used to access last characters
+text@{-1}   # "d" last character
+text@{-2}   # "l" second-last character
+text@{-3}   # "r" third-last character
+text@{-11}  # "h" 11 from last character
 
-text@1..6      # "ello w"
-text@0..10..2  # "hlowrd"
-text@10..0     # will print "dlrow olleh"
+# A range can be used to access substring (indexes are inclusive)
+text@1..6             # "ello w" from 1 to 6
+text@0..10..2         # "hlowrd" from 0 to 10 every 2
+text@10..0            # "dlrow olleh" from 10 to 0
+text@text@% - 1 .. 0  # "dlrow olleh" from text length - 1  to 0
 
-text@%         # 11 (chars count)
+text@%         # 11 (length)
 text@@         # 0..10 (range)
 text@*         # [ "h" "e" "l" "l" "o" " " "w" "o" "r" "l" "d" ]
 ```
@@ -625,6 +631,23 @@ listOfFullNames [FullName] <- [
 		<"Mario" "Rossi">
 		<"Luigi" "Bianchi">
 	]
+```
+
+#### List Initialization shorthand
+
+It is possible to initialize a list with a defined amount of values.<br>
+The amount has to be a Natural number or an expression evaluating to it.
+
+```
+<identifier> [ <Type> ** <number> ]
+<identifier> [ <Type> ** <expression> ]
+```
+
+```ruby
+x [Int ** 5] # [0 0 0 0 0]
+
+size Int <- 3
+y [Bool ** size] # [true true true]
 ```
 
 #### List Access
@@ -2452,6 +2475,38 @@ parseDate(text Text) => Result{Date, ParsingErro} {
 	=> Ok{Date}.<parsedDate>
 }
 ```
+
+# Tuple type @candidate
+
+```ruby
+t Tuple <- <true "Hello world" 6.9 420>
+function(x Int, args Tuple) {
+	for arg in 0..args@%-1 do {
+		if arg {
+			is a Int do {}
+			is a Text do {}
+			is a Bool do {}
+			is a Real do {}
+		}
+	}
+}
+
+function(69, t)
+function(69, <"hello world" 69>)
+```
+
+# Varargs @candidate
+
+```ruby
+
+```
+
+# Tuple fields override @candidate
+
+```ruby
+
+```
+
 
 <!-- 
 vim: noet

@@ -176,13 +176,13 @@ typeComposite: typeList | typeMap;
 
 access: anyIdentifier '@' accessKey;
 accessKey
-    : '{' expression '}'    # accessKeyParenthesized
-    | key=('%' | '@' | '*') # accessKeySpecial
-    | range                 # accessKeyRange
-    | literal               # accessKeyLiteral
+    : '{' (accessKey | expression) '}' # accessKeyParenthesized
+    | key=('%' | '@' | '*')            # accessKeySpecial
+    | range                            # accessKeyRange
+    | literal                          # accessKeyLiteral
     ;
 
-typeList:     '[' type ']';
+typeList:     '[' type ('*' '*' initSize=expression)? ']';
 listCreation: '[' listEntries ']';
 listEntries:  (listEntry ','?)*;
 listEntry:    expression | range;
