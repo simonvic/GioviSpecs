@@ -664,14 +664,17 @@ letters [Text] <- ["a" "b" "c" "d" "e" "f" "g" "h" "i" "j"]
 
 letters@0 -> \out    # "a"
 
-# Indexes out of bounds can be used to "cycle" the list.
-# Bound checking is left to the business logic to do.
-letters@15          # "f"
-letters@{-2}        # "i"
+# Negative indexes can be used to access last elements
+letters@{-1}   # "d" last character
+letters@{-2}   # "l" second-last character
+letters@{-3}   # "r" third-last character
+letters@{-11}  # "h" 11 from last character
 
-letters@2..5        # ["c" "d" "e" "f"]
-letters@0..10..2    # ["a" "c" "e" "g" "i"]
-letters@10..0       # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
+# A range can be used to access a sublist (indexes are inclusive)
+letters@2..5              # ["c" "d" "e" "f"]
+letters@0..10..2          # ["a" "c" "e" "g" "i"]
+letters@10..0             # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
+letters@letters@% - 1..0  # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
 
 letters@% -> \out    # 10 (elements count)
 letters@@ -> \out    # 0..9 (range) useful when you need to iterate a list with indexes
@@ -2240,6 +2243,91 @@ List: $letters
 }#
 ```
 
+## Fibonacci
+
+```ruby
+#?{
+# @brief Recursive fibonacci. T(n) = O(2^n)
+# @param n = value of fibonacci to find
+# @return fibonacci sequence at n
+}#
+fibonacci(n Int) => Int {
+	if n <= 2 do => 1
+	=> fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+#?{
+# @brief Iterative bottom-up fibonacci T(n) = O(n)
+# @param n = value of fibonacci to find
+# @return fibonacci of sequence at n
+}#
+fibonacciBottomUp(n Int) => Int {
+	if n = 0 | n = 1 do => n
+	cache [Int] <- [1 1]
+	for i in 2..n do {
+		cache@{i - 2} + cache@{i - 1} ->+ cache
+	}
+	=> cache@{n - 1}
+}
+
+#?{
+# @brief Iterative fibonacci with memoization via associative array
+#	T(n) = O(n)
+#	S(n) = O(n)
+# @param n = value of fibonacci to find
+# @return fibonacci sequence at n
+}#
+fibonacciAssociativeMemoIter(n Int) => Int {
+	cache [Int : Int] <- [ 1:1 2:1 ]
+	for i in 3..n do {
+		cache +<- [ i : cache@{i - 1} + cache@{i - 2} ]
+	}
+	=> cache@n;
+}
+
+#?{
+# @brief Iterative fibonacci with memoization via array
+#	T(n) = O(n)
+#	S(n) = O(n)
+# @param n = value of fibonacci to find
+# @return fibonacci sequence at n
+}#
+fibonacciMemoIter(n Int) => Int {
+	cache [Int] <- [1 1]
+	# NOTE: arrays indexes are 0-based
+	for i in 2..n-1 do {
+		cache +<- cache@{i - 1} + cache@{i - 2}
+	}
+	=> cache@{n - 1};
+}
+
+"Insert iteration count: " ->+ \out
+\in as Int -> n Int
+"Fibonacci of $n will be computed" -> \out
+algorithm Text
+repeat {
+	"{
+	Select algorithm:
+		0) to exit
+		1) recursive
+		2) iterative (bottom-up)
+		3) iterative (memoization via associative array)
+		4) iterative (memoization via array)
+	> }" ->+ \out
+	\in -> algorithm Text
+	if algorithm {
+		= "0" do break;
+		= "1" do "fibonacci($n) => ${fibonacci(n)}" -> \out
+		= "2" do "fibonacciBottomUp($n) => ${fibonacciBottomUp(n)}" -> \out
+		= "3" do "fibonacciAssociativeMemoIter($n) => ${fibonacciAssociativeMemoIter(n)}"  -> \out
+		= "4" do "fibonacciMemoIter($n) => ${fibonacciMemoIter(n)}" -> \out
+	} else default -> algorithm 
+	if algorithm == default 
+		do "Invalid algorithm" -> \out
+		else break
+}
+```
+
 # Module system @candidate
 
 ```ruby
@@ -2248,6 +2336,11 @@ import [
 	some.fully.qualified.module
 	someother.fully.qualified.module
 ]
+
+module MyModule {
+	someFunction() {}
+	someValue SomeType
+}
 ```
 
 # Launch entry point (args) @candidate
@@ -2352,20 +2445,6 @@ aVeryLonglyNamedFunction() => Text {
 
 alias aVeryLonglyNamedFunction as f
 f() -> \out
-```
-
-# List initialization @candidate
-
-```ruby
-list [3 * Int] # [0 0 0]
-matrix [3 * [Int]] # [[] [] []]
-matrix [3 * [2 * Int]] # [[0 0] [0 0] [0 0]]
-```
-
-```ruby
-list [Int * 3] # [0 0 0]
-matrix [[Int] * 3] # [[] [] []]
-matrix [[Int * 2] * 3] # [[0 0] [0 0] [0 0]]
 ```
 
 # Generics @candidate
