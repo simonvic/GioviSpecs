@@ -104,17 +104,17 @@ namedStructField: identifier ':' expression;
 
 //////////////////////////////////////////////////////////////////////////////// FUNCTIONS
 
-functionDeclaration: identifier '(' formalParameters? ')' (RETURN_ARROW type)? block;
+functionDeclaration: identifier '(' formalParameters? ')' (RETURN_ARROW returnType=type)? body=block;
 
-formalParameters: formalParameterDefinition (',' formalParameterDefinition)* ','?;
+formalParameters: formalParameter (',' formalParameter)* ','?;
 
-formalParameterDefinition: identifier type defaultDefinition?;
+formalParameter: identifier type defaultDefinition?;
 
-functionCall: identifier '(' functionParameterList? ')';
+functionCall: identifier '(' functionCallParameters? ')';
 
-functionParameterList: functionParameter (',' functionParameter)* ','?;
+functionCallParameters: functionCallParameter (',' functionCallParameter)* ','?;
 
-functionParameter: (identifier ':')? expression;
+functionCallParameter: (identifier ':')? expression;
 
 //////////////////////////////////////////////////////////////////////////////// FLOW CONTROL
 
@@ -174,6 +174,7 @@ typeComposite: typeList | typeMap;
 
 //////////////////////////////////////////////////////////////////////////////// COMPOSITE TYPES
 
+// TODO: shouldn't this be an expression?
 access: anyIdentifier '@' accessKey;
 accessKey
     : '{' (accessKey | expression) '}' # accessKeyParenthesized
