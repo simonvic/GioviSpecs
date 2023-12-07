@@ -154,6 +154,19 @@ The output of the access depends on the "key" and to what type you're accessing.
 > - [Map access](#map-access)
 > - [Struct access](#struct-access)
 
+### Accessing default value @candidate
+
+```ruby
+420 -> x Int default 69
+x -> \out # 420
+x@value -> \out # 420
+x@default -> \out # 69
+
+if x@default != Int@default do {
+	"x default value has been overridden!" -> \out
+}
+```
+
 # Redirection
 
 Giovi "moves" data (content) to destinations; this is done through
@@ -285,8 +298,8 @@ The general rules for naming variables are:
 
 | Type name | Possible values                  | Default value |
 | --------- | -------------------------------- | ------------- |
-| Natural   | 0 .. +4,294,967,295              | 0             |
-| Int       | -2,147,483,648 .. +2,147,483.647 | 0             |
+| Natural   | 0 .. +2,147,483,647              | 0             |
+| Int       | -2,147,483,648 .. +2,147,483,647 | 0             |
 | Real      | up to 16 decimal digits          | 0.0           |
 | Bool      | false / true                     | false         |
 | Text      |                                  | (empty text)  |
@@ -320,7 +333,7 @@ You can specify in which base they're represented
 ```ruby
 0b01000101 # Base 2 (binary)
 0o105      # Base 8 (octal)
-0x123AAFF  # Base 16 (hexadecimal)
+0x10F2C    # Base 16 (hexadecimal)
 ```
 
 You can use underscores to separate digits groups for readability
@@ -343,14 +356,14 @@ You can use the exponent notation
 
 | Operation                      | Symbol | Example                    | Output                     |
 | ------------------------------ | ------ | -------------------------- | -------------------------- |
-| Concatenation                  | +      | "Hello" + " " + "World"    | "Hello World"              |
-| Remove substring               | -      | "Hello world" - "world"    | "Hello "                   |
+| Concatenation                  | +      | "hello" + " " + "world"    | "hello world"              |
+| Intersection                   | -      | "hello world" - "o"        | "hell wrld"                |
 | Split                          | /      | "hello:world" / ":"        | ["hello" "world"]          |
 | Repeat                         | *      | "o" * 4                    | "oooo"                     |
-| Append to variable             | ->+    | "Hello world" ->+ someText | "$someText Hello world"    |
+| Append to variable             | ->+    | "hello world" ->+ someText | "$someText hello world"    |
 | Remove substring from variable | ->-    | "substring" ->- someText   | someText without substring |
-| Text contains                  | =~     | "Hello world" =~ "lo worl" | true                       |
-| Text is contained              | ~=     | "lo worl" ~= "Hello world" | true                       |
+| Text contains                  | =~     | "hello world" =~ "lo worl" | true                       |
+| Text is contained              | ~=     | "lo worl" ~= "hello world" | true                       |
 
 #### Text Access
 
@@ -579,6 +592,13 @@ The indexes are 0-based
 | Insert     | ->+     | 4 ->+ list      |
 | Remove     | ->-     | 4 ->- list      |
 
+##### @Candidate
+
+| Operation     | Symbol  | Example         | Output    |
+| ------------- | ------- | --------------- | --------- |
+| Concatenate   | +       | [1 2 3] + [4]   | [1 2 3 4] |
+| Intersection  | -       | [1 2 3] - [3 4] | [1 2]     |
+
 ##### Relational
 
 | Operation    | Symbol | Example           |
@@ -600,12 +620,9 @@ listOfNames [Text]
 ["Simone" "Giada"] -> listOfNames
 
 # Insertion
-# When inserting single element, square parentesis can be omitted
 "Francesca" ->+ listOfNames
 "Alessio" ->+ listOfNames
 "Giovanna" ->+ listOfNames
-["Lucia" "Alessandra"] ->+ listOfNames
-"Gian Luca" ->+ listOfNames
 ```
 
 List entries can be optionally separated by a comma (trailing comma is allowed)
@@ -797,17 +814,30 @@ Map keys are unique.
 | Remove all | ->-     | ["a" "b"] ->- map           |
 | Remove all | ->-     | ["a":1 "b":2] ->- map       |
 
+@candidate
+
+| Operation     | Symbol  | Example                       | Output              |
+| ------------- | ------- | ----------------------------- | ------------------- |
+| Concatenate   | +       | ["a":1 "b":2] + ["c":3]       | ["a":1 "b":2 "c":3] |
+| Intersection  | -       | ["a":1 "b":2 "c":3] - ["c":3] | ["a":1 "b":2]       |
+|               |         | ["a":1 "b":2 "c":3] - "c"     | ["a":1 "b":2]       |
+
 ##### Relational
 
 | Operation    | Symbol | Example                       |
 | ------------ | ------ | ----------------------------- |
 | Equal        | =      | ["a":1 "b":2] = ["a":1 "b":2] |
-| Contains key | =~     | map =~ "a"                    |
+| Contains key | =~     | ["a":1 "b":2] =~ "a"          |
 | Is contained | ~=     | "a" ~= map                    |
+
+@candidate
+
+| Operation       | Symbol | Example                              |
+| --------------- | ------ | ------------------------------------ |
+| Contains subset | =~     | ["a":1 "b":2 "c":3] =~ ["b":2 "c":3] |
 
 
 #### Syntax
-
 
 ```
 <identifier> [<KeyType> : <ElementType>]
@@ -1878,14 +1908,6 @@ sum(x Int, y Int) => Int {
 division(x Real, y Real) => Real {
 	=> x / y
 }
-
-fibonacci(maxCount Natural) => Natural {
-	sum Natural
-	for i in [0..maxCount] do {
-		i ->+ sum
-	}
-	=> sum
-}
 ```
 
 ```ruby
@@ -1903,26 +1925,7 @@ intToBool(i Int) => Bool {
 }
 ```
 
-Function parameters can also have default values
-
-<!-- TODO change this once the placeholder symbol (_) has been defined -->
-
-```ruby
-count(num Natural default 10) { }
-# if num is not specified when calling the
-# function, num will be 10
-
-greet(name Text default default ) { }
-# if name is not specified when calling the function
-# its type default value will be used
-
-count()
-count(69)
-greet()
-greet("Simone")
-```
-
-Functions parameters can be explicitly specified, so the order won't matter
+When invoking a function, you can use named parameters; the order won't matter
 
 ```ruby
 greet(name Text, age Natural) {
@@ -1930,23 +1933,96 @@ greet(name Text, age Natural) {
 	"My age is $age" -> \out
 }
 
+# positional parameters
 greet("Simone", 22)
+
+# named parameters
 greet(name:"Simone", age:22)
 greet(age:22, name:"Simone")
 ```
 
-Recursion can be used
+Function parameters can also have default values.<br>
+We'll refer to them as "optional parameters", while we'll call "required
+parameters" those which do not have a default value.
 
 ```ruby
-fibonacci(count Natural) => Natural {
-	if count = 0 | count = 1 do => count
-	=> fibonacci(count - 1) + fibonacci(count - 2)
-}
+count(num Natural default 10) { }
+# if num is not specified when calling the
+# function, num will be 10
 
-factorial(n Natural) {
-	if n = 0 do => 1
-	=> n * factorial(n-1)
+count()
+count(69)
+
+greet(name Text default _ ) { }
+# if name is not specified when calling the function
+# its type default value will be used
+
+greet()
+greet("Simone")
+```
+
+Required parameters have to be specified.<br>
+It's possible to mix optional and required parameters in the signature
+
+```ruby
+processPizzaOrder(
+  type Text default "Margherita",
+  tableNumber Int,
+  withAnanas Bool default false
+  ) {
+  	if (withAnanas) return
+	makePizza(type, amount)
+	bringPizzaTo(tableNumber)
 }
+```
+
+but when invoking the function with positional parameters, only terminal
+optional parameters can be omitted.<br>
+Using the placeholder symbol `_` (underscore) will pass the default value of
+parameter type, or eventually the default parameter value if specified
+
+```ruby
+processPizzaOrder("Diavola", 69) # "Diavola" to table 69
+processPizzaOrder(_, 69) # "Margherita" to table 69
+processPizzaOrder(_, _) # "Margherita" to table 0
+processPizzaOrder(_, 69, true) # "Margherita" with ananas to table 69
+processPizzaOrder(69) # ERROR: expecting pizza type, but got 69
+```
+
+@candidate
+```ruby
+processPizzaOrder(_) # all default values will be used, no matter of the amount
+```
+
+When invoking the function with named parameters, all required parameters value
+have to be specified.<br>
+Also, as long as all required parameters have been specified, remaining
+optional parameters can be omitted, even if they are not terminal
+
+```ruby
+processPizzaOrder(type:"Diavola", tableNumber: 69)
+processPizzaOrder(type:_, tableNumber: 69)
+processPizzaOrder(tableNumber: 69)
+```
+
+### Overloading @candidate
+
+Function overloading is possible, as long as all required parameters are
+different (different name and different type)
+
+```ruby
+makePizza(type Text) { }
+makePizza(type Text, withAnanas Bool) { }
+makePizza(ingredients [Text]) { }
+
+# ERROR makePizza(type Text) already defined
+makePizza(type Text, withAnanas Bool default false) { }
+```
+
+# Varargs @candidate
+
+```ruby
+
 ```
 
 ### Statement functions @candidate
@@ -2572,12 +2648,6 @@ function(x Int, args Tuple) {
 
 function(69, t)
 function(69, <"hello world" 69>)
-```
-
-# Varargs @candidate
-
-```ruby
-
 ```
 
 # Tuple fields override @candidate
