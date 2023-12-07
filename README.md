@@ -1970,8 +1970,8 @@ processPizzaOrder(
   tableNumber Int,
   withAnanas Bool default false
   ) {
-  	if (withAnanas) return
-	makePizza(type, amount)
+  	if withAnanas do return
+	makePizza(type)
 	bringPizzaTo(tableNumber)
 }
 ```
@@ -2398,7 +2398,7 @@ repeat {
 		= "3" do "fibonacciAssociativeMemoIter($n) => ${fibonacciAssociativeMemoIter(n)}"  -> \out
 		= "4" do "fibonacciMemoIter($n) => ${fibonacciMemoIter(n)}" -> \out
 	} else default -> algorithm 
-	if algorithm == default 
+	if algorithm = default 
 		do "Invalid algorithm" -> \out
 		else break
 }

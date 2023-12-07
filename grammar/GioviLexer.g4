@@ -57,7 +57,6 @@ REPEAT:                         'repeat';
 BREAK:                          'break';
 CONTINUE:                       'skip';
 CONSTANT:                       'constant';
-NULL:                           'null';
 RETURN:                         'return';
 IMPORT:                         'import';
 DEFAULT:                        'default';

@@ -203,7 +203,6 @@ literal
     | literalText
     | literalExactTextBlock
     | literalExactText
-    | literalNull
     | literalDefault
     | literalPlaceholder
     | anyIdentifier
@@ -222,7 +221,6 @@ literalTextBlock:      (typeIdentifier '.')? TEXT_BLOCK_LITERAL;
 literalText:           (typeIdentifier '.')? TEXT_LITERAL;
 literalExactTextBlock: (typeIdentifier '.')? EXACT_TEXT_BLOCK_LITERAL;
 literalExactText:      (typeIdentifier '.')? EXACT_TEXT_LITERAL;
-literalNull:           NULL;
 literalDefault:        DEFAULT;
 literalPlaceholder:    UNDERSCORE;
 
