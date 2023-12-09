@@ -208,12 +208,6 @@ counter +<- 1             # Increasing counter by one
 acceleration ->+ velocity # Increasing velocity by "acceleration"
 ```
 
-## Standard content @candidate
-
-| Destination     | Symbol |
-| --------------- | ------ |
-| Standard input  | \in    |
-
 ## Standard destinations
 
 | Destination     | Symbol |
@@ -242,6 +236,13 @@ Iste voluptate qui at. Eos eaque cumque quisquam non nemo tenetur quo fugit.
 }" -> \out
 ```
 
+The redirect operator (`->`) will automatically append a new line; if you don't
+want that, you can use the "append redirector" operator (`->+`)
+
+```ruby
+"Hello world" ->+ \out
+```
+
 ### Standard error
 
 Print to standard error
@@ -256,6 +257,21 @@ This program has crashed
 because you tried to perform a
 division by zero.
 }" -> \error
+```
+
+## Standard content
+
+| Destination     | Symbol |
+| --------------- | ------ |
+| Standard input  | \in    |
+
+Reading from standard content is a blocking operation that will read from stdin.<br>
+Can be used to read input from the user
+
+```ruby
+"Insert your username: " ->+ \out
+\in -> username Text
+"Hello $username" -> \out
 ```
 
 # Variables
@@ -679,7 +695,7 @@ y [Bool ** size] # [true true true]
 ```ruby
 letters [Text] <- ["a" "b" "c" "d" "e" "f" "g" "h" "i" "j"]
 
-letters@0 -> \out    # "a"
+letters@0  # "a"
 
 # Negative indexes can be used to access last elements
 letters@{-1}   # "d" last character
@@ -693,8 +709,8 @@ letters@0..10..2          # ["a" "c" "e" "g" "i"]
 letters@10..0             # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
 letters@letters@% - 1..0  # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
 
-letters@% -> \out    # 10 (elements count)
-letters@@ -> \out    # 0..9 (range) useful when you need to iterate a list with indexes
+letters@%  # 10 (elements count)
+letters@@  # 0..9 (range) useful when you need to iterate a list with indexes
 ```
 
 Comparing Lists
@@ -926,6 +942,8 @@ for money in bank@{*} do {
 
 ### Struct
 
+<!-- TODO: Tuple and Struct(typed tuple) -->
+
 A Struct is a structured data type that you can define; it can contain
 heterogeneous types (primitive or composite)
 
@@ -1089,11 +1107,13 @@ c Color <- <255 255 255>
 
 #### Struct Access
 
-| key | output                   |
-|-----|--------------------------|
-| Int | field value at the index |
-| %   | fields count             |
-| @   | list of fields names     |
+| key   | output                                       |
+|-------|----------------------------------------------|
+| Int   | field value at the index                     |
+| Range | Subset tuple with fields within the range    |
+| %     | fields count                                 |
+| @     | Range 0 to fields count - 1                  |
+| *     | list of field names                          |
 
 ```ruby
 Color <
@@ -1105,8 +1125,17 @@ Color <
 color Color <- <255 100 50>
 
 color@0  # 255
-color@%  # 3
-color@@  # ["red" "green" "blue"]
+
+# Negative indexes can be used to access last elements
+color@{-1}   # 50 last character
+color@{-2}   # 100 second-last character
+color@{-3}   # 255 third-last character
+
+color@%  # 3 (fields count)
+
+color@*  # ["red" "green" "blue"] (list of field names)
+
+color@@  # 0..3 (range)
 ```
 
 You can access fields by their name with the dot notation
@@ -1276,7 +1305,7 @@ Vehicle <
 	wheelCount Natural
 >
 
-Vehicle : Car >
+Vehicle : Car <
 	wheelCount Natural default 4
 	licensePlate Text
 >
@@ -1348,11 +1377,10 @@ Vehicle : Car <
 
 ### Enums @candidate
 
-Enums like behaviour can be achieved with a nested struct.<br>
 They can be simple enums...
 
 ```ruby
-PizzaStatus <
+enum PizzaStatus <
 	ORDERED <>
 	READY <>
 	DELIVERED <>
@@ -1362,7 +1390,7 @@ PizzaStatus <
 ... or have values
 
 ```ruby
-Color <
+enum Color <
 	RGB <r Natural, g Natural, b Natural>
 	RGBA <r Natural, g Natural, b Natural, a Natural>
 	ARGB <a Natural, r Natural, g Natural, b Natural>
@@ -1374,7 +1402,7 @@ Color <
 ... or both, which can be quite handy along the if statement
 
 ```ruby
-Result <
+enum Result <
 	OK <>
 	ERROR <reason Text>
 >
@@ -1426,7 +1454,7 @@ Point.<> as Point3D -> p3d
 
 ```
 
-# Type checking @candidate
+# Type checking
 
 It's possible to check the type of a variable
 
@@ -1473,12 +1501,21 @@ if color {
 }
 ```
 
-The lifetime of the variable is limited to the if branch scope
+The lifetime of the variable is limited to the true branch scope
 
 ```ruby
+color RGB
 if color is c RGB {
 	c.r -> \out
 } else {
+	# variable c not defined here
+}
+
+if ! color is c RGB {
+	# variable c not defined here
+} else {
+	c.r -> \out
+}
 ```
 
 # Constants
@@ -1496,11 +1533,21 @@ Constants name must be all UPPERCASE, must start with a letter and can contain
 digits and underscores.
 
 ```ruby
-constant LIGHT_SPEED Natural 299792458
+constant LIGHT_SPEED Natural 299792458n
 constant EARTH_GRAVITY Real 9.81
 constant BEST_LANGUAGE Text "Giovi"
 constant RED Color <255 0 0>
 constant NAME_LIST [Text] ["Simone" "Alessio" "Giada" "Francesca"]
+```
+
+### Type inference @candidate
+
+```ruby
+constant LIGHT_SPEED 299792458n
+constant EARTH_GRAVITY 9.81
+constant BEST_LANGUAGE "Giovi"
+constant RED Color.<255 0 0>
+constant NAME_LIST ["Simone" "Alessio" "Giada" "Francesca"]
 ```
 
 # Default value
@@ -1868,7 +1915,7 @@ The for loop also tries to deconstruct the struct if the variables are the same
 of the struct
 
 ```ruby
-colors [Color] < [<0 255 0> <55 0 255> <255 255 255>]  
+colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]  
 for red green blue in colors do {}
 ```
 
@@ -1968,7 +2015,7 @@ It's possible to mix optional and required parameters in the signature
 processPizzaOrder(
   type Text default "Margherita",
   tableNumber Int,
-  withAnanas Bool default false
+  withAnanas Bool default false,
   ) {
   	if withAnanas do return
 	makePizza(type)
@@ -1987,11 +2034,6 @@ processPizzaOrder(_, 69) # "Margherita" to table 69
 processPizzaOrder(_, _) # "Margherita" to table 0
 processPizzaOrder(_, 69, true) # "Margherita" with ananas to table 69
 processPizzaOrder(69) # ERROR: expecting pizza type, but got 69
-```
-
-@candidate
-```ruby
-processPizzaOrder(_) # all default values will be used, no matter of the amount
 ```
 
 When invoking the function with named parameters, all required parameters value
@@ -2017,12 +2059,6 @@ makePizza(ingredients [Text]) { }
 
 # ERROR makePizza(type Text) already defined
 makePizza(type Text, withAnanas Bool default false) { }
-```
-
-# Varargs @candidate
-
-```ruby
-
 ```
 
 ### Statement functions @candidate
@@ -2220,10 +2256,10 @@ toRowHTML(book Book) => Text {
 
 
 
-author1 Author < <"Simone" "Vicinanza" 22>
-author2 Author < <"Mario" "Rossi" 35>
+author1 Author <- <"Simone" "Vicinanza" 22>
+author2 Author <- <"Mario" "Rossi" 35>
 
-shelf [Book] < [
+shelf [Book] <- [
 		<
 			title: "Giovi for dummies"
 			description: "A book describing very easily the Giovi"
@@ -2390,7 +2426,7 @@ repeat {
 		3) iterative (memoization via associative array)
 		4) iterative (memoization via array)
 	> }" ->+ \out
-	\in -> algorithm Text
+	\in -> algorithm
 	if algorithm {
 		= "0" do break;
 		= "1" do "fibonacci($n) => ${fibonacci(n)}" -> \out
