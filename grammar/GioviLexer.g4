@@ -72,8 +72,8 @@ COMMENT:       '#' ~[{?\r\n]? ~[\r\n]* '\n'? -> channel(HIDDEN);
 BOOL_LITERAL: 'true' | 'false';
 
 IDENTIFIER:              [a-z] LetterOrDigitOrUnderscore*;
-UPPERCASE_IDENTIFIER:    [A-Z] LetterOrDigitOrUnderscore*;
 ALLUPPERCASE_IDENTIFIER: [A-Z] ([A-Z] | Digit | '_')*;
+UPPERCASE_IDENTIFIER:    [A-Z] LetterOrDigitOrUnderscore*;
 
 fragment Letter:                    [a-zA-Z];
 fragment LetterOrDigit:             Letter | Digit;
