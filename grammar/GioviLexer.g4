@@ -84,14 +84,9 @@ TEXT_LITERAL:             '"' (~["\\\r\n] | EscapeSequence)* '"';
 EXACT_TEXT_BLOCK_LITERAL: '\'{' (. | EscapeSequence)*? '}\'';
 EXACT_TEXT_LITERAL:       '\'' (~['\\\r\n] | EscapeSequence)* '\'';
 
-fragment EscapeSequence: '\\' [btnfr"'\\$] | OctalEscape | UnicodeEscape;
-fragment OctalEscape
-    : '\\' OctalDigit
-    | '\\' OctalDigit OctalDigit
-    | '\\' ZeroToThree OctalDigit OctalDigit
-    ;
-fragment ZeroToThree:   [0-3];
-fragment UnicodeEscape: '\\' 'u'+ HexDigit HexDigit HexDigit HexDigit;
+fragment EscapeSequence:  CharacterEscape | UnicodeEscape ;
+fragment CharacterEscape: '\\' [btnfrs"'\\$] ;
+fragment UnicodeEscape:   '\\' 'u'+ HexDigit HexDigit HexDigit HexDigit ;
 
 INTEGER_LITERAL
     : NumeralDecimal IntegerSuffix?
