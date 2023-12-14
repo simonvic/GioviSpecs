@@ -35,11 +35,15 @@ statementOrBlock: statement | block;
 
 repeatStatement: REPEAT (IF expression)? statementOrBlock;
 
-rangeOrExpression: range | expression;
+iterable: range | expression;
 
-forStatement: FOR iterators IN rangeOrExpression DO statementOrBlock;
+forStatement: FOR iterator IN iterable DO statementOrBlock;
 
-iterators: identifier (',' identifier)*;
+iterator
+	: identifier type?                                                    # iteratorUnary
+	| key=identifier keyType=type? ':' value=identifier valueType=type?   # iteratorMap
+	| struct=identifier? '<' (identifier type? ','?)+ '>'                 # iteratorStruct
+	;
 
 returnStatement: (RETURN | RETURN_ARROW) expression?;
 
@@ -137,6 +141,8 @@ caseMatch
     ;
 
 //////////////////////////////////////////////////////////////////////////////// EXPRESSIONS
+
+// FIXME(ambiguity): [<1 2 3> <4 5 6> <7 8 9>]
 
 expression
     : '{' expression '}'                                      # expressionParenthesized

@@ -1885,38 +1885,40 @@ repeat {
 The for loop is used to iterate over lists, maps or ranges
 
 ```
-# <variable> type will be inferred from the List type
-for <variable> in <list|map|range> do {
-	<body>
+for <iterator> in <list|map|range> do <statement>
+for <iterator> in <list|map|range> do {
+	<statements>
 }
-
-# Single statement can be used
-for <variable> in <list|map|range> do <statement>
 ```
 
 ```ruby
-for number in [1 2 3 4] do {}
-for name in ["Simone" "Luca" "Paolo"] do {}
-for key value in ["Simone":69 "Luca":420 "Paolo":10] do {}
 for i in 0..10 do {}
-
-# Iterating list over indeces
-for i in 0..names@% do {}
+for number in [1 2 3 4] do {}
+for rgb in [<1 2 3>, <4 5 6>, <7 8 9>] do {}
+for key in ["Simone":69 "Luca":420 "Paolo":10] do {}
 ```
 
-Iterating over list of struct
+When you iterate over a map, you can provide two identifiers for the key and value map entry.
+
+```
+for <key iterator> : <value iterator> in <map> do <statement>
+```
+
+```ruby
+for key : value in ["Simone":69 "Luca":420 "Paolo":10] do {}
+```
+
+When iterating over list of structs, it's possible to deconstruct them
+
+```
+for < <field iterator> > in <list of struct> do <statement>
+for <struct iterator> < <field iterator> > in <list of struct> do <statement>
+```
 
 ```ruby
 colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]  
-for color in colors do {}
-```
-
-The for loop also tries to deconstruct the struct if the variables are the same
-of the struct
-
-```ruby
-colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]  
-for red green blue in colors do {}
+for <red green blue> in colors do {}
+for color <red green blue> in colors do {}
 ```
 
 # Functions
