@@ -15,9 +15,9 @@ embedded configuration
 	comment block.
 	For when you need to write long
 	comments.
-#}
+}#
 
-#{ this is an inline comment block #}
+#{ this is an inline comment block }#
 ```
 
 ## Documentation
@@ -42,7 +42,7 @@ y Int
 #		sum(1, 2) -> \out
 #
 #	@see Math
-#}
+}#
 sum(x Int, y Int) => Int {
 	=> x + y
 }
@@ -103,10 +103,10 @@ sum(x Int, y Int) => Int {
 | Operation           | Symbol | Example                       |
 | ------------------- | ------ | ----------------------------- |
 | Content redirection | <-     | message Text <- "Hello world" |
-| Increment by value  | +<-    | count +< 10                   |
-| Decrement by value  | -<-    | count -< 10                   |
-| Multiply by value   | *<-    | count *< 10                   |
-| Divide by value     | /<-    | count /< 10                   |
+| Increment by value  | +<-    | count +<- 10                   |
+| Decrement by value  | -<-    | count -<- 10                   |
+| Multiply by value   | *<-    | count *<- 10                   |
+| Divide by value     | /<-    | count /<- 10                   |
 
 ## Containment operator
 
@@ -455,7 +455,8 @@ aFunction() {
             </html>
             }"
 #^^^^^^^^^^^
-# these are "incidental" whitespaces and won't be included in "html"
+# these are "incidental" whitespaces
+# and won't be counted
     }
 }
 ```
@@ -680,7 +681,7 @@ The amount has to be a Natural number or an expression evaluating to it.
 x [Int ** 5] # [0 0 0 0 0]
 
 size Int <- 3
-y [Bool ** size] # [true true true]
+y [Bool ** size] # [false false false]
 ```
 
 #### List Access
@@ -688,7 +689,7 @@ y [Bool ** size] # [true true true]
 | key   | output                     |
 |-------|----------------------------|
 | Int   | element at that index      |
-| Range | "sub list"                 |
+| Range | "slice" of the list        |
 | %     | elements count             |
 | @     | Range from 0 to length - 1 |
 
@@ -703,7 +704,7 @@ letters@{-2}   # "l" second-last character
 letters@{-3}   # "r" third-last character
 letters@{-11}  # "h" 11 from last character
 
-# A range can be used to access a sublist (indexes are inclusive)
+# A range can be used to access a slice (indexes are inclusive)
 letters@2..5              # ["c" "d" "e" "f"]
 letters@0..10..2          # ["a" "c" "e" "g" "i"]
 letters@10..0             # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
@@ -1801,6 +1802,81 @@ if color {
 }
 ```
 
+## Loops
+
+A loop is block of code that will be repeated (looped)
+
+### Loop control
+
+#### break
+
+The break keyword will break the loop
+
+#### skip
+
+The skip keyword will skip the current iteration, and continue with the next
+
+### repeat loop
+
+```
+repeat {
+	<body> # the body will be repeated for an undefined amount of time
+}
+
+repeat if <condition> {
+	<body>  # the body will be repeated if the condition is true
+}
+```
+
+A do-while loop can be achieved like so
+```
+repeat {
+	<body>  # body will be executed once and repeated if the condition is false
+	if <condition> do break
+}
+```
+
+### for loop
+
+The for loop is used to iterate over lists, maps or ranges
+
+```
+for <iterator> in <list|map|range> do <statement>
+for <iterator> in <list|map|range> do {
+	<statements>
+}
+```
+
+```ruby
+for i in 0..10 do {}
+for number in [1 2 3 4] do {}
+for rgb in [<1 2 3>, <4 5 6>, <7 8 9>] do {}
+for key in ["Simone":69 "Luca":420 "Paolo":10] do {}
+```
+
+When you iterate over a map, you can provide two identifiers for the key and value map entry.
+
+```
+for <key iterator> : <value iterator> in <map> do <statement>
+```
+
+```ruby
+for key : value in ["Simone":69 "Luca":420 "Paolo":10] do {}
+```
+
+When iterating over list of structs, it's possible to deconstruct them
+
+```
+for < <field iterator> > in <list of struct> do <statement>
+for <struct iterator> < <field iterator> > in <list of struct> do <statement>
+```
+
+```ruby
+colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]  
+for <red green blue> in colors do {}
+for color <red green blue> in colors do {}
+```
+
 # Range
 
 You can quickly define a range by specifying a `start`, a `end` and optionally
@@ -1844,81 +1920,6 @@ start Int <- 0
 end Int <- 10  
 step Int <- 2  
 list [Int] <- [start..end..step]  # [0 2 4 6 8 10]
-```
-
-# Loops
-
-A loop is block of code that will be repeated (looped)
-
-## Loop control
-
-### break
-
-The break keyword will break the loop
-
-### skip
-
-The skip keyword will skip the current iteration, and continue with the next
-
-## repeat keyword
-
-```
-repeat {
-	<body> # the body will be repeated for an undefined amount of time
-}
-
-repeat if <condition> {
-	<body>  # the body will be repeated if the condition is true
-}
-```
-
-A do-while loop can be achieved like so
-```
-repeat {
-	<body>  # body will be executed once and repeated if the condition is false
-	if <condition> do break
-}
-```
-
-## for loop
-
-The for loop is used to iterate over lists, maps or ranges
-
-```
-for <iterator> in <list|map|range> do <statement>
-for <iterator> in <list|map|range> do {
-	<statements>
-}
-```
-
-```ruby
-for i in 0..10 do {}
-for number in [1 2 3 4] do {}
-for rgb in [<1 2 3>, <4 5 6>, <7 8 9>] do {}
-for key in ["Simone":69 "Luca":420 "Paolo":10] do {}
-```
-
-When you iterate over a map, you can provide two identifiers for the key and value map entry.
-
-```
-for <key iterator> : <value iterator> in <map> do <statement>
-```
-
-```ruby
-for key : value in ["Simone":69 "Luca":420 "Paolo":10] do {}
-```
-
-When iterating over list of structs, it's possible to deconstruct them
-
-```
-for < <field iterator> > in <list of struct> do <statement>
-for <struct iterator> < <field iterator> > in <list of struct> do <statement>
-```
-
-```ruby
-colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]  
-for <red green blue> in colors do {}
-for color <red green blue> in colors do {}
 ```
 
 # Functions
@@ -2164,6 +2165,27 @@ have to specify them in the default implementation signature
 
 ```ruby
 myFunction ::(Int, Int) => Int default ::(x, y) => x + y
+```
+
+### Pipe operator @candidate
+
+```ruby
+filter(t Text) => Text {}
+map(t Text) => Text {}
+collect(t Text) => Text {}
+
+filter(text)
+|> ::reverse
+|> ::map
+|> ::collect
+
+# ambiguity
+if 4 {
+	= 4
+	|= 5
+	|> 6
+	|< 8
+}
 ```
 
 # Code examples
@@ -2691,7 +2713,8 @@ function(69, <"hello world" 69>)
 # Tuple fields override @candidate
 
 ```ruby
-
+Tuple -> struct # assign all fields, default for non specified
+Tuple ->+ struct # assign only to specified fields
 ```
 
 
