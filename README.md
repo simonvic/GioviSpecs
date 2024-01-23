@@ -2170,22 +2170,44 @@ myFunction ::(Int, Int) => Int default ::(x, y) => x + y
 ### Pipe operator @candidate
 
 ```ruby
-filter(t Text) => Text {}
-map(t Text) => Text {}
-collect(t Text) => Text {}
+reverse(t Text) => Text {}
+split(t Text, separator Text) => [Text] {}
+countLetters(a [Text]) => [Int] {}
+sum(a [Int]) => Int {}
 
-filter(text)
-|> ::reverse
-|> ::map
-|> ::collect
+"Hello world my name is Simone"
+>> reverse(_)
+>> split(_, " ")
+>> countLetters(_)
+>> sum(_)
 
-# ambiguity
-if 4 {
-	= 4
-	|= 5
-	|> 6
-	|< 8
-}
+"Hello world" >> reverse(_) >> split(_) >> countLetters(_) >> sum(_)
+```
+
+```ruby
+# textual alternative
+"Hello world my name is Simone"
+then reverse(_)
+then split(_)
+then filter(_, ::(i) => i =~ "aeiou")
+then map(_, ::(i) => "($i)")
+then countLetters(_)
+then sum(_)
+
+"Hello world" then reverse(_) then split(_) then countLetters(_) then sum(_)
+```
+
+```ruby
+filter(a [Text], f ::(Text) => Bool) => [Text] {}
+map(a [Text], f ::(Text) => Text) => [Text] {}
+
+"Hello world my name is Simone"
+>> reverse(_)
+>> split(_)
+>> filter(_, ::(i) => i =~ "aeiou")
+>> map(_, ::(i) => "($i)")
+>> countLetters(_)
+>> sum(_)
 ```
 
 # Code examples
