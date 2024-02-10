@@ -119,8 +119,8 @@ The containment operator is used to check if a value is contained in another.
 
 To avoid confusion about the direction of the containment operator, remember
 about its "hamburger notation":<br>
-the hamburger (=) contains the lettuce (~) `hamburger =~ lettuce`<br>
-the lettuce (~) is contained in the hamburger (=) `lettuce ~= hamburger`
+the hamburger (=) contains the lettuce (\~) `hamburger =~ lettuce`<br>
+the lettuce (\~) is contained in the hamburger (=) `lettuce ~= hamburger`
 
 ### Range containment @candidate
 
@@ -403,10 +403,10 @@ text@{-3}   # "r" third-last character
 text@{-11}  # "h" 11 from last character
 
 # A range can be used to access substring (indexes are inclusive)
-text@1..6             # "ello w" from 1 to 6
-text@0..10..2         # "hlowrd" from 0 to 10 every 2
-text@10..0            # "dlrow olleh" from 10 to 0
-text@text@% - 1 .. 0  # "dlrow olleh" from text length - 1  to 0
+text@1..6               # "ello w" from 1 to 6
+text@0..10..2           # "hlowrd" from 0 to 10 every 2
+text@10..0              # "dlrow olleh" from 10 to 0
+text@{text@% - 1 .. 0}  # "dlrow olleh" from text length - 1  to 0
 
 text@%         # 11 (length)
 text@@         # 0..10 (range)
@@ -689,7 +689,7 @@ y [Bool ** size] # [false false false]
 | key   | output                     |
 |-------|----------------------------|
 | Int   | element at that index      |
-| Range | "slice" of the list        |
+| Range | "slice" of list            |
 | %     | elements count             |
 | @     | Range from 0 to length - 1 |
 
@@ -705,10 +705,10 @@ letters@{-3}   # "r" third-last character
 letters@{-11}  # "h" 11 from last character
 
 # A range can be used to access a slice (indexes are inclusive)
-letters@2..5              # ["c" "d" "e" "f"]
-letters@0..10..2          # ["a" "c" "e" "g" "i"]
-letters@10..0             # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
-letters@letters@% - 1..0  # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
+letters@2..5                # ["c" "d" "e" "f"]
+letters@0..10..2            # ["a" "c" "e" "g" "i"]
+letters@10..0               # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
+letters@{letters@% - 1..0}  # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
 
 letters@%  # 10 (elements count)
 letters@@  # 0..9 (range) useful when you need to iterate a list with indexes
@@ -752,7 +752,7 @@ A multidimensional list (matrix) can be defined as follows
 
 ```ruby
 # A list of list of real
-identityMatrix [[Real]] < [	
+identityMatrix [[Real]] <- [
 		[1 0 0]
 		[0 1 0]
 		[0 0 1]
@@ -813,7 +813,6 @@ cube@{1, 2, 3} -> \out
 ### Set @candidate
 
 A set is an unordered collection in which duplicates element are not allowed
-
 
 ### Map
 
@@ -1019,7 +1018,7 @@ initialized with their default value.
 Note that this is not possible when the field names are not specified.
 
 ```ruby
-me.Person <- Person.<
+me Person <- Person.<
 		age: 23
 		favoriteCar: Car.<
 			model: "Ferrari"
@@ -1131,6 +1130,8 @@ color@0  # 255
 color@{-1}   # 50 last character
 color@{-2}   # 100 second-last character
 color@{-3}   # 255 third-last character
+
+color@0..2  # Tuple <red: 255, green: 100>
 
 color@%  # 3 (fields count)
 
@@ -1293,7 +1294,6 @@ c.rgb(5, 20, 512)
 	.saturate()
 	.brighten()
 ```
-
 
 #### Structs inheritance
 
@@ -1784,7 +1784,7 @@ if color {
 	= default do "it's black" -> \out
 	= red do "it's red" > \out
 	= <240 10 10> do "it's redish" -> \out
-	= <255 default 69> do "255 default green 69" -> \out
+	= <255 default 69> do "255, default green, 69" -> \out
 	= white | = <200 200 200> do "it's white or grey" -> \out
 	= <_ _ 69> do "any red, any green, blue of 69" -> \out
 	= <_ _ _ _> do "It has at least 4 fields" -> \out
@@ -1802,21 +1802,66 @@ if color {
 }
 ```
 
-## Loops
+# Range
+
+You can quickly define a range by specifying a `start`, a `end` and optionally
+a `step`<br>
+A range can be used in for loops or put in a list, where its values will be
+expanded.
+
+## Syntax
+
+```
+<start> .. <end>
+<start> .. <end> .. <step>
+```
+
+```ruby
+[0..5] -> fromZeroToFive [Int]         # [0 1 2 3 4 5]
+[3..5] -> fromThreeToFiveReal [Real]   # [3.0 4.0 5.0]
+["a".."d"] -> fromAtoZ [Text]          # [a b c d]
+```
+
+Descending ranges can be defined
+
+```ruby
+[5..0] -> fromZeroToFive [Int]         # [5 4 3 2 1]
+[5..3] -> fromThreeToFiveReal [Real]   # [5.0 4.0 3.0]
+["d".."a"] -> fromAtoZ [Text]          # [d c b a]
+```
+
+A step value can also be used
+
+```ruby
+[0..10..2] -> evenNumbers [Int]        # [0 2 4 6 8 10]
+[0..1..0.1] -> fromZeroToOne [Real]    # [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+["a".."g"..2] -> listOfLetters [Text]  # [a c e g]
+```
+
+Variables can be used
+
+```ruby
+start Int <- 0
+end Int <- 10
+step Int <- 2
+list [Int] <- [start..end..step]  # [0 2 4 6 8 10]
+```
+
+# Loops
 
 A loop is block of code that will be repeated (looped)
 
-### Loop control
+## Loop control
 
-#### break
+### break
 
 The break keyword will break the loop
 
-#### skip
+### skip
 
 The skip keyword will skip the current iteration, and continue with the next
 
-### repeat loop
+## repeat keyword
 
 ```
 repeat {
@@ -1829,6 +1874,7 @@ repeat if <condition> {
 ```
 
 A do-while loop can be achieved like so
+
 ```
 repeat {
 	<body>  # body will be executed once and repeated if the condition is false
@@ -1836,7 +1882,7 @@ repeat {
 }
 ```
 
-### for loop
+## for loop
 
 The for loop is used to iterate over lists, maps or ranges
 
@@ -1875,51 +1921,6 @@ for <struct iterator> < <field iterator> > in <list of struct> do <statement>
 colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]  
 for <red green blue> in colors do {}
 for color <red green blue> in colors do {}
-```
-
-# Range
-
-You can quickly define a range by specifying a `start`, a `end` and optionally
-a `step`<br>
-A range can be used in for loops or put in a list, where its values will be
-expanded.
-
-## Syntax
-
-```
-<start>..<end>
-<start>..<end>..<step>
-```
-
-```ruby
-[0..5] -> fromZeroToFive [Int]         # [0 1 2 3 4 5]
-[3..5] -> fromThreeToFiveReal [Real]   # [3.0 4.0 5.0]
-["a".."d"] -> fromAtoZ [Text]          # [a b c d]
-```
-
-Descending ranges can be defined
-
-```ruby
-[5..0] -> fromZeroToFive [Int]         # [5 4 3 2 1]
-[5..3] -> fromThreeToFiveReal [Real]   # [5.0 4.0 3.0]
-["d".."a"] -> fromAtoZ [Text]          # [d c b a]
-```
-
-A step value can also be used
-
-```ruby
-[0..10..2] -> evenNumbers [Int]        # [0 2 4 6 8 10]
-[0..1..0.1] -> fromZeroToOne [Real]    # [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-["a".."g"..2] -> listOfLetters [Text]  # [a c e g]
-```
-
-Variables can be used
-
-```ruby
-start Int <- 0
-end Int <- 10  
-step Int <- 2  
-list [Int] <- [start..end..step]  # [0 2 4 6 8 10]
 ```
 
 # Functions
@@ -2020,7 +2021,7 @@ processPizzaOrder(
   tableNumber Int,
   withAnanas Bool default false,
   ) {
-  	if withAnanas do return
+  	if withAnanas do return;
 	makePizza(type)
 	bringPizzaTo(tableNumber)
 }
@@ -2091,12 +2092,8 @@ It can be stored in variables and struct, and can be passed as a parameter to
 other functions as well, just like any other type.
 
 ```ruby
-printSomething(txt Text) {
-	txt -> \out
-}
-
-functionRef ::(Text) <- ::printSomething
-
+printSomething(txt Text) { txt -> \out }
+::printSomething -> functionRef ::(Text)
 # functionRef is now a reference to printSomething function
 functionRef("hello world") # will print "hello world"
 ```
@@ -2739,6 +2736,30 @@ Tuple -> struct # assign all fields, default for non specified
 Tuple ->+ struct # assign only to specified fields
 ```
 
+# Formatter directives @candidate
+
+Special comment `#!` will be parsed by the formatter; uses the same syntax of
+the language.
+
+```ruby
+#!disable()
+"this will not be formatted" -> \out
+#!enable()
+
+#!align:true
+[
+	[0 0.0 0]
+	[0 0   0]
+]
+#!align:false
+
+#!minimize:true
+someFunction(x Int,y Int)=>Int{=>x+y}
+#!minimize:false
+
+#!align:true, minimize:true
+#!minimize:false
+```
 
 <!-- 
 vim: noet
