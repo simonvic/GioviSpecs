@@ -611,10 +611,15 @@ The indexes are 0-based
 
 ##### @Candidate
 
-| Operation     | Symbol  | Example         | Output    |
-| ------------- | ------- | --------------- | --------- |
-| Concatenate   | +       | [1 2 3] + [4]   | [1 2 3 4] |
-| Intersection  | -       | [1 2 3] - [3 4] | [1 2]     |
+| Operation     | Symbol  | Example             | Output          |
+| ------------- | ------- | ------------------- | --------------- |
+| Concatenate   | +       | [1 2 3] + [4]       | [1 2 3 4]       |
+| Intersection  | -       | [1 2 3] - [3 4]     | [1 2]           |
+| Split         | /       | [1 1 1 0 1 1] / 0   | [[1 1 1] [1 1]] |
+
+<!-- TODO: what about a function!!!
+	list / ::(value) => value%2=0
+-->
 
 ##### Relational
 
@@ -2760,6 +2765,39 @@ someFunction(x Int,y Int)=>Int{=>x+y}
 #!align:true, minimize:true
 #!minimize:false
 ```
+
+# 1-based array indexing @candidate
+
+## Accessing via index (1-based) vs accessing via offset (0-based)
+
+```ruby
+list [GioviText] <- "abcdefgh"@*
+
+# INDEX
+list@1 # "a"
+list@8 # "g"
+list@{-1} # "g"
+list@{-8} # "a"
+list@{list@{%}} # "g"
+for i in 1..8 do list@i
+for i in list@@ do list@i
+
+# OFFSET
+list.0 # "a"
+list.7 # "g"
+
+## the following are invalid
+list.{-1} # would cause confusion with index
+list.{-7} # makes no sense
+list.{list@%} # syntax 
+
+## what about a field called 'i'?
+for i in 0..7 do list.i
+```
+
+# Struct querying @candidate
+
+Something like xpath or jq? Or maybe language syntax itself?
 
 <!-- 
 vim: noet

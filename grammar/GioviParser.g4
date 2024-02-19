@@ -28,7 +28,7 @@ statement
     | varDeclaration
     | functionDeclaration
     | returnStatement
-    | expression
+    | expression // TODO: why?
     ;
 
 statementOrBlock: statement | block;
@@ -193,11 +193,13 @@ typeList:     '[' type ('*' '*' initSize=expression)? ']';
 listCreation: '[' listEntries ']';
 listEntries:  (listEntry ','?)*;
 listEntry:    expression | range;
+// TODO: listEntries ->+ list
 
 typeMap:     '[' mapKeyType=type ':' mapValueType=type ']';
 mapCreation: '[' mapEntries ']';
 mapEntries:  (mapEntry ','?)*;
 mapEntry:    mapKey=expression ':' mapValue=expression;
+// TODO: mapEntries ->+ map
 
 //////////////////////////////////////////////////////////////////////////////// LITERALS
 literal
