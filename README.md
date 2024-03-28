@@ -2082,25 +2082,41 @@ isEven(x Int) => x % 2 = 0
 greet(name Text) name -> \out
 ```
 
-### Function reference @candidate
+### Function reference
 
 The reference of a function is used to refer to the function itself.<br>
-It is represented with `::` (double colon).
+You can get a reference of a function with the `::` (double colon).
 
-```
-::()
-::(<parameters>)
-::(<parameters>) => <return type>
+```ruby
+sum(x Int, y Int) => Int {
+	=> x + y
+}
+
+::sum -> \out # will print sum(x Int, y Int) => Int
 ```
 
 It can be stored in variables and struct, and can be passed as a parameter to
-other functions as well, just like any other type.
+other functions as well, just like any other type.<br>
+To ensure type safety, the function signatures must be compatible.<br>
+It can be invoked like a normal function
 
 ```ruby
-printSomething(txt Text) { txt -> \out }
-::printSomething -> functionRef ::(Text)
-# functionRef is now a reference to printSomething function
-functionRef("hello world") # will print "hello world"
+sum(x Int, y Int) => Int {
+	=> x + y
+}
+
+printSomething(txt Text) {
+	txt -> \out
+}
+
+someFunctionRef ::(Text)
+
+::printSomething -> someFunctionRef
+# someFunctionRef is now referencing printSomething
+someFunctionRef("hello world") # will print "hello world"
+
+::sum -> someFunctionRef
+# ERROR: incompatible function signatures
 ```
 
 Anonymous function references can also be defined
@@ -2116,34 +2132,38 @@ Anonymous function references can also be defined
 ```
 
 ```ruby
-functionRef ::()
+someFunctionRef ::()
 
-# Assign an anonymous function reference to functionRef
-functionRef <- ::{
-		"hello world" -> \out
-	}
+# Assign an anonymous function reference to someFunctionRef
+someFunctionRef <- ::{
+	"hello world" -> \out
+}
 
-# I can now invoke functionRef
-functionRef()
+# I can now invoke someFunctionRef
+someFunctionRef()
 ```
 
 When the function has parameters, their names can be omitted in the signature;
 but naming the parameters is advised for better readability
 
+<!-- TODO: what if param names are part of the signature? -->
+
 ```ruby
-# both are valid definitions of a function reference with a signature of (Text,Int) => Bool
-stringContainsNumber1 ::(myText Text, myNumber Int) => Bool
-stringContainsNumber2 ::(Text, Int) => Bool
+# both are valid definitions of a function reference with a signature of (Text,Bool) => Real
+makePizza ::(type Text, extraTopping Bool) => Real
+makePizza ::(Text, Bool) => Real
 ```
 
 Like other data types, a function reference can have a default value (a default
 implementation in this case)
 
 ```ruby
-functionRef ::(Text) default ::(txt Text) {
+someFunctionRef ::(Text) default ::(txt Text) {
 	txt -> \out
 }
 ```
+
+#### Signature inference @candidate
 
 A function reference with many parameters, a return type and a default
 implementation could be very verbose and cluttered
@@ -2153,21 +2173,37 @@ implementation could be very verbose and cluttered
 # with a default implementation which returns the sum of the parameters
 
 # <variable> ::(<params>)     => <return> default ::(<params>)     => <return> <statement
-myFunction   ::(x Int, y Int) => Int      default ::(x Int, y Int) => Int      => x + y
+someFunctionRef   ::(x Int, y Int) => Int      default ::(x Int, y Int) => Int      => x + y
 ```
 
 But the default implementation signature can be inferred
 
 ```ruby
-myFunction ::(x Int, y Int) => Int default ::{=> x + y}
+someFunctionRef ::(x Int, y Int) => Int default ::{=> x + y}
 ```
 
 Alternatively, if you don't specify parameters names in the signature, you'll
 have to specify them in the default implementation signature
 
 ```ruby
-myFunction ::(Int, Int) => Int default ::(x, y) => x + y
+someFunctionRef ::(Int, Int) => Int default ::(x, y) => x + y
 ```
+
+#### Default value of a function ref
+
+The default value of a function ref will be an "empty" function with no body.<br>
+If the signatures has a return value, its default will be returned instead
+
+```ruby
+Color <
+	r Int default 69
+	g Int
+	b Int
+>
+someFunctionRef ::() => Color
+someFunctionRef() -> \out # will print Color.<255 0 0>
+```
+
 
 ### Pipe operator @candidate
 

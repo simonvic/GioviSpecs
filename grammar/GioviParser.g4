@@ -45,7 +45,7 @@ iterator
 	| struct=identifier? '<' (identifier type? ','?)+ '>'                 # iteratorStruct
 	;
 
-returnStatement: (RETURN | RETURN_ARROW) expression?;
+returnStatement: (RETURN | RETURN_SYM) expression?;
 
 breakStatement: BREAK;
 
@@ -108,7 +108,7 @@ namedStructField: identifier ':' expression;
 
 //////////////////////////////////////////////////////////////////////////////// FUNCTIONS
 
-functionDeclaration: identifier '(' formalParameters? ')' (RETURN_ARROW returnType=type)? body=block;
+functionDeclaration: identifier '(' formalParameters? ')' (RETURN_SYM returnType=type)? body=block;
 
 formalParameters: formalParameter (',' formalParameter)* ','?;
 
@@ -153,6 +153,7 @@ expression
     | mapCreation                                             # expressionMapCreation
     | structCreation                                          # expressionStructCreation
     | functionCall                                            # expressionFunctionCall
+    | '::' referenceable                                      # expressionRef
     | prefix=('+' | '-') expression                           # expressionPrefixed
     | prefix=(NOT | NOT_SYM) expression                       # expressionNot
     | expression bop='@' accessKey                            # expressionAccess
@@ -174,7 +175,7 @@ primitiveContent: '\\' 'in';
 
 primitiveDestination: '\\' identifier;
 
-type: typeComposite | typeIdentifier;
+type: typeComposite | typeFunctionRef | typeIdentifier;
 
 typeComposite: typeList | typeMap;
 
@@ -200,6 +201,15 @@ mapCreation: '[' mapEntries ']';
 mapEntries:  (mapEntry ','?)*;
 mapEntry:    mapKey=expression ':' mapValue=expression;
 // TODO: mapEntries ->+ map
+
+//////////////////////////////////////////////////////////////////////////////// FUNCTION REFS
+
+referenceable
+	: identifier
+	| ('(' formalParameters? ')')? (RETURN_SYM returnType=type)? body=block
+	;
+
+typeFunctionRef: '::' '(' formalParameters? ')' (RETURN_SYM returnType=type)? ;
 
 //////////////////////////////////////////////////////////////////////////////// LITERALS
 literal
