@@ -2799,6 +2799,24 @@ for i in 0..7 do list.i
 
 Something like xpath or jq? Or maybe language syntax itself?
 
+# Struct destructuring @candidate
+
+```ruby
+getColor() => Color { }
+getColor() -> red, gren, blue
+getColor() -> <red gren blue>
+```
+
+# Emoji handling in Text @candidate
+
+```ruby
+"💩" -> \out
+"💩"@% -> \out # should be 1
+"💩"@0 -> \out # should be :poop:
+"💩".0 -> \out # should be single char
+"💩".1 -> \out # should be single char
+```
+
 <!-- 
 vim: noet
 -->
