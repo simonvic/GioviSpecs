@@ -90,23 +90,29 @@ sum(x Int, y Int) => Int {
 
 ## Redirection (assignment)
 
-| Operation           | Symbol | Example                       |
-| ------------------- | ------ | ----------------------------- |
-| Content redirection | ->     | "Hello world" -> message Text |
-| Increment by value  | ->+    | 10 ->+ count                  |
-| Decrement by value  | ->-    | 10 ->- count                  |
-| Multiply by value   | ->*    | 10 ->* count                  |
-| Divide by value     | ->/    | 10 ->/ count                  |
+| Operation             | Symbol | Example                  |
+| --------------------- | ------ | ------------------------ |
+| Content redirection   | ->     | "Hello world" -> message |
+| Add and redirect      | ->+    | 10 ->+ count             |
+| Subtract and redirect | ->-    | 10 ->- count             |
+| Multiply and redirect | ->*    | 10 ->* count             |
+| Divide and redirect   | ->/    | 10 ->/ count             |
 
 ### Inverse redirection
 
-| Operation           | Symbol | Example                       |
-| ------------------- | ------ | ----------------------------- |
-| Content redirection | <-     | message Text <- "Hello world" |
-| Increment by value  | +<-    | count +<- 10                   |
-| Decrement by value  | -<-    | count -<- 10                   |
-| Multiply by value   | *<-    | count *<- 10                   |
-| Divide by value     | /<-    | count /<- 10                   |
+| Operation           | Symbol | Example                  |
+| ------------------- | ------ | ------------------------ |
+| Content redirection | <-     | message <- "Hello world" |
+| Increment by value  | +<-    | count +<- 10             |
+| Decrement by value  | -<-    | count -<- 10             |
+| Multiply by value   | *<-    | count *<- 10             |
+| Divide by value     | /<-    | count /<- 10             |
+
+Note that the `->+`,`+<-` and alike are only a shorthand for the relative
+operator; so doing `1 ->+ x` or `x +<- 1` is the same of doing `x + 1 -> x` or
+`x <- x + 1`.
+
+Keep it in mind when using non-commutative operators.
 
 ## Containment operator
 
@@ -153,19 +159,6 @@ The output of the access depends on the "key" and to what type you're accessing.
 > - [List access](#list-access)
 > - [Map access](#map-access)
 > - [Struct access](#struct-access)
-
-### Accessing default value @candidate
-
-```ruby
-420 -> x Int default 69
-x -> \out # 420
-x@value -> \out # 420
-x@default -> \out # 69
-
-if x@default != Int@default do {
-	"x default value has been overridden!" -> \out
-}
-```
 
 # Redirection
 
@@ -240,7 +233,9 @@ The redirect operator (`->`) will automatically append a new line; if you don't
 want that, you can use the "append redirector" operator (`->+`)
 
 ```ruby
-"Hello world" ->+ \out
+"Hello " ->+ \out
+"world" -> \out
+# Hello world\n
 ```
 
 ### Standard error
@@ -306,7 +301,80 @@ The general rules for naming variables are:
     - is
     - self
 
-<!-- TODO: mention variables lifetime and scopes -->
+## Declaration
+
+To declare a variable, you have to specify a name and a type
+
+```
+<name> <Type>
+```
+
+and you can optionally override its default value.<br>
+See [Default value](#default-value)
+
+```
+<name> <Type> default <default value>
+```
+
+## Scopes and variables lifetime
+
+Once you declare a variable, its **lifetime** (the time in which you can read
+or write from/to the variable) is bound to the **scope** in which it has been
+defined.<br>
+You can access variables (and any other definition) in the current or any
+parent scope
+
+```ruby
+# global scope
+"hello world" -> aVariable Text
+aVariable -> \out
+if true do {
+	# "true" scope
+	aVariable -> \out
+	69 -> anotherVariable Int
+	anotherVariable -> \out
+} else {
+	# "false" scope
+	aVariable -> \out
+	anotherVariable -> \out
+	# ERROR: anotherVariable not defined
+}
+```
+
+You usually enter a new scope when you encounter a "code block" (curly braces)
+and you exit when it ends
+
+```ruby
+# global scope
+
+if true do {
+	# new scope
+} else {
+	# new scope
+}
+
+if someVariable {
+	= 69 do {
+		# new scope
+	}
+
+	= 420 do {
+		# new scope
+	}
+}
+
+repeat {
+	# new scope
+}
+
+for i in 0..10 do {
+	# new scope
+}
+
+someFunction() {
+	# new scope
+}
+```
 
 # Data types
 
@@ -319,6 +387,14 @@ The general rules for naming variables are:
 | Real      | up to 16 decimal digits          | 0.0           |
 | Bool      | false / true                     | false         |
 | Text      |                                  | (empty text)  |
+
+@candidate
+
+| Type name | Possible values  | Default value |
+| --------- | ---------------- | ------------- |
+| Type      | Any type         | Void          |
+| Range     | Any range        | 0..0..1       |
+| Tuple     | Any tuple        | <>            |
 
 ### Declaration
 
@@ -378,8 +454,8 @@ You can use the exponent notation
 | Repeat                         | *      | "o" * 4                    | "oooo"                     |
 | Append to variable             | ->+    | "hello world" ->+ someText | "$someText hello world"    |
 | Remove substring from variable | ->-    | "substring" ->- someText   | someText without substring |
-| Text contains                  | =~     | "hello world" =~ "lo worl" | true                       |
-| Text is contained              | ~=     | "lo worl" ~= "hello world" | true                       |
+| Contains                       | =~     | "hello world" =~ "lo worl" | true                       |
+| Is contained                   | ~=     | "lo worl" ~= "hello world" | true                       |
 
 #### Text Access
 
@@ -466,9 +542,9 @@ recommended to immediately go on a new line after the opening text block tag,
 followed by a 1-level deep indent; this is to avoid any possible ambiguities.
 
 ```ruby
-t Text <- "{these are some fancy quotes: """"""}"
+t Text <- "{this is "fine" but...}"
 t Text <- "{
-	but this is preferred
+	...this is preferred
 	}"
 ```
 
@@ -482,7 +558,8 @@ t Text <- "{
 
 #### Text interpolation
 
-Double quotes will interpolate variables (dollar sign will need escaping)<br>
+Double quotes will interpolate variables and expressions (dollar sign will need
+escaping)<br>
 Single quotes will not.
 
 ```
@@ -603,22 +680,29 @@ The indexes are 0-based
 
 #### Operators
 
-| Operation  | Symbol  | Example         |
-| ---------- | ------- | --------------- |
-| Assignment | ->      | [1 2 3] -> list |
-| Insert     | ->+     | 4 ->+ list      |
-| Remove     | ->-     | 4 ->- list      |
+| Operation     | Symbol  | Example         | Output       |
+| ------------- | ------- | --------------- | ------------ |
+| Concatenate   | +       | [1 2 3] + [4 5] | [1 2 3 4 5]  |
+| Intersection  | -       | [1 2 3] - [3 4] | [1 2]        |
 
-##### @Candidate
+@candidate-removal
 
-| Operation     | Symbol  | Example             | Output          |
-| ------------- | ------- | ------------------- | --------------- |
-| Concatenate   | +       | [1 2 3] + [4]       | [1 2 3 4]       |
-| Intersection  | -       | [1 2 3] - [3 4]     | [1 2]           |
-| Split         | /       | [1 1 1 0 1 1] / 0   | [[1 1 1] [1 1]] |
+| Operation     | Symbol  | Example         | Output       |
+| ------------- | ------- | --------------- | ------------ |
+| Concatenate   | +       | [1 2 3] + 4     | [1 2 3 4]    |
+| Intersection  | -       | [1 2 3] - 3     | [1 2]        |
+
+@candidate
+
+| Operation     | Symbol  | Example               | Output          |
+| ------------- | ------- | --------------------- | --------------- |
+| Split         | /       | [1 1 0 0 1 1] / [1 0] | [[1 1] [1 1]]   |
+|               |         | [1 1 1 0 1 1] / 0     | [[1 1 1] [1 1]] |
 
 <!-- TODO: what about a function!!!
 	list / ::(value) => value%2=0
+	Or maybe just add it as method
+	list.split(::(value) => value % 2 = 0)
 -->
 
 ##### Relational
@@ -627,7 +711,9 @@ The indexes are 0-based
 | ------------ | ------ | ----------------- |
 | Equal        | =      | [1 2 3] = [1 2 3] |
 | Contains     | =~     | list =~ 2         |
+|              |        | list =~ [1 2]     |
 | Is contained | ~=     | 2 ~= list         |
+|              |        | [1 2] ~= list     |
 
 #### Syntax
 
@@ -641,10 +727,11 @@ listOfNames [Text]
 # Assignment
 ["Simone" "Giada"] -> listOfNames
 
-# Insertion
-"Francesca" ->+ listOfNames
-"Alessio" ->+ listOfNames
-"Giovanna" ->+ listOfNames
+# Concatenation
+["Francesca" "Alessio"] ->+ listOfNames
+
+# Intersection
+["Giada"] ->- listOfNames
 ```
 
 List entries can be optionally separated by a comma (trailing comma is allowed)
@@ -819,6 +906,17 @@ cube@{1, 2, 3} -> \out
 
 A set is an unordered collection in which duplicates element are not allowed
 
+```ruby
+[()]
+[( 1 2 3 4 )]
+
+(||)
+(| 1 2 3 4 |)
+
+[||]
+[| 1 2 3 4 |]
+```
+
 ### Map
 
 A map contains values on the basis of key, i.e. key and value pair.<br>
@@ -827,36 +925,28 @@ Map keys are unique.
 
 #### Operators
 
-| Operation  | Symbol  | Example                     |
-| ---------- | ------- | --------------------------- |
-| Assignment | ->      | ["a":1 "b":2 "c":3] -> map  |
-| Put        | ->+     | ["d":4] ->+ map             |
-| Remove     | ->-     | "d" ->- map                 |
-| Remove all | ->-     | ["a" "b"] ->- map           |
-| Remove all | ->-     | ["a":1 "b":2] ->- map       |
+| Operation   | Symbol  | Example                         | Output               |
+| ----------- | ------- | ------------------------------- | -------------------- |
+| Put         | +       | ["a":1 "b":2] + ["b":69 "c":3]  | ["a":1 "b":69 "c":3] |
+| Remove pair | -       | ["a":1 "b":2 "c":3] - ["c":3]   | ["a":1 "b":2]        |
+| Remove keys | -       | ["a":1 "b":2 "c":3] - ["a" "c"] | ["b":2]              |
 
 @candidate
 
-| Operation     | Symbol  | Example                       | Output              |
-| ------------- | ------- | ----------------------------- | ------------------- |
-| Concatenate   | +       | ["a":1 "b":2] + ["c":3]       | ["a":1 "b":2 "c":3] |
-| Intersection  | -       | ["a":1 "b":2 "c":3] - ["c":3] | ["a":1 "b":2]       |
-|               |         | ["a":1 "b":2 "c":3] - "c"     | ["a":1 "b":2]       |
+| Operation  | Symbol  | Example                    | Output               |
+| ---------- | ------- | -------------------------- | -------------------- |
+| Put pair   | +       | ["a":1 "b":2] + "c":3      | ["a":1 "b":2 "c":3]  |
+| Remove key | -       | ["a":1 "b":2 "c":3] - "c"  | ["a":1 "b":2]        |
+
 
 ##### Relational
 
-| Operation    | Symbol | Example                       |
-| ------------ | ------ | ----------------------------- |
-| Equal        | =      | ["a":1 "b":2] = ["a":1 "b":2] |
-| Contains key | =~     | ["a":1 "b":2] =~ "a"          |
-| Is contained | ~=     | "a" ~= map                    |
-
-@candidate
-
-| Operation       | Symbol | Example                              |
-| --------------- | ------ | ------------------------------------ |
-| Contains subset | =~     | ["a":1 "b":2 "c":3] =~ ["b":2 "c":3] |
-
+| Operation      | Symbol | Example                              |
+| -------------- | ------ | ------------------------------------ |
+| Equal          | =      | ["a":1 "b":2] = ["a":1 "b":2]        |
+| Contains key   | =~     | ["a":1 "b":2] =~ "a"                 |
+| Contains pairs | =~     | ["a":1 "b":2 "c":3] =~ ["b":2 "c":_] |
+| Contains keys  | =~     | ["a":1 "b":2 "c":3] =~ ["b" "c"]     |
 
 #### Syntax
 
@@ -869,7 +959,7 @@ carCount [Text : Int]
 [ "Audi" : 1 ] ->+ carCount  # Insert new key "Audi" with value 1
 [ "Audi" : 5 ] ->+ carCount  # Set "Audi" key value to 5
 
-carCount +<- [               # Insert/Set new key value pair
+carCount +<- [ # Insert/Put key-value pairs
 		"Mercedes" : 10
 		"Audi" : 7
 		"BMW" : 15
@@ -879,6 +969,12 @@ carCount +<- [               # Insert/Set new key value pair
 carCount@{"Ferrari"} <- 26   # Set "Ferrari" value to 26
 ```
 
+<!-- TODO: if immutability is considered
+"Ferrari" : 26 -> carCount
+should be used instead of
+26 -> carCount@"Ferrari"
+-->
+
 Default values can be used
 
 ```ruby
@@ -886,7 +982,7 @@ Default values can be used
 default -> carCount@{"Fiat"}
 ```
 
-Map entries can be optionally separated by a comma (trailing comma is allowed)
+Map entries can optionally be separated by a comma (trailing comma is allowed)
 
 ```ruby
 [
@@ -929,7 +1025,7 @@ bank [Text : Real] <- [
 		"Francesco" : 125.15
 	]
 
-for name money in bank do {
+for name : money in bank do {
 	"$name has $money € in his wallet" -> \out
 }
 
@@ -1574,7 +1670,8 @@ default -> someText          # This will set someText to empty string
 default -> someBoolean       # This will set someBoolean to false
 ```
 
-It is also possible to overwrite a variable default value
+It is also possible to overwrite a variable default value (but only at
+declaration)
 
 ```ruby
 number Natural default 420
@@ -1593,6 +1690,39 @@ default -> someText          # This will set someText to "default text"
 default -> someBoolean       # This will set someBoolean to true
 ```
 
+You can also get a variable default value using the dot notation
+
+```ruby
+someNumber Int default 69
+someText Text default "default text"
+someBoolean Bool default true
+
+someNumber.default -> \out  # 69
+someText.default -> \out    # "default text"
+someBoolean.default -> \out # true
+```
+
+Doing the same on a Type will instead return the default value of a variable of
+that type, which might be useful to check wether or not a variable's default
+has been overridden
+
+```ruby
+Natural.default -> \out # 0n
+Int.default -> \out     # 0i
+Real.default -> \out    # 0r
+Text.default -> \out    # "" (empty string)
+Bool.default -> \out    # false
+
+someNumber Int default 69
+if someNumber.default != Int.default do {
+	"someNumber's default has been overriden" -> \out
+}
+```
+
+<!-- TODO: combine this with the .type candidate
+if someVariable.default != someVariable.type.default do {}
+-->
+
 ## Struct default value
 
 Struct default value is a struct with all its fields set to their respective
@@ -1600,8 +1730,8 @@ default value
 
 ```ruby
 someColor Color
-someColor <- <255 255 0>
-default -> someColor  # This will set someColor to (0 0 0)
+<255 255 0> -> someColor
+default -> someColor  # This will set someColor to <0 0 0>
 ```
 
 ```ruby
@@ -1766,7 +1896,7 @@ if x {
 
 name Text <- "Simone"  
 if name {
-	= default do {}      # empty string
+	= default do {}  # empty string
 	= "Simone" do {}
 	= "Alessio" do {}
 	= "Paolo" do {}

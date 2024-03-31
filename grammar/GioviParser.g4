@@ -114,6 +114,7 @@ formalParameters: formalParameter (',' formalParameter)* ','?;
 
 formalParameter: identifier type defaultDefinition?;
 
+// TODO: what about someArrayOfFunctions@69()
 functionCall: identifier '(' functionCallParameters? ')';
 
 functionCallParameters: functionCallParameter (',' functionCallParameter)* ','?;
@@ -130,6 +131,7 @@ switchBlock: '{' switchLabel+ '}';
 
 switchLabel: caseMatch DO body=statementOrBlock;
 
+// TODO: add 'NOT caseMatch' (in case we need to do 'NOT contains/contained')
 caseMatch
     : '{' caseMatch '}'                                     # caseMatchParenthesized
     | op=('<=' | '>=' | '>' | '<') expression               # caseMatchRelational
@@ -148,7 +150,11 @@ expression
     : '{' expression '}'                                      # expressionParenthesized
     | expression AS type                                      # expressionCast
     | expression IS identifier? type                          # expressionTypeCheck
-    | expression bop='.' (anyIdentifier | functionCall)       # expressionDot
+    | expression '.' 
+        ( anyIdentifier
+        | functionCall
+        | 'default'
+        )                                                     # expressionDot
     | listCreation                                            # expressionListCreation
     | mapCreation                                             # expressionMapCreation
     | structCreation                                          # expressionStructCreation
