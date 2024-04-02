@@ -286,6 +286,7 @@ The general rules for naming variables are:
     - if
     - do
     - else
+    - when
     - for
     - in
     - repeat
@@ -804,36 +805,6 @@ letters@%  # 10 (elements count)
 letters@@  # 0..9 (range) useful when you need to iterate a list with indexes
 ```
 
-Comparing Lists
-
-```ruby
-numbers [Int] <- [ 1 2 3 4 ]
-
-if numbers = default do {
-	# if list is equal to List default (empty list)
-}
-
-if numbers {
-	# if equal to a list of [1 2 3]
-	= [1 2 3] do {}
-	
-	# if equal to a list of [1 2 3 4] or [4 5 6 7]
-	= [1 2 3 4]
-	| = [4 5 6 7] do {}
-	
-	# if equal to a list of [1 2 3 4] or elements count equal to 10
-	= [1 2 3 4] | numbers@% = 10 do {}
-	
-	# if empty list or elements count less then 3
-	= default | numbers@% < 3 do {}
-	
-	# if empty list and first element equal to 6
-	= default & numbers@0 = 6 do {}
-
-	# if contains 69
-	=~ 69 do {}
-	
-}
 ```
 
 ##### Multidimensional list (matrix)
@@ -1864,44 +1835,132 @@ if <variable> {
 Example:
 
 ```ruby
-x Int <- 69  
-
-if x {
-	# x is equal 1
-	= 1 do {
-		# body
-	}
-
-	# x is equal 2 or equal 3
-	= 2 | = 3 do {
-		# body
-	}
-
-	# x is between 3 and 8 exclusive and not equal to 5
-	{> 3 & < 8} & != 5 do {
-		# body
-	}
-
-	# x is greater or equal to 10
-	>= 10 do {
-		# body
-	}
-
-	# when x is equal to its type default value (zero)
-	= default do {
-		# body
-	}
-} else {
-	# no conditions have been met
-}
-
-name Text <- "Simone"  
+name Text
 if name {
-	= default do {}  # empty string
-	= "Simone" do {}
-	= "Alessio" do {}
-	= "Paolo" do {}
-	= "Gian Carlo" do {}
+
+	= "Simone" do "hey it's Simone!" -> \out
+
+	= "Mario" do {
+		"heyo Mario" -> \out
+		"where is Luigi?" -> \out
+	}
+
+	= "Luigi" do -> "heyo green Mario!" -> \out
+
+} else {
+	"greetings $name" -> \out
+}
+```
+
+You can also use common boolean operators to check for multiple conditions.<br>
+(Line breaks and whitespaces don't matter)
+
+```ruby
+number Int
+if number {
+
+	# if equal to 69 or 420
+	= 69
+	| = 420
+	do "Nice!" -> \out
+
+	# if greater than 100 and less than 999
+	> 100
+	& < 999
+	do "big boi" -> \out
+
+}
+```
+
+Textual boolean operators are allowed
+
+```ruby
+number Int
+if number {
+
+	= 69 or = 420 do "Nice!" -> \out
+
+	> 100 and < 999 do "big boi" -> \out
+
+}
+```
+
+Exhaustivenes and branch precedence are not considered, so be mindful of the
+branch order, since they're evaluated in the same order as they're declared and
+some branch may become unreachable if it's dominated by a previous one
+
+```ruby
+someNumber Int <- 69
+if someNumber {
+	< 50 do {}
+
+	# NOTE: unreachable branch
+	= 69 do {}
+}
+```
+
+You can also "guard" a branch with a boolean expression.
+
+```ruby
+list [Int] <- [ 1 2 3 4 ]
+
+if list {
+
+	# if contains 69 but only when elements count is less than 100
+	=~ 69 when list@% < 100 do {}
+
+	# if contains 69 but only when someFunction() returns 420
+	=~ 69 when someFunction() = 420 do {}
+
+	# if contains 69
+	=~ 69 do {}
+
+}
+```
+
+Let's see some more complex examples of the if statement
+
+```ruby
+list [Int] <- [ 1 2 3 4 ]
+
+if list {
+
+	# if equal to numbers' default (empty list)
+	= default do {}
+
+	# if equal to [1 2 3]
+	= [1 2 3] do {}
+
+	# if equal to [1 2 3 4]
+	# or equal to [4 5 6 7]
+	= [1 2 3 4]
+	| = [4 5 6 7]
+	do {}
+
+	# if equal to [1 2 3 4]
+	# or if contains 69
+	# or if contains 420
+	# but only when someOtherVariable = 69
+	= [1 2 3 4]
+	| =~ 69
+	| =~ 420
+	when someOtherVariable = 69
+	do {}
+
+	# if equal to [1 2 3 4]
+	# or if contains 69
+	# or if contains 420
+	= [1 2 3 4]
+	| =~ 69
+	| =~ 420
+	do {}
+
+	# if equal to [1 2 3 4] or if contains both 69 and 420
+	= [1 2 3 4] or { =~ 69 and =~ 420 } do {}
+	
+	# if contains 69 and contains either 6 or 9
+	=~ 69 and { =~ 6 or =~ 9} do {}
+
 }
 ```
 

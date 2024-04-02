@@ -53,6 +53,7 @@ AT:                             '@';
 IF:                             'if';
 DO:                             'do';
 ELSE:                           'else';
+WHEN:                           'when';
 FOR:                            'for';
 IN:                             'in';
 REPEAT:                         'repeat';

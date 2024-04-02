@@ -136,12 +136,13 @@ switchLabel: caseMatch DO body=statementOrBlock;
 // TODO: add 'NOT caseMatch' (in case we need to do 'NOT contains/contained')
 caseMatch
     : '{' caseMatch '}'                                     # caseMatchParenthesized
+    | caseMatch bop=(AND | AND_SYM | OR | OR_SYM) caseMatch # caseMatchCascade
+    | caseMatch bop=WHEN expression                         # caseMatchGuarded
     | op=('<=' | '>=' | '>' | '<') expression               # caseMatchRelational
     | op=(AND | AND_SYM | OR | OR_SYM) expression           # caseMatchBoolean
     | op=('=' | '!=') expression                            # caseMatchEquality
     | op=('~=' | '=~') expression                           # caseMatchContainment
     | op=IS identifier? type                                # caseMatchTypeCheck
-    | caseMatch bop=(AND | AND_SYM | OR | OR_SYM) caseMatch # caseMatchGuarded
     ;
 
 //////////////////////////////////////////////////////////////////////////////// EXPRESSIONS
