@@ -680,17 +680,13 @@ The indexes are 0-based
 
 #### Operators
 
-| Operation     | Symbol  | Example         | Output       |
-| ------------- | ------- | --------------- | ------------ |
-| Concatenate   | +       | [1 2 3] + [4 5] | [1 2 3 4 5]  |
-| Intersection  | -       | [1 2 3] - [3 4] | [1 2]        |
-
-@candidate-removal
-
-| Operation     | Symbol  | Example         | Output       |
-| ------------- | ------- | --------------- | ------------ |
-| Concatenate   | +       | [1 2 3] + 4     | [1 2 3 4]    |
-| Intersection  | -       | [1 2 3] - 3     | [1 2]        |
+| Operation     | Symbol  | Example         |
+| ------------- | ------- | --------------- |
+| Redirection   | ->      | list <- [1 2 3] |
+| Concatenate   | ->+     | list +<- [4 5]  |
+|               |         | list +<- 4      |
+| Remove all    | ->-     | list -<- [2 3]  |
+| Remove        |         | list -<- 3      |
 
 @candidate
 
@@ -724,14 +720,16 @@ The indexes are 0-based
 ```ruby
 listOfNames [Text]
 
-# Assignment
 ["Simone" "Giada"] -> listOfNames
 
-# Concatenation
-["Francesca" "Alessio"] ->+ listOfNames
+# Add "Francesca"
+"Francesca" ->+ listOfNames
 
-# Intersection
-["Giada"] ->- listOfNames
+# Add "Alessio" and "Luca"
+["Alessio" "Luca"] ->+ listOfNames
+
+# Remove "Giada"
+"Giada" ->- listOfNames
 ```
 
 List entries can be optionally separated by a comma (trailing comma is allowed)
@@ -925,18 +923,21 @@ Map keys are unique.
 
 #### Operators
 
-| Operation   | Symbol  | Example                         | Output               |
-| ----------- | ------- | ------------------------------- | -------------------- |
-| Put         | +       | ["a":1 "b":2] + ["b":69 "c":3]  | ["a":1 "b":69 "c":3] |
-| Remove pair | -       | ["a":1 "b":2 "c":3] - ["c":3]   | ["a":1 "b":2]        |
-| Remove keys | -       | ["a":1 "b":2 "c":3] - ["a" "c"] | ["b":2]              |
+| Operation    | Symbol  | Example                         |
+| ------------ | ------- | ------------------------------- |
+| Redirection  | ->      | map <- ["a":1 "b":2 "c":3]      |
+| Put          | ->+     | map +<- ["b":69 "c":420]        |
+| Remove pairs | ->-     | map -<- ["a":1 "c":3]           |
+| Remove keys  | ->-     | map -<- ["a" "c"]               |
 
 @candidate
 
-| Operation  | Symbol  | Example                    | Output               |
-| ---------- | ------- | -------------------------- | -------------------- |
-| Put pair   | +       | ["a":1 "b":2] + "c":3      | ["a":1 "b":2 "c":3]  |
-| Remove key | -       | ["a":1 "b":2 "c":3] - "c"  | ["a":1 "b":2]        |
+| Operation       | Symbol  | Example                    |
+| --------------- | ------- | -------------------------- |
+| Put pair        | ->+     | map +<- "c":3              |
+| Remove pair     | ->-     | map -<- "c"                |
+| Remove pairs    | ->-     | map -<- ["a":_ "c":_]      |
+| Remove pairs    | ->-     | map -<- [_:1 _:3]          |
 
 
 ##### Relational
@@ -2142,6 +2143,7 @@ count(69)
 greet(name Text default _ ) { }
 # if name is not specified when calling the function
 # its type default value will be used
+# it's equivalent of writing "name Text default Text.default"
 
 greet()
 greet("Simone")
@@ -2654,7 +2656,9 @@ repeat {
 }
 ```
 
-# Module system @candidate
+# Other @candidate 
+
+## Module system @candidate
 
 ```ruby
 import some.fully.qualified.module
@@ -2669,7 +2673,7 @@ module MyModule {
 }
 ```
 
-# Launch entry point (args) @candidate
+## Launch entry point (args) @candidate
 
 ```shell
 giovi myFile.giovi -s --long --long_attr=69 -abc
@@ -2689,7 +2693,7 @@ main(args Args) => Int {
 }
 ```
 
-# Files @candidate
+## Files @candidate
 
 ```ruby
 # /<path>
@@ -2711,7 +2715,7 @@ main(args Args) => Int {
 for line in f.lines() do line -> \out
 ```
 
-# Regex @candidate
+## Regex @candidate
 
 ```ruby
 # /<pattern>/
@@ -2736,7 +2740,7 @@ Regex.replace("my text 69 lol", "^my (.*)", "something $1")
 Regex.replace("my text 69 lol", "/^my (.*)/something $1/g")
 ```
 
-# Parallel programming @candidate
+## Parallel programming @candidate
 
 ```ruby
 fork(::fetchData) -> result Text.Json
@@ -2756,7 +2760,7 @@ fork ::{
 join
 ```
 
-# Aliasing @candidate
+## Aliasing @candidate
 
 Alias a type, function or struct
 
@@ -2773,7 +2777,7 @@ alias aVeryLonglyNamedFunction as f
 f() -> \out
 ```
 
-# Generics @candidate
+## Generics @candidate
 
 ```ruby
 Person {T} <
@@ -2825,7 +2829,7 @@ doSomething(optional Optional{_}) {
 }
 ```
 
-## Generics inheritance @candidate
+### Generics inheritance @candidate
 
 ```ruby
 Box{T} <color Text, something T>
@@ -2838,7 +2842,7 @@ garage CarBox <- <"grey" Car.<"Ferrari">>
 chest MagicChest{Gift} <- <"blue" Gift.<"socks">>
 ```
 
-# If expression (ternary operator like) @candidate
+## If expression (ternary operator like) @candidate
 
 Has to be exhaustive
 
@@ -2862,7 +2866,7 @@ x Int <- if something {
 } else do ~> 69420
 ```
 
-# Error handling @candidate
+## Error handling @candidate
 
 ```ruby
 Result{T, E} <
@@ -2881,7 +2885,7 @@ parseDate(text Text) => Result{Date, ParsingErro} {
 }
 ```
 
-# Tuple type @candidate
+## Tuple type @candidate
 
 ```ruby
 t Tuple <- <true "Hello world" 6.9 420>
@@ -2900,14 +2904,14 @@ function(69, t)
 function(69, <"hello world" 69>)
 ```
 
-# Tuple fields override @candidate
+## Tuple fields override @candidate
 
 ```ruby
 Tuple -> struct # assign all fields, default for non specified
 Tuple ->+ struct # assign only to specified fields
 ```
 
-# Formatter directives @candidate
+## Formatter directives @candidate
 
 Special comment `#!` will be parsed by the formatter; uses the same syntax of
 the language.
@@ -2932,9 +2936,9 @@ someFunction(x Int,y Int)=>Int{=>x+y}
 #!minimize:false
 ```
 
-# 1-based array indexing @candidate
+## 1-based array indexing @candidate
 
-## Accessing via index (1-based) vs accessing via offset (0-based)
+### Accessing via index (1-based) vs accessing via offset (0-based)
 
 ```ruby
 list [GioviText] <- "abcdefgh"@*
@@ -2961,11 +2965,11 @@ list.{list@%} # syntax
 for i in 0..7 do list.i
 ```
 
-# Struct querying @candidate
+## Struct querying @candidate
 
 Something like xpath or jq? Or maybe language syntax itself?
 
-# Struct destructuring @candidate
+## Struct destructuring @candidate
 
 ```ruby
 getColor() => Color { }
@@ -2973,7 +2977,7 @@ getColor() -> red, gren, blue
 getColor() -> <red gren blue>
 ```
 
-# Emoji handling in Text @candidate
+## Emoji handling in Text @candidate
 
 ```ruby
 "💩" -> \out

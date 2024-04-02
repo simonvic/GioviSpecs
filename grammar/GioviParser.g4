@@ -115,6 +115,8 @@ formalParameters: formalParameter (',' formalParameter)* ','?;
 formalParameter: identifier type defaultDefinition?;
 
 // TODO: what about someArrayOfFunctions@69()
+// yep, someStruct.someField() is also fucked
+// what about another simple operator "invoke"?
 functionCall: identifier '(' functionCallParameters? ')';
 
 functionCallParameters: functionCallParameter (',' functionCallParameter)* ','?;
