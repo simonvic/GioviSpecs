@@ -319,6 +319,8 @@ See [Default value](#default-value)
 
 ## Scopes and variables lifetime
 
+<!-- TODO: clarify passing as by reference of by value (e.g. a list to a function) -->
+
 Once you declare a variable, its **lifetime** (the time in which you can read
 or write from/to the variable) is bound to the **scope** in which it has been
 defined.<br>
@@ -376,6 +378,8 @@ someFunction() {
 	# new scope
 }
 ```
+
+<!-- TODO: mention variable shadowing -->
 
 # Data types
 
@@ -452,7 +456,7 @@ You can use the exponent notation
 | Concatenation                  | +      | "hello" + " " + "world"    | "hello world"              |
 | Intersection                   | -      | "hello world" - "o"        | "hell wrld"                |
 | Split                          | /      | "hello:world" / ":"        | ["hello" "world"]          |
-| Repeat                         | *      | "o" * 4                    | "oooo"                     |
+| Repeat                         | ^      | "o" ^ 4                    | "oooo"                     |
 | Append to variable             | ->+    | "hello world" ->+ someText | "$someText hello world"    |
 | Remove substring from variable | ->-    | "substring" ->- someText   | someText without substring |
 | Contains                       | =~     | "hello world" =~ "lo worl" | true                       |
@@ -1368,6 +1372,21 @@ c.rgb(5, 20, 512)
 	.brighten()
 ```
 
+#### Constant fields @candidate
+
+```ruby
+Person <
+	constant ADULT_AGE Int <- 18
+>
+
+Color <
+	constant RED Color <- <255 0 0>
+>
+
+Person.ADULT_AGE -> \out
+Color.RED -> \out
+```
+
 #### Structs inheritance
 
 A struct can inherit the fields from another struct.
@@ -1526,6 +1545,13 @@ p3d as Point -> p Point
 
 Point.<> as Point3D -> p3d
 
+```
+
+@candidate alternative syntax
+
+```ruby
+Real.of(69n)
+Point3D.of(Point.<>)
 ```
 
 # Type checking
@@ -2116,6 +2142,12 @@ for <struct iterator> < <field iterator> > in <list of struct> do <statement>
 colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]  
 for <red green blue> in colors do {}
 for color <red green blue> in colors do {}
+```
+
+@candidate
+
+```
+for key : <a b c> in mapOfStructs do {}
 ```
 
 # Functions
@@ -2729,6 +2761,8 @@ import [
 module MyModule {
 	someFunction() {}
 	someValue SomeType
+	someValue2 some.fully.qualified.module.SomeType
+	someValue3 someother.fully.qualified.module.SomeType
 }
 ```
 
@@ -3044,6 +3078,203 @@ getColor() -> <red gren blue>
 "💩"@0 -> \out # should be :poop:
 "💩".0 -> \out # should be single char
 "💩".1 -> \out # should be single char
+```
+
+## Forward declaration @candidate
+
+Structs and functions in a scope will be visited first, so we can use them
+before defining them
+
+```ruby
+someColor Color <- <255 255 255>
+print(someColor)
+
+print(c Color) {
+	"{
+	red: ${c.red}
+	green: ${c.green}
+	blue: ${c.blue}
+	}" -> \out
+}
+
+Color <red Int, green Int, blue Int>
+```
+
+## Special characters in identifiers @candidate
+
+```ruby
+`some identifier` Int
+69 -> `some identifier`
+
+`test that the + operator sums two numbers`() {
+	assertThat(59 + 10).isEqualTo(69)
+}
+```
+
+## Operator and Type negation @candidate
+
+```ruby
+if 69 not = 420 do {}
+if 69 not =~ [1 2 3] do {}
+if 69 not is Real do {}
+if 69 is not Real do {}
+```
+
+
+## Union type @candidate
+
+```ruby
+x Int|Text
+x <- 69
+x <- "hello world"
+
+someFun(x Int|Text) => Int|Text {
+}
+
+if x {
+	is not y Int|Text do => "$y is neither Int nor Text" -> \out
+}
+```
+
+## Deferring @candidate
+
+```ruby
+someFunc() => Int {
+	someFile os.File.<"some/path/to/file">
+	defer someFile.close()
+	# ...
+	=> 69
+	# someFile.close() will be invoked
+}
+```
+
+## Interfaces and implicit implementation @candidate
+
+```ruby
+interface Vec <
+	self magnitude() => Real
+	self normalize() => Vec
+	self distance(to Vec) => Real
+>
+
+Vec2 <
+	x Real
+	y Real
+
+	self magnitude() => Real {
+		=> {x^2 + y^2}^{1/2}
+	}
+
+	self normalize() => Vec {
+		mag Real <- magnitude()
+		=> Vec2.<x/mag y/mag>
+	}
+
+	self distance(to Vec) => Real {
+		=> {{self.x - to.x}^2 + {self.y - to.y}^2}^{1/2}
+	}
+>
+
+v Vec <- Vec2.<69 420>
+v.magnitude() -> \out
+```
+
+## Unified loop keyword @candidate
+
+```ruby
+loop {
+	"hello world" -> \out
+}
+loop "hello world" -> \out
+loop someFunction -> \out
+loop i in 0..10 do "hello world $i" -> \out
+loop entry in list do "hello world $i" -> \out
+loop key : value in map do "hello world $key : $value" -> \out
+loop <r g b> in colors do "hello world <$r $g $b>" -> \out
+loop color<r g b> in colors do "hello world <$r $g $b>" -> \out
+```
+
+## Casting custom implementatin @candidate
+
+```ruby
+SomeStruct <
+	someField Bool
+>
+
+MyStruct <
+	myField Int
+
+	$as(SomeStruct) => SomeStruct {
+		=> SomeStruct.<someField: myField >= 1>
+	}
+
+>
+```
+
+## Operators override @candidate
+
+```ruby
+Vector <
+	x Real
+	y Real
+	z Real
+
+	self $plus(rhs Vector) => Vector {
+		=> Vector.<
+			x: self.x + rhs.x
+			y: self.y + rhs.y
+			z: self.z + rhs.z
+		>
+	}
+
+	self $minus(rhs Vector) => Vector {
+		=> Vector.<
+			x: self.x - rhs.x
+			y: self.y - rhs.y
+			z: self.z - rhs.z
+		>
+	}
+
+	self $multiply(rhs Real) => Vector {
+		=> Vector.<
+			x: self.x * rhs
+			y: self.y * rhs
+			z: self.z * rhs
+		>
+	}
+
+>
+
+<69 1 420> -> v1 Vector
+<0 1 0> -> v2 Vector
+
+v1 + (v2 * 2) -> \out
+```
+
+## Standard content/destination syntax @candidate
+
+```ruby
+"hello world" -> $out
+$in -> input Text
+input -> $err
+```
+
+## Function arguments as a tuple @candidate
+
+Like in math, invoking a function with multiple arguments it's like saying it
+has a domain of a cartesian product (a tuple).
+This would allow to use the same symbols for functions and tuples
+
+```ruby
+# f : (IxN) --> R
+#     (i,n) |-> r
+f(i Int, n Natural) => Real {}
+
+# f : (Ix(NxN)) --> R
+#     (i,(n,m)) |-> r
+f(i Int, tuple <n Natural, m Natural>) => Real {}
+f(i Int, tuple (n Natural, m Natural)) => Real {}
+f(i Int, tuple Tuple) => Real {}
 ```
 
 <!-- 
