@@ -2121,7 +2121,8 @@ for rgb in [<1 2 3>, <4 5 6>, <7 8 9>] do {}
 for key in ["Simone":69 "Luca":420 "Paolo":10] do {}
 ```
 
-When you iterate over a map, you can provide two identifiers for the key and value map entry.
+It's like a usual for-each loop, but on steroid; when you iterate over a map,
+you can provide two identifiers: one for the key and one for the value.
 
 ```
 for <key iterator> : <value iterator> in <map> do <statement>
@@ -2131,7 +2132,41 @@ for <key iterator> : <value iterator> in <map> do <statement>
 for key : value in ["Simone":69 "Luca":420 "Paolo":10] do {}
 ```
 
-When iterating over list of structs, it's possible to deconstruct them
+Nested maps can also be iterated with a single for statement.
+
+```ruby
+graph [Text : [Text : Int]] <- [
+	"a" : ["b":5 "e":3]
+	"b" : ["a":5 "c":1 "d":9 "f":2]
+	"c" : ["b":1 "e":6]
+	"d" : ["b":9 "e":7]
+	"e" : ["a":3 "c":6 "d":7 "f":8]
+	"f" : ["b":2 "e":8]
+]
+for nodeA : [nodeB : edgeCost] do {
+	"$nodeA ---$edgeCost---> $nodeB" -> \out
+}
+```
+
+This would be the same of doing two nested for loops
+
+```ruby
+for nodeA : edges in graph do {
+	for nodeB : edgeCost in edges do {
+		"$nodeA ---$edgeCost---> $nodeB" -> \out
+	}
+}
+```
+
+A placeholder (underscore `_`) can be used in case an iterator is not needed
+
+```ruby
+for _ in list do {}
+for _ : value in map do {}
+for key : _ in map do {}
+```
+
+The for loop is also capable of deconstructing structs and tuples.
 
 ```
 for < <field iterator> > in <list of struct> do <statement>
@@ -2139,15 +2174,74 @@ for <struct iterator> < <field iterator> > in <list of struct> do <statement>
 ```
 
 ```ruby
+Color <red Int, green Int, blue Int>
 colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]  
-for <red green blue> in colors do {}
-for color <red green blue> in colors do {}
+
+for <red green blue> in colors do {
+	"The color is made of $red $green $blue" -> \out
+}
+
+for color <red green blue> in colors do {
+	"The color $color is made of $red $green $blue" -> \out
+}
 ```
 
-@candidate
+Nested structs can also be deconstructed
 
+```ruby
+Foo<a Int, b Int, c Int>
+Bar<x Int, y Int, z Foo>
+listOfNestedStruct [Bar] <- [
+	Bar.<1, 1, Foo.<1, 1, 1>>,
+	Bar.<2, 2, Foo.<2, 2, 2>>,
+	Bar.<3, 3, Foo.<3, 3, 3>>
+]
+for <x, y, z <a b c>> in listOfNestedStruct do {
+	"{
+	Bar is made of:
+		- $x
+		- $y
+		- $z which is made of:
+			- $a
+			- $b
+			- $c
+	}" -> \out
+}
 ```
-for key : <a b c> in mapOfStructs do {}
+
+Deconstructing can also occur in a map iteration as a value (or eventually as a
+key too, or both)
+
+```ruby
+mapOfFoo [Text : Foo]
+
+for key : <a b c> in mapOfFoo do {
+	"The key $key is mapped to <$a $b $c>" -> \out
+}
+```
+
+Deconstructing is done via field names, so a subset of the fields
+can also be used; the order doesn't matter.
+
+```ruby
+Color <red Int, green Int, blue Int>
+colors [Color]
+
+for <blue red> in colors do {}
+```
+
+@candidate Explicit deconstructing method
+
+positional deconstructing
+
+```ruby
+for <red _ blue> in colors do {}
+```
+
+named fields deconstructing
+
+```ruby
+for <.blue .red> in colors do {}
 ```
 
 # Functions

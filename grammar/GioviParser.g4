@@ -40,10 +40,14 @@ iterable: range | expression;
 forStatement: FOR iterator IN iterable DO statementOrBlock;
 
 iterator
-	: identifier type?                                                    # iteratorUnary
-	| key=identifier keyType=type? ':' value=identifier valueType=type?   # iteratorMap
-	| struct=identifier? '<' (identifier type? ','?)+ '>'                 # iteratorStruct
+	: key=iterator ':' value=iterator                 # iteratorMap
+	| '[' key=iterator ':' value=iterator ']'         # iteratorMap
+	| whole=unaryIterator? '<' (iterator ','?)+ '>'   # iteratorAggregate
+	| unaryIterator                                   # iteratorUnary
+	| literalPlaceholder                              # iteratorPlaceholder
 	;
+
+unaryIterator: identifier type? ;
 
 returnStatement: (RETURN | RETURN_SYM) expression?;
 
