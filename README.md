@@ -809,8 +809,6 @@ letters@%  # 10 (elements count)
 letters@@  # 0..9 (range) useful when you need to iterate a list with indexes
 ```
 
-```
-
 ##### Multidimensional list (matrix)
 
 A multidimensional list (matrix) can be defined as follows
@@ -1285,8 +1283,17 @@ You can define recursive struct (struct defined with itself)
 ```ruby
 Node <
 	data Text
-	nextNode Node default null
+	nextNode Node
 >
+```
+
+In Giovi all values are initialized at declaration, but in these case a lazy
+approach is used and the `nextNode` is initialized when accessed for the first
+time
+
+```ruby
+root Node
+root.nextNode.nextNode -> \out
 ```
 
 ##### Struct functions @candidate
@@ -2121,7 +2128,7 @@ for rgb in [<1 2 3>, <4 5 6>, <7 8 9>] do {}
 for key in ["Simone":69 "Luca":420 "Paolo":10] do {}
 ```
 
-It's like a usual for-each loop, but on steroid; when you iterate over a map,
+It's like a usual for-each loop, but on steroids; when you iterate over a map,
 you can provide two identifiers: one for the key and one for the value.
 
 ```
@@ -2371,6 +2378,19 @@ optional parameters can be omitted, even if they are not terminal
 processPizzaOrder(type:"Diavola", tableNumber: 69)
 processPizzaOrder(type:_, tableNumber: 69)
 processPizzaOrder(tableNumber: 69)
+```
+
+## Function arguments labels @candidate
+
+```ruby
+processPizzaOrder(
+  ofType Text default "Margherita",
+  atTable: tableNumber Int,
+  withAnanas Bool default false,
+  ) {
+}
+
+processPizzaOrder(ofType: "Diavola", atTable: 69, withAnanas: false)
 ```
 
 ### Overloading @candidate
