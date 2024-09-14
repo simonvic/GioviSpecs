@@ -128,7 +128,21 @@ about its "hamburger notation":<br>
 the hamburger (=) contains the lettuce (\~) `hamburger =~ lettuce`<br>
 the lettuce (\~) is contained in the hamburger (=) `lettuce ~= hamburger`
 
-### Range containment @candidate
+@candidate A textual alternative is available for the "contained" operator (`~=`)
+
+```ruby
+if "someValue" in someList do "it's contained" -> \out
+# if "someValue" is in someList do "it's contained" -> \out
+```
+
+@candidate The containment operator can be negated with the `not` operator
+
+```ruby
+if "someValue" not in someList do "Not contained" -> \out
+# if "someValue" is not in someList do "Not contained" -> \out
+```
+
+### @candidate Range containment
 
 ```ruby
 69 ~= 0..420
@@ -743,7 +757,21 @@ List entries can be optionally separated by a comma (trailing comma is allowed)
 [1, 2, 3, 4,]
 ```
 
-##### List type inference @candidate
+Default value can be used
+
+```ruby
+default -> someList # set someList to its default value
+default ->+ someList # add default entry to someList
+```
+
+@candidate Default entry value can be overridden
+
+```ruby
+funnyNumbers [Int default 69]
+default ->+ funnyNumbers
+```
+
+##### @candidate List type inference
 
 ```ruby
 # List type can be omitted when declaring and initializing
@@ -807,6 +835,24 @@ letters@{letters@% - 1..0}  # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka 
 
 letters@%  # 10 (elements count)
 letters@@  # 0..9 (range) useful when you need to iterate a list with indexes
+```
+
+@candidate Out-of-bound access will not throw an error, but rather return a
+default entry value.
+
+```ruby
+numbers [Int] <- [1 2 3]
+numbers@69 -> \out
+# will print 0 (Int default)
+```
+
+Note that it does not mean a value is automatically added.
+
+```ruby
+numbers [Int] <- [1 2 3]
+numbers@69 -> \out
+numbers@% -> \out
+# will print 3 (entries count)
 ```
 
 ##### Multidimensional list (matrix)
@@ -967,6 +1013,13 @@ Default values can be used
 default -> carCount@{"Fiat"}
 ```
 
+@candidate Default entry value can be overridden (but not keys)
+
+```ruby
+carCount [Text : Int default 69]
+default -> carCount@"Ferrari"
+```
+
 #### Map Access
 
 | key           | output                     |
@@ -988,6 +1041,24 @@ carCount@"Audi"  # 7
 carCount@%       # 4
 carCount@@       # ["Mercedes" "Audi" "BMW" "Ferrari"]
 carCount@*       # [10 7 15 20]
+```
+
+@candidate A map maps all possible values of its domain, so accessing a
+"non-existing" key will not throw an error, but rather return a default value.
+
+```ruby
+carCount [Text : Int]
+carCount@"UnkownModel" -> \out
+# will print 0
+```
+
+This does not mean the entry is automatically added; using the containment
+operator will still return false
+
+```ruby
+carCount [Text : Int]
+carCount@"UnkownModel" -> \out
+carCount =~ "UnkownModel" -> \out # false
 ```
 
 Examples
@@ -1582,7 +1653,15 @@ if someVariable {
 }
 ```
 
-### Check type and cast @candidate
+@cadidate The operator can be negated with the `not` keyword
+
+```ruby
+if someVariable is not Int do {
+	"It's not an integer" -> \out
+}
+```
+
+### @candidate Check type and cast
 
 When checking variable type, it's often needed to cast it
 
@@ -1607,6 +1686,8 @@ if color {
 	is c RGBA do "${c.r} ${c.g} ${c.b} ${c.a}" -> \out
 }
 ```
+
+@candidate Note that it's not possible when the `is` operator is negated
 
 The lifetime of the variable is limited to the true branch scope
 
@@ -2985,7 +3066,29 @@ alias aVeryLonglyNamedVariable as i
 i -> \out
 ```
 
-## Generics @candidate
+### @candidate Strict aliasing
+
+loose (default)
+
+```ruby
+alias Int as SomeFlag
+someFunction(f someFlag) {}
+someFunction(0b1)
+0b1 -> i Int
+someFunction(i) # OK
+```
+
+strict
+
+```ruby
+strict alias Int as SomeFlag
+someFunction(f someFlag) {}
+someFunction(0b1)
+0b1 -> i Int
+someFunction(i) # ERROR or WARN
+```
+
+## @candidate Generics
 
 ```ruby
 Person {T} <
@@ -3072,25 +3175,6 @@ x Int <- if something {
 	= "awf" do ~> 69
 	= "awawfwf" do ~> 420
 } else do ~> 69420
-```
-
-## Error handling @candidate
-
-```ruby
-Result{T, E} <
-	value T
-	error E
->
-
-Result{T, Void} : Ok{T} < >
-Result{Void, E} : Err{E} < >
-
-parseDate(text Text) => Result{Date, ParsingError} {
-	if text = "" do => Err{ParsingError}.<"Input is empty">
-	# blah blah blah
-	parsedDate Date
-	=> Ok{Date}.<parsedDate>
-}
 ```
 
 ## @candidate Tuple type
@@ -3226,15 +3310,6 @@ Color <red Int, green Int, blue Int>
 }
 ```
 
-## Operator and Type negation @candidate
-
-```ruby
-if 69 not = 420 do {}
-if 69 not =~ [1 2 3] do {}
-if 69 not is Real do {}
-if 69 is not Real do {}
-```
-
 ## @candidate Union type
 
 ```ruby
@@ -3247,6 +3322,114 @@ someFun(x Int|Text) => Int|Text {
 
 if x {
 	is not y Int|Text do => "$y is neither Int nor Text" -> \out
+}
+```
+
+## @candidate Error handling
+
+### @candidate Exceptions
+
+Exceptions are used to handle unexpected bad code paths. All code related to
+exception handling should be "foreign code", extraneous to the business logic.
+
+```
+try <statement or block>
+
+try <statement or block> if catch <identifier> <Type> do {}
+
+try <statement or block>
+if catch <identifier> <Type> do {}
+else if catch <identifier> <Type> do {}
+else {}
+
+try <statement or block> if catch <identifier> {
+	is <Type> do {}
+	is <Type> do {}
+} else {}
+```
+
+```
+~> Exception
+throw Exception
+```
+
+```ruby
+writeToFile(message Text, filepath Text) ~> LogException {
+	if message =~ F_WORD do throw <message: "No swearing!">
+	try open(filepath) -> file File if catch ex {
+		is NoFile do throw <message: "File doesn't exists">
+		is FileLocked do throw <message: "Can't open file", cause: ex>
+		# if SomeOtherIOException do throw <cause: ex>
+	}
+	std.fs.echo(message, file)
+}
+
+try writeToFile("hello world", "somefile.log")
+if catch ex LogException do {
+	ex.message -> \out
+	ex.cause.message -> \out
+}
+```
+
+The catch expression can be non-exhaustive. The uncaught exceptions will be
+wrapped as a cause and re-thrown
+
+### @candidate Errors
+
+Errors are instead used for expected good/bad code paths, and they are part of
+the business logic
+
+_APIs design still to be defined_
+
+```ruby
+Optional{T} <value T, found Bool>
+fetch() => Optional{Int} { => Optional.<69, true> }
+if fetch() = <value: _, found: true> do "A value $value has been found" -> \out
+```
+
+à la Rust
+
+```ruby
+Result{T, E} <
+	Ok <value T>
+	Err <error E>
+>
+parseDate(text Text) => Result{Date, ParsingError} {
+	if text = "" do => Err{ParsingError}.<"Input is empty">
+	parsedDate Date # blah blah blah
+	=> Ok{Date}.<parsedDate>
+}
+if parseDate("69/69/69") {
+	= <value:_> do value -> \out
+	= <error:_> do error -> \error
+}
+```
+
+à la Go
+
+```ruby
+parseDate(text Text) => <value Date, err ParsingError> {
+	if text = "" do => <err: <"Can't parse empty string">>
+	parsedDate Date # blah blah blah
+	=> <value: parsedDate>
+}
+parseDate("69/69/69") -> <value, err>
+if err != default {
+	err -> \error
+}
+```
+
+union types
+
+```ruby
+parseDate(text Text) => Date|ParsingError {
+	if text = "" do => ParsingError.<"Can't parse empty string">
+	parsedDate Date # blah blah blah
+	=> parsedDate
+}
+if parseDate("69/69/69") {
+	is err ParsingError do err -> \error
+	is date Date do date -> \out
 }
 ```
 
@@ -3373,7 +3556,13 @@ $in -> input Text
 input -> $err
 ```
 
-## Function arguments as a tuple @candidate
+```ruby
+"hello world" -> std.out
+std.in -> input Text
+input -> std.err
+```
+
+## @candidate Function arguments as a tuple
 
 Like in math, invoking a function with multiple arguments it's like saying it
 has a domain of a cartesian product (a tuple).
@@ -3389,6 +3578,48 @@ f(i Int, n Natural) => Real {}
 f(i Int, tuple <n Natural, m Natural>) => Real {}
 f(i Int, tuple (n Natural, m Natural)) => Real {}
 f(i Int, tuple Tuple) => Real {}
+```
+
+## @candidate Build/Packaging (and eventually compile) tool
+
+à la bld, everything done in Giovi
+
+## @candidate Function documentation alternatives
+
+default
+
+```ruby
+#? Sum two numbers
+#? @param x Int
+#? @param y Int
+#? @return sum of x and y
+sum(x Int, y Int) => Int {
+	=> x + y
+}
+```
+
+inside body
+
+```ruby
+sum(x Int, y Int) => Int {
+	#? Sum two numbers
+	#? @param x Int
+	#? @param y Int
+	#? @return sum of x and y
+	=> x + y
+}
+```
+
+inline
+
+```ruby
+sum(#? Sum two integer numbers
+	x Int, #? Some random value
+	y Int, #? Some other random value
+) => Int #? Returns the sum of x and y
+{
+	=> x + y
+}
 ```
 
 <!-- 
