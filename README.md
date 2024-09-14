@@ -119,7 +119,7 @@ Keep it in mind when using non-commutative operators.
 | Operation     | Symbol | Example                    |
 | ------------- | ------ | -------------------------- |
 | Contains      | =~     | "Hello world" =~ "lo worl" |
-| Is contained  | ~=     | "lo worl" ~= "Hello world" |
+| Contained     | ~=     | "lo worl" ~= "Hello world" |
 
 The containment operator is used to check if a value is contained in another.
 
@@ -633,7 +633,7 @@ character at the specified codepoint.
 # hello world
 ```
 
-#### Text types @candidate
+#### @candidate Text types
 
 ```ruby
 Raw."hello how are you?"
@@ -662,7 +662,7 @@ Xml."{
 fetchData(query Text.Sql) => Text.Json {}
 ```
 
-##### Custom text type processors @candidate
+##### @candidate Custom text type processors
 
 ```ruby
 Text : Yaml (
@@ -865,7 +865,7 @@ rubikCube [[[Text]]] <- [
 rubikCube@2@1@1   # will refer to the central tile of green face
 ```
 
-#### Multidimensional lists access @candidate
+#### @candidate Multidimensional lists access
 
 ```ruby
 cube [[[Int]]]
@@ -873,7 +873,7 @@ cube@1@2@3 -> \out
 cube@{1, 2, 3} -> \out
 ```
 
-### Set @candidate
+### @candidate Set
 
 A set is an unordered collection in which duplicates element are not allowed
 
@@ -949,13 +949,6 @@ should be used instead of
 26 -> carCount@"Ferrari"
 -->
 
-Default values can be used
-
-```ruby
-[ "Fiat" : default ] ->+ carCount
-default -> carCount@{"Fiat"}
-```
-
 Map entries can optionally be separated by a comma (trailing comma is allowed)
 
 ```ruby
@@ -965,6 +958,13 @@ Map entries can optionally be separated by a comma (trailing comma is allowed)
 	"BMW" : 15,
 	"Ferrari" : 20,
 ]
+```
+
+Default values can be used
+
+```ruby
+[ "Fiat" : default ] ->+ carCount
+default -> carCount@{"Fiat"}
 ```
 
 #### Map Access
@@ -1229,7 +1229,7 @@ color.red -> \out
 color.blue <- 255  # setting blue channel to 255
 ```
 
-##### Nested struct @candidate
+##### @candidate Nested struct
 
 You can define struct within struct.
 
@@ -1276,7 +1276,7 @@ Person <
 >
 ```
 
-##### Recursive struct @candidate
+##### @candidate Recursive struct
 
 You can define recursive struct (struct defined with itself)
 
@@ -1296,7 +1296,7 @@ root Node
 root.nextNode.nextNode -> \out
 ```
 
-##### Struct functions @candidate
+##### @candidate Struct functions
 
 ```ruby
 Vehicle <
@@ -1320,7 +1320,7 @@ car.accelerate(10)
 "${car.speedToMilesPerHour()} MPH" -> \out
 ```
 
-###### Static struct functions @candidate
+###### @candidate Static struct functions
 
 ```ruby
 Car <
@@ -1342,7 +1342,7 @@ c.accelerate()
 Car.accelerate(c)
 ```
 
-###### Self return @candidate
+###### @candidate Self return
 
 A struct function can also return the struct itself, without having to
 explicitly return.<br>
@@ -1379,7 +1379,7 @@ c.rgb(5, 20, 512)
 	.brighten()
 ```
 
-#### Constant fields @candidate
+#### @candidate Constant fields
 
 ```ruby
 Person <
@@ -1420,7 +1420,7 @@ Bike : MotorBike <
 >
 ```
 
-##### Nested structs definition inheritance @candidate
+##### @candidate Nested structs definition inheritance
 
 Nested definition are "static" and are not inherited.
 
@@ -1475,7 +1475,7 @@ Vehicle : Car <
 >
 ```
 
-### Enums @candidate
+### @candidate Enums
 
 They can be simple enums...
 
@@ -1647,7 +1647,7 @@ constant RED Color <255 0 0>
 constant NAME_LIST [Text] ["Simone" "Alessio" "Giada" "Francesca"]
 ```
 
-### Type inference @candidate
+### @candidate Type inference
 
 ```ruby
 constant LIGHT_SPEED 299792458n
@@ -1790,7 +1790,7 @@ default -> somebody.favoriteCar.paint
 # somebody.favoriteCar is now <"Ferrari" <40 40 40 >>
 ```
 
-A default value of a specific attribute can be accessed with the struct name @candidate
+@candidate A default value of a specific attribute can be accessed via the struct type
 
 ```ruby
 Person.name -> defaultPersonName Text # "No name"
@@ -2380,7 +2380,7 @@ processPizzaOrder(type:_, tableNumber: 69)
 processPizzaOrder(tableNumber: 69)
 ```
 
-## Function arguments labels @candidate
+## @candidate Function arguments labels
 
 ```ruby
 processPizzaOrder(
@@ -2393,7 +2393,7 @@ processPizzaOrder(
 processPizzaOrder(ofType: "Diavola", atTable: 69, withAnanas: false)
 ```
 
-### Overloading @candidate
+### @candidate Overloading
 
 Function overloading is possible, as long as all required parameters are
 different (different name and different type)
@@ -2407,7 +2407,7 @@ makePizza(ingredients [Text]) { }
 makePizza(type Text, withAnanas Bool default false) { }
 ```
 
-### Statement functions @candidate
+### @candidate Statement functions
 
 Functions can have a single statement instead of a body; in case the function
 returns a value, its return type can be omitted as it will be inferred
@@ -2500,7 +2500,7 @@ someFunctionRef ::(Text) default ::(txt Text) {
 }
 ```
 
-#### Signature inference @candidate
+#### @candidate Signature inference
 
 A function reference with many parameters, a return type and a default
 implementation could be very verbose and cluttered
@@ -2542,7 +2542,7 @@ someFunctionRef() -> \out # will print Color.<255 0 0>
 ```
 
 
-### Pipe operator @candidate
+### @candidate Pipe operator
 
 ```ruby
 reverse(t Text) => Text {}
@@ -2861,9 +2861,9 @@ repeat {
 }
 ```
 
-# Other @candidate 
+# @candidate Other
 
-## Module system @candidate
+## @candidate Module system
 
 ```ruby
 import some.fully.qualified.module
@@ -2880,7 +2880,7 @@ module MyModule {
 }
 ```
 
-## Launch entry point (args) @candidate
+## @candidate Launch entry point (args)
 
 ```shell
 giovi myFile.giovi -s --long --long_attr=69 -abc
@@ -2900,7 +2900,7 @@ main(args Args) => Int {
 }
 ```
 
-## Files @candidate
+## @candidate Files
 
 ```ruby
 # /<path>
@@ -2922,7 +2922,7 @@ main(args Args) => Int {
 for line in f.lines() do line -> \out
 ```
 
-## Regex @candidate
+## @candidate Regex
 
 ```ruby
 # /<pattern>/
@@ -2947,7 +2947,7 @@ Regex.replace("my text 69 lol", "^my (.*)", "something $1")
 Regex.replace("my text 69 lol", "/^my (.*)/something $1/g")
 ```
 
-## Parallel programming @candidate
+## @candidate Parallel programming
 
 ```ruby
 fork(::fetchData) -> result Text.Json
@@ -2967,7 +2967,7 @@ fork ::{
 join
 ```
 
-## Aliasing @candidate
+## @candidate Aliasing
 
 Alias a type, function or struct
 
@@ -2976,12 +2976,13 @@ AVeryVerboseAndLongStructName <i Int>
 alias AVeryVerboseAndLongStructName as SomeStruct
 SomeStruct.() -> \out
 
-aVeryLonglyNamedFunction() => Text {
-	=> "hello world"
-}
-
+aVeryLonglyNamedFunction() => Text { => "hello world" }
 alias aVeryLonglyNamedFunction as f
 f() -> \out
+
+aVeryLonglyNamedVariable Int
+alias aVeryLonglyNamedVariable as i
+i -> \out
 ```
 
 ## Generics @candidate
@@ -3036,7 +3037,7 @@ doSomething(optional Optional{_}) {
 }
 ```
 
-### Generics inheritance @candidate
+### @candidate Generics inheritance
 
 ```ruby
 Box{T} <color Text, something T>
@@ -3049,7 +3050,7 @@ garage CarBox <- <"grey" Car.<"Ferrari">>
 chest MagicChest{Gift} <- <"blue" Gift.<"socks">>
 ```
 
-## If expression (ternary operator like) @candidate
+## @candidate If expression (ternary operator like)
 
 Has to be exhaustive
 
@@ -3084,7 +3085,7 @@ Result{T, E} <
 Result{T, Void} : Ok{T} < >
 Result{Void, E} : Err{E} < >
 
-parseDate(text Text) => Result{Date, ParsingErro} {
+parseDate(text Text) => Result{Date, ParsingError} {
 	if text = "" do => Err{ParsingError}.<"Input is empty">
 	# blah blah blah
 	parsedDate Date
@@ -3092,7 +3093,7 @@ parseDate(text Text) => Result{Date, ParsingErro} {
 }
 ```
 
-## Tuple type @candidate
+## @candidate Tuple type
 
 ```ruby
 t Tuple <- <true "Hello world" 6.9 420>
@@ -3111,14 +3112,14 @@ function(69, t)
 function(69, <"hello world" 69>)
 ```
 
-## Tuple fields override @candidate
+## @candidate Tuple fields override
 
 ```ruby
 Tuple -> struct # assign all fields, default for non specified
 Tuple ->+ struct # assign only to specified fields
 ```
 
-## Formatter directives @candidate
+## @candidate Formatter directives
 
 Special comment `#!` will be parsed by the formatter; uses the same syntax of
 the language.
@@ -3143,7 +3144,7 @@ someFunction(x Int,y Int)=>Int{=>x+y}
 #!minimize:false
 ```
 
-## 1-based array indexing @candidate
+## @candidate 1-based array indexing
 
 ### Accessing via index (1-based) vs accessing via offset (0-based)
 
@@ -3172,11 +3173,11 @@ list.{list@%} # syntax
 for i in 0..7 do list.i
 ```
 
-## Struct querying @candidate
+## @candidate Struct querying
 
 Something like xpath or jq? Or maybe language syntax itself?
 
-## Struct destructuring @candidate
+## @candidate Struct destructuring
 
 ```ruby
 getColor() => Color { }
@@ -3184,7 +3185,7 @@ getColor() -> red, gren, blue
 getColor() -> <red gren blue>
 ```
 
-## Emoji handling in Text @candidate
+## @candidate Emoji handling in Text
 
 ```ruby
 "💩" -> \out
@@ -3194,7 +3195,7 @@ getColor() -> <red gren blue>
 "💩".1 -> \out # should be single char
 ```
 
-## Forward declaration @candidate
+## @candidate Forward declaration
 
 Structs and functions in a scope will be visited first, so we can use them
 before defining them
@@ -3214,7 +3215,7 @@ print(c Color) {
 Color <red Int, green Int, blue Int>
 ```
 
-## Special characters in identifiers @candidate
+## @candidate Special characters in identifiers
 
 ```ruby
 `some identifier` Int
@@ -3234,8 +3235,7 @@ if 69 not is Real do {}
 if 69 is not Real do {}
 ```
 
-
-## Union type @candidate
+## @candidate Union type
 
 ```ruby
 x Int|Text
@@ -3250,7 +3250,7 @@ if x {
 }
 ```
 
-## Deferring @candidate
+## @candidate Deferring
 
 ```ruby
 someFunc() => Int {
@@ -3262,7 +3262,7 @@ someFunc() => Int {
 }
 ```
 
-## Interfaces and implicit implementation @candidate
+## @candidate Interfaces and implicit implementation
 
 ```ruby
 interface Vec <
@@ -3293,7 +3293,7 @@ v Vec <- Vec2.<69 420>
 v.magnitude() -> \out
 ```
 
-## Unified loop keyword @candidate
+## @candidate Unified loop keyword
 
 ```ruby
 loop {
@@ -3308,7 +3308,7 @@ loop <r g b> in colors do "hello world <$r $g $b>" -> \out
 loop color<r g b> in colors do "hello world <$r $g $b>" -> \out
 ```
 
-## Casting custom implementatin @candidate
+## @candidate Casting custom implementatin
 
 ```ruby
 SomeStruct <
@@ -3325,7 +3325,7 @@ MyStruct <
 >
 ```
 
-## Operators override @candidate
+## @candidate Operators override
 
 ```ruby
 Vector <
@@ -3365,7 +3365,7 @@ Vector <
 v1 + (v2 * 2) -> \out
 ```
 
-## Standard content/destination syntax @candidate
+## @candidate Standard content/destination syntax
 
 ```ruby
 "hello world" -> $out
