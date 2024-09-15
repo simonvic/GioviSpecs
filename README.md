@@ -74,19 +74,26 @@ sum(x Int, y Int) => Int {
 
 ## Logical operators
 
-| Operation | Symbol | Example         |
-| --------- | ------ | --------------- |
-| And       | &      | 10 > 2 & 10 > 5 |
-| Or        | \|     | 10 > 2 \| 5 > 2 |
-| Not       | !      | !{2 > 10}       |
-
-### Logical operators alternatives
-
 | Operation | Symbol | Example           |
 | --------- | ------ | ----------------- |
-| And       | and    | 10 > 2 and 10 > 5 |
-| Or        | or     | 10 > 2 or 5 > 2   |
-| Not       | not    | not {2 > 10}      |
+| And       | &      | 10 > 2 & 10 > 5   |
+|           | and    | 10 > 2 and 10 > 5 |
+| Or        | \|     | 10 > 2 \| 5 > 2   |
+|           | or     | 10 > 2 or 5 > 2   |
+| Not       | !      | !{2 > 10}         |
+|           | not    | not {2 > 10}      |
+
+## @candidate Bitwise operators
+
+| Operation            | Symbol  | Example             |
+| -------------------- | ------- | ------------------- |
+| Not                  | !!      | !!0b001             |
+| And                  | &&      | 0b001 && 0b001      |
+| Or                   | \|\|    | 0b001 \|\| 0b010    |
+| Xor                  | \|\|\|  | 0b001 \|\|\| 0b010  |
+| Left shift           | <<      | 1 << 5              |
+| Signed right shift   | >>      | 1 >> 5              |
+| Unsigned right shift | >>>     | 32 >>> 5            |
 
 ## Redirection (assignment)
 
@@ -120,6 +127,7 @@ Keep it in mind when using non-commutative operators.
 | ------------- | ------ | -------------------------- |
 | Contains      | =~     | "Hello world" =~ "lo worl" |
 | Contained     | ~=     | "lo worl" ~= "Hello world" |
+|               | in     | "lo worl" in "Hello world" |
 
 The containment operator is used to check if a value is contained in another.
 
@@ -128,18 +136,11 @@ about its "hamburger notation":<br>
 the hamburger (=) contains the lettuce (\~) `hamburger =~ lettuce`<br>
 the lettuce (\~) is contained in the hamburger (=) `lettuce ~= hamburger`
 
-@candidate A textual alternative is available for the "contained" operator (`~=`)
-
-```ruby
-if "someValue" in someList do "it's contained" -> \out
-# if "someValue" is in someList do "it's contained" -> \out
-```
-
-@candidate The containment operator can be negated with the `not` operator
+The containment operators (`in`, `=~`, `~=`) can be negated with the `not`
+operator
 
 ```ruby
 if "someValue" not in someList do "Not contained" -> \out
-# if "someValue" is not in someList do "Not contained" -> \out
 ```
 
 ### @candidate Range containment
@@ -302,6 +303,7 @@ The general rules for naming variables are:
     - else
     - when
     - for
+    - not
     - in
     - repeat
     - break
@@ -1653,7 +1655,7 @@ if someVariable {
 }
 ```
 
-@cadidate The operator can be negated with the `not` keyword
+The operator can be negated with the `not` keyword
 
 ```ruby
 if someVariable is not Int do {
@@ -3437,7 +3439,7 @@ if parseDate("69/69/69") {
 
 ```ruby
 someFunc() => Int {
-	someFile os.File.<"some/path/to/file">
+	someFile File.<"some/path/to/file">
 	defer someFile.close()
 	# ...
 	=> 69
@@ -3565,8 +3567,8 @@ input -> std.err
 ## @candidate Function arguments as a tuple
 
 Like in math, invoking a function with multiple arguments it's like saying it
-has a domain of a cartesian product (a tuple).
-This would allow to use the same symbols for functions and tuples
+has a domain of a Cartesian product (a tuple).
+This would allow using the same symbols for functions and tuples
 
 ```ruby
 # f : (IxN) --> R
@@ -3582,7 +3584,56 @@ f(i Int, tuple Tuple) => Real {}
 
 ## @candidate Build/Packaging (and eventually compile) tool
 
-à la bld, everything done in Giovi
+```ruby
+import [
+	giovi.build
+	giovi.build.licenses
+	giovi.build.versioning
+	giovi.build.packaging.formats
+]
+
+build() => Build {
+	=> <
+		group: "it.simonvic"
+		name: "MyApplication"
+		version: <0,1,0>
+		description: "{
+			A sample application that does nothing.
+			Pretty interesting, right?
+			}"
+		url: "simonvic.it"
+		author: "simonvic"
+		license: MIT
+		main: "main.giovi"
+		dependencies: [
+			"test" : [
+				<id: "org.gunit.gupiter" version: <1,69,0>>
+			]
+			"compile" : [
+				<id: "it.simonvic.MyLibrary" version: <4,2,0>>
+				<id: "org.some.useful.Library" version: <"2024.exp">>
+			]
+		]
+		onBuild: ::{
+			"I'm building MyApplication!" -> \out
+		}
+	>
+}
+
+package() => Package {
+	=> <
+		format: JAR
+		include: ["*.*"]
+		exclude: [".git" ".gitignore"]
+		onPackage: ::(package File) {
+			"Package complete" -> \out
+			"Publishing the package" -> \out
+			publish(package, "https://some.website.com")
+			"Done" -> \out
+		}
+	>
+}
+```
 
 ## @candidate Function documentation alternatives
 

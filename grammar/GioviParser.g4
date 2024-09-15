@@ -137,7 +137,6 @@ switchBlock: '{' switchLabel+ '}';
 
 switchLabel: caseMatch DO body=statementOrBlock;
 
-// TODO: add 'NOT caseMatch' (in case we need to do 'NOT contains/contained')
 caseMatch
     : '{' caseMatch '}'                                     # caseMatchParenthesized
     | caseMatch bop=(AND | AND_SYM | OR | OR_SYM) caseMatch # caseMatchCascade
@@ -145,8 +144,8 @@ caseMatch
     | op=('<=' | '>=' | '>' | '<') expression               # caseMatchRelational
     | op=(AND | AND_SYM | OR | OR_SYM) expression           # caseMatchBoolean
     | op=('=' | '!=') expression                            # caseMatchEquality
-    | op=('~=' | '=~') expression                           # caseMatchContainment
-    | op=IS identifier? type                                # caseMatchTypeCheck
+    | NOT? op=(IN | '~=' | '=~') expression                 # caseMatchContainment
+    | op=IS (NOT | identifier)? type                        # caseMatchTypeCheck
     ;
 
 //////////////////////////////////////////////////////////////////////////////// EXPRESSIONS
@@ -156,7 +155,7 @@ caseMatch
 expression
     : '{' expression '}'                                      # expressionParenthesized
     | expression AS type                                      # expressionCast
-    | expression IS identifier? type                          # expressionTypeCheck
+    | expression IS (NOT | identifier)? type                  # expressionTypeCheck
     | expression '.' 
         ( anyIdentifier
         | functionCall
@@ -175,7 +174,7 @@ expression
     | expression bop=('+' | '-') expression                   # expressionAdditive
     | expression bop=('<=' | '>=' | '>' | '<') expression     # expressionRelational
     | expression bop=('=' | '!=') expression                  # expressionEquality
-    | expression bop=('~=' | '=~') expression                 # expressionContainment
+    | expression NOT? bop=(IN | '~=' | '=~') expression       # expressionContainment
     | expression bop=(AND | AND_SYM | OR | OR_SYM) expression # expressionBool
     | primary                                                 # expressionPrimary
     ;
@@ -194,8 +193,6 @@ typeComposite: typeList | typeMap;
 
 //////////////////////////////////////////////////////////////////////////////// COMPOSITE TYPES
 
-// TODO: shouldn't this be an expression?
-access: anyIdentifier '@' accessKey;
 accessKey
     : '{' (accessKey | expression) '}' # accessKeyParenthesized
     | key=('%' | '@' | '*')            # accessKeySpecial
