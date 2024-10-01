@@ -28,7 +28,7 @@ statement
     | varDeclaration
     | functionDeclaration
     | returnStatement
-    | expression // TODO: why?
+    | functionCall
     ;
 
 statementOrBlock: statement | block;
@@ -118,10 +118,7 @@ formalParameters: formalParameter (',' formalParameter)* ','?;
 
 formalParameter: identifier type defaultDefinition?;
 
-// TODO: what about someArrayOfFunctions@69()
-// yep, someStruct.someField() is also fucked
-// what about another simple operator "invoke"?
-functionCall: identifier '(' functionCallParameters? ')';
+functionCall: expression '(' functionCallParameters? ')';
 
 functionCallParameters: functionCallParameter (',' functionCallParameter)* ','?;
 
@@ -156,16 +153,12 @@ expression
     : '{' expression '}'                                      # expressionParenthesized
     | expression AS type                                      # expressionCast
     | expression IS (NOT | identifier)? type                  # expressionTypeCheck
-    | expression '.' 
-        ( anyIdentifier
-        | functionCall
-        | 'default'
-        )                                                     # expressionDot
+    | expression '.' (anyIdentifier | 'default')              # expressionDot
     | listCreation                                            # expressionListCreation
     | mapCreation                                             # expressionMapCreation
     | structCreation                                          # expressionStructCreation
-    | functionCall                                            # expressionFunctionCall
     | '::' referenceable                                      # expressionRef
+    | expression '(' functionCallParameters? ')'              # expressionFunctionCall
     | prefix=('+' | '-') expression                           # expressionPrefixed
     | prefix=(NOT | NOT_SYM) expression                       # expressionNot
     | expression bop='@' accessKey                            # expressionAccess

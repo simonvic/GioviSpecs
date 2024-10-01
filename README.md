@@ -133,8 +133,8 @@ The containment operator is used to check if a value is contained in another.
 
 To avoid confusion about the direction of the containment operator, remember
 about its "hamburger notation":<br>
-the hamburger (=) contains the lettuce (\~) `hamburger =~ lettuce`<br>
-the lettuce (\~) is contained in the hamburger (=) `lettuce ~= hamburger`
+the hamburger `=` contains the lettuce `~` `hamburger =~ lettuce`<br>
+the lettuce `~` is contained in the hamburger `=` `lettuce ~= hamburger`
 
 The containment operators (`in`, `=~`, `~=`) can be negated with the `not`
 operator
@@ -151,6 +151,8 @@ if "someValue" not in someList do "Not contained" -> \out
 6.9 ~= 6.0 .. 8.0
 
 "b" ~= "a".."d"
+
+3 ~= 0..10..2 # false
 ```
 
 ## Access operator
@@ -2945,6 +2947,17 @@ repeat {
 ```
 
 # @candidate Other
+
+## @candidate Infinity and NaN
+
+```ruby
+inf -> \out
+-inf -> \out
+∞ -> \out
+-∞ -> \out
+
+nan -> \out
+```
 
 ## @candidate Module system
 
