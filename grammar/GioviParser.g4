@@ -40,6 +40,7 @@ iterable: range | expression;
 forStatement: FOR iterator IN iterable DO statementOrBlock;
 
 iterator
+	// TODO: check if it's possible to use prec.right so we can parse k : v : w
 	: key=iterator ':' value=iterator                 # iteratorMap
 	| '[' key=iterator ':' value=iterator ']'         # iteratorMap
 	| whole=unaryIterator? '<' (iterator ','?)+ '>'   # iteratorAggregate
@@ -54,6 +55,9 @@ returnStatement: (RETURN | RETURN_SYM) expression?;
 breakStatement: BREAK;
 
 skipStatement: CONTINUE;
+
+// TODO: remove redirection to identifier/constantIdentifier (already present in primary expression)
+// actually no, probably is needed to avoid ambiguity with expression
 
 redirection
     : redirectionContent bop=REDIRECTION varDeclaration               # redirectionToVarDeclaration
@@ -132,12 +136,11 @@ switchStatement: IF expression switchBlock (ELSE elseBody=statementOrBlock)?;
 
 switchBlock: '{' switchLabel+ '}';
 
-switchLabel: caseMatch DO body=statementOrBlock;
+switchLabel: caseMatch (WHEN guard=expression)? DO body=statementOrBlock;
 
 caseMatch
     : '{' caseMatch '}'                                     # caseMatchParenthesized
     | caseMatch bop=(AND | AND_SYM | OR | OR_SYM) caseMatch # caseMatchCascade
-    | caseMatch bop=WHEN expression                         # caseMatchGuarded
     | op=('<=' | '>=' | '>' | '<') expression               # caseMatchRelational
     | op=(AND | AND_SYM | OR | OR_SYM) expression           # caseMatchBoolean
     | op=('=' | '!=') expression                            # caseMatchEquality
@@ -172,6 +175,7 @@ expression
     | primary                                                 # expressionPrimary
     ;
 
+// TODO: remove anyIdentifier from literal
 primary: literal | anyIdentifier | primitiveContent;
 
 range: start=expression '..' end=expression ('..' step=expression)?;
@@ -207,6 +211,7 @@ mapEntry:    mapKey=expression ':' mapValue=expression;
 
 //////////////////////////////////////////////////////////////////////////////// FUNCTION REFS
 
+// TODO: make parenthesis mandatory if specifying return type
 referenceable
 	: identifier
 	| ('(' formalParameters? ')')? (RETURN_SYM returnType=type)? body=block
