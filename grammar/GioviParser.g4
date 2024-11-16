@@ -14,8 +14,7 @@ block: '{' statement* '}';
 //////////////////////////////////////////////////////////////////////////////// STATEMENTS
 
 statement
-    : statement SEMICOLON
-    | ifStatement
+    : ifStatement
     | switchStatement
     | repeatStatement
     | forStatement
@@ -50,28 +49,28 @@ iterator
 
 unaryIterator: identifier type? ;
 
-returnStatement: (RETURN | RETURN_SYM) expression?;
+returnStatement: (RETURN | RETURN_SYM) expression? ';'?;
 
-breakStatement: BREAK;
+breakStatement: BREAK ';'?;
 
-skipStatement: CONTINUE;
+skipStatement: CONTINUE ';'?;
 
 // TODO: remove redirection to identifier/constantIdentifier (already present in primary expression)
 // actually no, probably is needed to avoid ambiguity with expression
 
 redirection
-    : redirectionContent bop=REDIRECTION varDeclaration               # redirectionToVarDeclaration
-    | redirectionContent bop=redirectionOperator primitiveDestination # redirectionToPrimitiveDestination
-    | redirectionContent bop=redirectionOperator identifier           # redirectionToIdentifier
-    | redirectionContent bop=redirectionOperator constantIdentifier   # redirectionToConstantIdentifier
-    | redirectionContent bop=redirectionOperator expression           # redirectionToExpression
+    : redirectionContent bop=REDIRECTION varDeclaration                    # redirectionToVarDeclaration
+    | redirectionContent bop=redirectionOperator primitiveDestination ';'? # redirectionToPrimitiveDestination
+    | redirectionContent bop=redirectionOperator identifier ';'?           # redirectionToIdentifier
+    | redirectionContent bop=redirectionOperator constantIdentifier ';'?   # redirectionToConstantIdentifier
+    | redirectionContent bop=redirectionOperator expression ';'?           # redirectionToExpression
     ;
 
 redirectionRTL
-    : varDeclaration bop=REDIRECTION_RTL redirectionContent              # redirectionToVarDeclarationRTL
-    | primitiveDestination bop=redirectionOperatorRTL redirectionContent # redirectionToPrimitiveDestinationRTL
-    | identifier bop=redirectionOperatorRTL redirectionContent           # redirectionToIdentifierRTL
-    | expression bop=redirectionOperatorRTL redirectionContent           # redirectionToExpressionRTL
+    : varDeclaration bop=REDIRECTION_RTL redirectionContent                   # redirectionToVarDeclarationRTL
+    | primitiveDestination bop=redirectionOperatorRTL redirectionContent ';'? # redirectionToPrimitiveDestinationRTL
+    | identifier bop=redirectionOperatorRTL redirectionContent ';'?           # redirectionToIdentifierRTL
+    | expression bop=redirectionOperatorRTL redirectionContent ';'?           # redirectionToExpressionRTL
     ;
 
 redirectionContent: primitiveContent | expression;
@@ -92,16 +91,16 @@ redirectionOperatorRTL
     | REDIRECTION_MINUS_RTL
     ;
 
-constantDeclaration: CONSTANT constantIdentifier type REDIRECTION_RTL expression;
+constantDeclaration: CONSTANT constantIdentifier type REDIRECTION_RTL expression ';'?;
 
-varDeclaration: identifier type defaultDefinition?;
+varDeclaration: identifier type defaultDefinition? ';'?;
 
 defaultDefinition: literalDefault expression;
 
 /////////////////////////////////////////////////////////////////////////////// STRUCTS
 
 structDefinition
-    : (parentName=typeIdentifier ':')? structName=typeIdentifier '<' structBodyDefinition '>'
+    : (parentName=typeIdentifier ':')? structName=typeIdentifier '<' structBodyDefinition '>' ';'?
     ;
 
 structBodyDefinition: (structFieldDefinition | structDefinition | functionDeclaration)*;
