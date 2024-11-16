@@ -641,6 +641,12 @@ I have 69 $USD in my wallet
 }'
 ```
 
+@candidate Single quotes doesn't allow escape sequences
+
+```ruby
+'C:\Users\simonvic'
+```
+
 #### Unicode escapes
 
 Text can also contain Unicode escapes, which will be interpolated with the
@@ -991,6 +997,13 @@ carCount +<- [ # Insert/Put key-value pairs
 	]
 
 carCount@{"Ferrari"} <- 26   # Set "Ferrari" value to 26
+```
+
+To avoid ambuigity with the syntax of an empty list, an empty map can be
+defined as follows:
+
+```ruby
+[:] -> carCount
 ```
 
 <!-- TODO: if immutability is considered

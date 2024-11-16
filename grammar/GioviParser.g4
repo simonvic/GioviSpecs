@@ -204,8 +204,8 @@ listEntry:    expression | range;
 // TODO: listEntries ->+ list
 
 typeMap:     '[' mapKeyType=type ':' mapValueType=type ']';
-mapCreation: '[' mapEntries ']';
-mapEntries:  (mapEntry ','?)*;
+mapCreation: '[' (':' | mapEntries) ']';
+mapEntries:  (mapEntry ','?)+;
 mapEntry:    mapKey=expression ':' mapValue=expression;
 // TODO: mapEntries ->+ map
 
