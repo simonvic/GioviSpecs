@@ -87,7 +87,7 @@ EXACT_TEXT_BLOCK_LITERAL: '\'{' (. | EscapeSequence)*? '}\'';
 EXACT_TEXT_LITERAL:       '\'' (~['\\\r\n] | EscapeSequence)* '\'';
 
 fragment EscapeSequence:  CharacterEscape | UnicodeEscape ;
-fragment CharacterEscape: '\\' [btnfrs"'\\$] ;
+fragment CharacterEscape: '\\' [btnfrs"'\\${}] ;
 fragment UnicodeEscape:   '\\' 'u'+ HexDigit HexDigit HexDigit HexDigit ;
 
 INTEGER_LITERAL

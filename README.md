@@ -641,13 +641,29 @@ I have 69 $USD in my wallet
 }'
 ```
 
+#### Escapes
+
+Certain characters can be escaped with `\\` (backslash)
+
+```ruby
+"Backslash: (\\)" -> \out
+"Space: (\s)" -> \out
+"New line: (\n)" -> \out
+"Tab: (\t)" -> \out
+"Formfeed: (\f)" -> \out
+"Backspace: (\b)" -> \out
+"Return: (\r)" -> \out
+"Dollar \$sign" -> \out
+"Braces \{\}" -> \out
+```
+
 @candidate Single quotes doesn't allow escape sequences
 
 ```ruby
 'C:\Users\simonvic'
 ```
 
-#### Unicode escapes
+##### Unicode escapes
 
 Text can also contain Unicode escapes, which will be interpolated with the
 character at the specified codepoint.
@@ -779,25 +795,6 @@ default ->+ someList # add default entry to someList
 ```ruby
 funnyNumbers [Int default 69]
 default ->+ funnyNumbers
-```
-
-##### @candidate List type inference
-
-```ruby
-# List type can be omitted when declaring and initializing
-# It will be inferred from the first element inserted
-listOfInteger [] <- [-1 0 4 5]     # [Int]
-listOfReal [] <- [1.0 0.5 2.5]     # [Real]
-listOfText [] <- ["Luca" "Paolo"]  # [Text]
-listOfBool [] <- [true false true] # [Bool]
-
-# When creating list of Struct, the type must be declared
-listOfColors [Color] <- [ <62 65 10> <0 64 0> <12 50 255> ]
-listOfFullNames [FullName] <- [
-		<"Simone" "Vicinanza">
-		<"Mario" "Rossi">
-		<"Luigi" "Bianchi">
-	]
 ```
 
 #### List Initialization shorthand
@@ -1105,10 +1102,8 @@ for money in bank@{*} do {
 
 ### Struct
 
-<!-- TODO: Tuple and Struct(typed tuple) -->
-
 A Struct is a structured data type that you can define; it can contain
-heterogeneous types (primitive or composite)
+heterogeneous values (primitive or composite)
 
 #### Syntax
 
@@ -1204,12 +1199,11 @@ Color <r Int, g Int, b Int>
 Color.<1, 2, 3> -> c Color
 ```
 
-###### Anonymous structs (tuples)
+#### Tuples
 
-When creating a struct the type can be omitted, hence creating an anonymous
-struct (aka tuple)
+A Tuple is a collection of heterogeneous values.
 
-Tuples can be named (fields are indexed by names) or unnamed (fields are
+They can be named (fields are indexed by names) or positional (fields are
 indexed by a 0-based index)
 
 ```ruby
@@ -1224,10 +1218,17 @@ indexed by a 0-based index)
 <"a" true 420.69>
 ```
 
-Tuples can be assigned to structs, as long as they're compatible.<br>
+Under the hood, Structs are just named Tuples with a typename associated to it;
+they do have some differences though (e.g. casting).
+TODO: explain more on the differences
+
+Tuples can be redirected to structs, as long as they're compatible.<br>
 Named tuples are compatible to all structs of which the fields are a superset
 of the tuple; in this case only the fields in the subset will change in the
-assigned struct
+receiving struct
+
+@candidate to change. It should change all fields; unspecified fields should
+retain the struct default value
 
 ```ruby
 me Person <- <
@@ -1239,8 +1240,8 @@ me Person <- <
 	>
 ```
 
-When assigning with an unnamed tuple, all fields must be specified for the
-tuple to be compatible
+When redirecting a positional tuple, all fields must be specified for the tuple
+to be compatible
 
 ```ruby
 color Color
@@ -1618,28 +1619,52 @@ if enterClub(69) {
 
 ```
 
-# Explicit casting
+# Data widening, narrowing and explicit casting
+
+Often we need to work with different data types toghether and we may need
+to transform data from one type to another (casting).
+
+There are two kinds of casting:
+- widening: casting from a "smaller" type to a "bigger" one (lossless).
+  Some examples:
+    - `Natural` to `Int`
+    - `Int` to `Real`
+    - `[Natural]` to `[Real]`
+    - `[Natural : [Int]]` to `[Int : [Real]]` *A map with `Natural` keys and
+    values of list of `Int` to a map with `Int` keys and values of list of
+    `Real`*
+- narrowing: casting from a "bigger" type to a "smaller" one (lossy).
+  Same examples as above, but inverted. This operation can lead to possible
+data loss
+
+Widening happens automatically when necessary (e.g. redirections)
+
+```ruby
+69 -> r Real # Int widened to Real
+[1 2 3] -> l [Real] # list of Int widened to list of Real
+```
+
+Narrowing, given its lossy nature, can be only achieved with explicit casting.
+For example narrowing a `Real` of value 6.9 to `Int` would yield a value of 6
+
+## Explicit casting
 
 It's possible to explicitly casting a variable to another type (if supported).
 
-## Syntax
+Widening or narrowing will be performed accordingly.
+
+### Syntax
 
 ```
-<variable> as <Type>
+<value> as <Type>
 ```
 
 ```ruby
-69 -> i Int
-i as Real -> \out
-
-"420.69" -> t Text
-t as Real -> \out
-
-p3d Point3D
-p3d as Point -> p Point
-
-Point.<> as Point3D -> p3d
-
+69 as Real -> r Real # widening
+6.9 as Int -> i Int # narrowing
+"420.69" as Real -> r # "narrowing"
+Point.<x:1 y:2> as Point3D -> p3d Point3D # widening
+Point3D.<x:1 y:2 z:3> as Point -> p Point # narrowing
 ```
 
 @candidate alternative syntax
@@ -1649,14 +1674,175 @@ Real.of(69n)
 Point3D.of(Point.<>)
 ```
 
+## Tuples and Structs
+
+Since the widening/narrowing is crucial for type inference, Structs and Tuples
+require some additional attention as they have some differences.
+
+The question to ask yourself in order to understand why they behave the way
+they do is: *what information does a tuple or struct carry?*
+
+- `<1 2 3 "foo">` is a tuple with tree Int and a Text
+
+  ```ruby
+  <1 2 3 "foo"> = <1 2 3 "foo"> -> \out # are equal
+  <1 2 3 "foo"> != <"foo" 1 2 3> -> \out # are NOT equal
+  ```
+
+- `<a:1, b:2, c:3, foo:"foo">` is a tuple with tree Int fields named a, b, c
+respectively and one Text field named foo
+
+  ```ruby
+  <a:1 b:2 b:3 foo:"foo"> = <a:1 b:2 c:3 foo:"foo"> -> \out # are equal
+  <a:1 b:2 b:3 foo:"foo"> = <foo:"foo" b:2 a:1 c:3> -> \out # are also equal
+  
+  <a:1 b:2 b:3> != <x:1 y:2 z:3> -> \out # are NOT equal
+  ```
+
+- `Color.<r:1, g:2, b:3, foo:"foo">` is a struct Color which has a Int field
+for the red, green and blue channels named r, g, b respectively, and one Text
+field named foo *(eventually representing the name of the color)*<br>
+
+  ```ruby
+  Color.<r:1 g:2 b:3 foo:"foo"> = Color.<r:1 g:2 b:3 foo:"foo"> -> \out # equal
+  Color.<1 2 3 "foo"> = Color.<foo:"foo" r:1 g:2 b:3> -> \out # equal
+  
+  Color.<1 2 3 "foo"> = <r:1 g:2 b:3 foo:"foo"> -> \out # equal
+  Color.<1 2 3 "foo"> = <foo:"foo" r:1 g:2 b:3> -> \out # equal
+  Color.<1 2 3 "foo"> != <x:1 y:2 z:3 foo:"foo"> -> \out # NOT equal
+  
+  Color.<1 2 3 "foo"> = <1 2 3 "foo"> -> \out # equal
+  Color.<1 2 3 "foo"> != <"foo" 1 2 3> -> \out # NOT equal
+  ```
+
+- `Color.<r:1, g:2, b:3, foo:"foo">` is a struct Color which has a Int field
+for each red, green and blue channel a field representing the common name of
+the color<br>
+  `Rgb.<r:1, g:2, b:3, foo:"foo">` is a struct Rgb which has a Int field
+for each red, green and blue channel a field representing the common name of
+the color<br>
+  `Point.<x:1, y:2, z:3, foo:"foo">` is a struct Point which has a tree Int
+field for each dimension and a label
+
+  ```ruby
+  Color.<> != Point.<> -> \out # NOT equal
+  Color.<1 2 3 "foo"> != Point.<1 2 3 "foo"> -> \out # NOT equal
+
+  Color.<> != Rgb.<> -> \out # NOT equal
+  Color.<1 2 3 "foo"> != Rgb.<1 2 3 "foo"> -> \out # NOT equal (despite having equal fields)
+
+  Color.<> = Rgb.<> as Color -> \out # equal
+  Color.<> = Point.<> as Color -> \out # equal
+  ```
+
+Let's get back to widening.
+
+### Tuples
+
+If a tuple (positional) is a subset of another tuple/struct, then it can be
+safely widened to it, with "subset" meaning that **it has less or equal amount
+of fields of narrower or equal type in the same order**.<br>
+`<69 true "foo">` can be widened to a tuple or struct `<a Real, b Boolean, c Text, d Int>`<br>
+`<true 69 "foo">` canNOT be widened to a tuple or struct `<a Real, b Boolean, c Text>`
+
+### Named Tuples
+
+If a named tuple is a subset of another named tuple or struct, then it can be
+safely widened to it, with "subset" meaning that **it has less or equal amount of
+equally named fields of narrower or equal type**.<br>
+`<b:true a:69 c:"foo">` can be widened to a named tuple or struct `<a Real, b Boolean, c Text, d Int>`
+
+### Struct
+
+Structs can only be (losslessly) widened to structs of the same type (e.g. a
+`Color` can only be (losslessly) widened to a `Color`)
+
+This is a special and unique case of lossy widening; let's define two structs
+`Color` and `Point` (with poorly named fields for the sake of the example)
+
+```ruby
+Color<a Int, b Int, c Int>
+Point<a Int, b Int, c Int>
+```
+
+Despite having the same fields with the same types, one cannot be widened to
+the other without losing information: what the struct represents (one
+represents a color, the other a position in a 3D coordinate
+system)<br>
+So for example, a list `[Color.<1 1 1>, Point.<1 1 1>]` wouldn't make sense
+
+If you're ok with losing such information, widening between different structs
+can still be achieved via explicit casting
+
+```ruby
+Color<r Int, g Int, b Int>
+Rgb<r Int, g Int, b Int>
+Color.<> as Rgb -> \out
+Rgb.<> as Color -> \out
+```
+
+# Type inference
+
+In certain scenarios the type of a value is not known, so it's necessary to
+infer it. Giovi relies on types widening information to infer the correct type;
+let's create a list as a example.
+
+```ruby
+\out <- [69n 420 6.9]
+```
+
+Giovi will always infer the widest type. In this example we have a list of a
+`Natural`, a `Int` and a `Real`, so the list entry type will be `Real` since
+it's the widest among the entries.<br>
+All other entries will be widened accordingly to ensure type safety.
+So the list will finally be equal to `[69.0 420.0 6.9]`
+
+The same applies to other complex scenarios.
+
+```ruby
+Person <name Text, age Natural>
+Account <money Real, isLocked Bool>
+
+# Each person can have multiple accounts
+bankAccounts [Person : [Account]] <- [
+	Person.<"Simon" 24n> : [Account.<6.9 false> Account.<420000 true>]
+	<name:"Jake" age:19n> : [<money:20.5>]
+	<"Joe" 69n> : [<100_000, false>]
+]
+```
+
+## @candidate Constants type inference
+
+```ruby
+constant LIGHT_SPEED 299792458n
+constant EARTH_GRAVITY 9.81
+constant BEST_LANGUAGE "Giovi"
+constant RED Color.<255 0 0>
+constant NAME_LIST ["Simone" "Alessio" "Giada" "Francesca"]
+```
+
+## @candidate List type inference
+
+```ruby
+listOfInteger [] <- [-1 0 4 5]     # [Int]
+listOfReal [] <- [1n 2 3.14]       # [Real]
+listOfText [] <- ["Luca" "Paolo"]  # [Text]
+listOfBool [] <- [true false true] # [Bool]
+listOfStruct [] <- [ # [Color]
+	<2 2 2>
+	Color.<1 1 1>
+	<r:3 g:3 b:3>
+]
+```
+
 # Type checking
 
-It's possible to check the type of a variable
+It's possible to check the type of a value
 
 ## Syntax
 
 ```
-<variable> is <Type>
+<value> is <Type>
 ```
 
 ```ruby
@@ -1674,6 +1860,14 @@ The operator can be negated with the `not` keyword
 
 ```ruby
 if someVariable is not Int do {
+	"It's not an integer" -> \out
+}
+```
+
+which is the same but should be preferred to this
+
+```ruby
+if not {someVariable is Int} do {
 	"It's not an integer" -> \out
 }
 ```
@@ -1743,16 +1937,6 @@ constant EARTH_GRAVITY Real 9.81
 constant BEST_LANGUAGE Text "Giovi"
 constant RED Color <255 0 0>
 constant NAME_LIST [Text] ["Simone" "Alessio" "Giada" "Francesca"]
-```
-
-### @candidate Type inference
-
-```ruby
-constant LIGHT_SPEED 299792458n
-constant EARTH_GRAVITY 9.81
-constant BEST_LANGUAGE "Giovi"
-constant RED Color.<255 0 0>
-constant NAME_LIST ["Simone" "Alessio" "Giada" "Francesca"]
 ```
 
 # Default value
@@ -2117,7 +2301,7 @@ if color {
 }
 ```
 
-It's also possible to deconstruct the struct by using named struct, so you can
+It's also possible to deconstruct the struct by using named tuple, so you can
 access the fields
 
 ```ruby
