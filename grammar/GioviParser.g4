@@ -137,6 +137,7 @@ switchBlock: '{' switchLabel+ '}';
 
 switchLabel: caseMatch (WHEN guard=expression)? DO body=statementOrBlock;
 
+// TODO: move cascade case match to switch label
 caseMatch
     : '{' caseMatch '}'                                     # caseMatchParenthesized
     | caseMatch bop=(AND | AND_SYM | OR | OR_SYM) caseMatch # caseMatchCascade
@@ -154,6 +155,8 @@ caseMatch
 expression
     : '{' expression '}'                                      # expressionParenthesized
     | expression AS type                                      # expressionCast
+
+    // TODO: add IS tupleDeconstruction
     | expression IS (NOT | identifier)? type                  # expressionTypeCheck
     | expression '.' (anyIdentifier | 'default')              # expressionDot
     | listCreation                                            # expressionListCreation

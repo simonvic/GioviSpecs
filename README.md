@@ -418,6 +418,7 @@ someFunction() {
 | Type      | Any type         | Void          |
 | Range     | Any range        | 0..0..1       |
 | Tuple     | Any tuple        | <>            |
+| Record    | Any record       | <>            |
 
 ### Declaration
 
@@ -1100,18 +1101,112 @@ for money in bank@{*} do {
 "The bank has a total of $sum €" -> \out
 ```
 
+### Tuples
+
+A Tuple is an ordered collection of heterogeneous values.
+
+```ruby
+# Tuple with a Text, Bool and Real fields
+<"a" true 420.69> -> \out
+```
+
+#### Tuple Access
+
+| key   | output                                       |
+|-------|----------------------------------------------|
+| Int   | field value at the index                     |
+| Range | Subset tuple with fields within the range    |
+| %     | fields count                                 |
+| @     | Range 0 to fields count - 1                  |
+
+#### @candidate Tuple type
+
+```ruby
+t Tuple <- <true "Hello world" 6.9 420>
+function(x Int, args Tuple) {
+	for i in args@@ do {
+		if args@i {
+			is a Int do {}
+			is a Text do {}
+			is a Bool do {}
+			is a Real do {}
+		}
+	}
+}
+function(69, t)
+function(69, <"hello world" 69>)
+```
+
+#### @candidate Tuple fields override
+
+```ruby
+Tuple -> struct # assign all fields, default for non specified
+Tuple ->+ struct # assign only to specified fields
+```
+
+### Records
+
+A Record is an unordered collection of named heterogeneous values.
+
+Can be seen as a specialization of Tuples
+
+```ruby
+\out <- <
+	field1: "a"
+	field2: true
+	field3: 420.69
+>
+```
+
+#### Record Access
+
+| key   | output                                       |
+|-------|----------------------------------------------|
+| Int   | field value at the index                     |
+| Range | Subset record with fields within the range   |
+| %     | fields count                                 |
+| @     | Range 0 to fields count - 1                  |
+| *     | List of fields names                         |
+
+#### @candidate Record type
+
+```ruby
+t Record <- <
+	a: true
+	b: "Hello world"
+	c: 6.9
+	d: 420
+>
+function(x Int, args Record) {
+	for i in args@* do {
+		if argsi {
+			is a Int do {}
+			is a Text do {}
+			is a Bool do {}
+			is a Real do {}
+		}
+	}
+}
+function(69, t)
+function(69, <"hello world" 69>)
+```
+
 ### Struct
 
-A Struct is a structured data type that you can define; it can contain
-heterogeneous values (primitive or composite)
+A Struct is a structured data type that you can define; more formally an
+unordered collection of named heterogeneous fields, with a typename associated
+to it.
+
+Under the hood, Structs are just Records with a typename associated to it; they
+do have some differences though (e.g. casting).
 
 #### Syntax
 
 ```
-<name> <   <fields>   >
+<Typename> <   <fields>   >
 ```
 
-The name must start with an Uppercase letter and can contain letters, digits
+The typename must start with an Uppercase letter and can contain letters, digits
 and underscores.<br>
 Primitive types cannot be used as name.
 
@@ -1139,6 +1234,9 @@ Person <
 
 ##### Creation
 
+The creation (or instantiation) of a struct can be done with the typename,
+followed by a dot, followed by a tuple representing the fields
+
 ```ruby
 red Color <- Color.<255 0 0>
 me Person <- Person.<
@@ -1151,8 +1249,8 @@ me Person <- Person.<
 	>
 ```
 
-When creating a struct, you can name the fields to improve readability.
-By doing so, the order of the fields won't matter
+The same syntax of records can be also be used. (note that order doesn't matter
+when using record syntax)
 
 ```ruby
 me Person <- Person.<
@@ -1173,7 +1271,7 @@ me Person <- Person.<
 
 You can also specify a subset of the fields; unspecified fields will be
 initialized with their default value.
-Note that this is not possible when the field names are not specified.
+Note that this is not possible when using the tuple syntax.
 
 ```ruby
 me Person <- Person.<
@@ -1192,81 +1290,20 @@ Color.<> -> \out
 ```
 
 When defining or creating a struct, the fields can optionally be separated by
-a comma
+a comma (trailing comma is allowed)
 
 ```ruby
-Color <r Int, g Int, b Int>
-Color.<1, 2, 3> -> c Color
+Color <r Int, g Int, b Int,>
+Color.<1, 2, 3,> -> c Color
 ```
 
-#### Tuples
-
-A Tuple is a collection of heterogeneous values.
-
-They can be named (fields are indexed by names) or positional (fields are
-indexed by a 0-based index)
-
-```ruby
-# Tuple with three named fields
-<
-	field1: "a"
-	field2: true
-	field3: 420.69
->
-
-# Tuple with three unnamed fields
-<"a" true 420.69>
-```
-
-Under the hood, Structs are just named Tuples with a typename associated to it;
-they do have some differences though (e.g. casting).
-TODO: explain more on the differences
-
-Tuples can be redirected to structs, as long as they're compatible.<br>
-Named tuples are compatible to all structs of which the fields are a superset
-of the tuple; in this case only the fields in the subset will change in the
-receiving struct
-
-@candidate to change. It should change all fields; unspecified fields should
-retain the struct default value
-
-```ruby
-me Person <- <
-		name: "Simon"
-		age: 23
-		favoriteCar: <
-			model: "Ferrari"
-		>
-	>
-```
-
-When redirecting a positional tuple, all fields must be specified for the tuple
-to be compatible
+Tuples and Records can be redirected to Structs, [as long as they can be widened](#tuples%2C-records-and-structs).
 
 ```ruby
 color Color
 color <- <255 255 255>
-color <- <255>  # ERROR Incompatible structs
-color <- <red: 255>  # Ok!
-```
-
-This allows for a less verbose variable declaration
-
-```ruby
-# From most verbose to less verbose
-c Color <- Color.<
-		red: 255
-		blue: 255
-		green: 255
-	>
-
-c Color <- <
-	red: 255
-	blue: 255
-	green: 255
->
-
-c Color <- <255 255 255>
+color <- <r:255 g:255 b:255>
+color <- <255> # ERROR <Int> cannot be widened to Color
 ```
 
 #### Struct Access
@@ -1274,7 +1311,7 @@ c Color <- <255 255 255>
 | key   | output                                       |
 |-------|----------------------------------------------|
 | Int   | field value at the index                     |
-| Range | Subset tuple with fields within the range    |
+| Range | Subset record with fields within the range   |
 | %     | fields count                                 |
 | @     | Range 0 to fields count - 1                  |
 | *     | list of field names                          |
@@ -1290,12 +1327,12 @@ color Color <- <255 100 50>
 
 color@0  # 255
 
-# Negative indexes can be used to access last elements
-color@{-1}   # 50 last character
-color@{-2}   # 100 second-last character
-color@{-3}   # 255 third-last character
+# Negative indexes can be used to access last fields
+color@{-1}   # Last field
+color@{-2}   # Second-last field
+color@{-3}   # Third-last field
 
-color@0..2  # Tuple <red: 255, green: 100>
+color@0..2  # Record <red: 255, green: 100>
 
 color@%  # 3 (fields count)
 
@@ -1316,6 +1353,23 @@ color Color <- <255 100 50>
 
 color.red -> \out
 color.blue <- 255  # setting blue channel to 255
+```
+
+#### @candidate Constant fields
+
+Constants can be defined within structs and will be associated to its typename.
+
+```ruby
+Person <
+	constant ADULT_AGE Int <- 18
+>
+
+Color <
+	constant RED Color <- <255 0 0>
+>
+
+Person.ADULT_AGE -> \out
+Color.RED -> \out
 ```
 
 ##### @candidate Nested struct
@@ -1387,48 +1441,63 @@ root.nextNode.nextNode -> \out
 
 ##### @candidate Struct functions
 
+Functions can be defined within structs and will be associated to the type.
+Beware that these are by definition NOT methods; it can be seen as simple
+syntax sugar to better organize code using types as "namespaces" for these
+functions. *In Java-land, we would call these "static methods".*
+
 ```ruby
 Vehicle <
-	speedKmH Int
+	speed Int
 	
-	accelerate(amount Int) {
-		amount ->+ speed
+	accelerate(v Vehicle, amount Int) {
+		amount ->+ v.speed
 	}
 	
-	brake() {
-		speed -<- 1
+	brake(v Vehicle) {
+		v.speed -<- 1
 	}
 
-	speedToMilesPerHour() => Int {
-		=> speed / 1.6093
+	speedToMilesPerHour(v Vehicle) => Int {
+		=> v.speed / 1.6093
 	}
 >
 
-car.accelerate(10)
-"${car.speedKmH} KMH" -> \out
-"${car.speedToMilesPerHour()} MPH" -> \out
+car Vehicle
+Vehicle.accelerate(car, 10)
+"${car.speed} KMH" -> \out
+"${Vehicle.speedToMilesPerHour(car)} MPH" -> \out
 ```
 
-###### @candidate Static struct functions
+Note that, although functions can be invoked from an instance of a struct,
+they're still only related to the type; the syntax is allowed because of the
+`self` keyword.
+
+`self` can be prefixed to the function and it's a shortcut for defining a
+function that takes as a first argument an instance of the struct in which the
+function is defined
 
 ```ruby
 Car <
 	speed Real
 
-	# non-static
 	self accelerate() {
 		self.speed +<- 2
 	}
 
-	# static
-	accelerate(car Car) {
-		car.speed +<- 2
-	}
+	# the function above is a shortcut for this function
+	# accelerate(car Car) {
+	#	car.speed +<- 2
+	# }
 >
+```
 
+The function can now be invoked from an instance
+
+```ruby
 c Car
 c.accelerate()
-Car.accelerate(c)
+# which, again, is syntax sugar for `Car.accelarate(c)`
 ```
 
 ###### @candidate Self return
@@ -1443,19 +1512,19 @@ Color <
 	g Natural
 	b Natural
 
-	rgb(r Natural, g Natural, b Natural) => self {
+	self rgb(r Natural, g Natural, b Natural) => self {
 		self.r = r
 		self.g = g
 		self.b = b
 	}
 
-	brigthen() => self {
+	self brigthen() => self {
 		self.r *<- 0.5
 		self.g *<- 0.5
 		self.b *<- 0.5
 	}
 
-	saturate() => self {
+	self saturate() => self {
 		# however you do it
 	}
 >
@@ -1468,25 +1537,14 @@ c.rgb(5, 20, 512)
 	.brighten()
 ```
 
-#### @candidate Constant fields
-
-```ruby
-Person <
-	constant ADULT_AGE Int <- 18
->
-
-Color <
-	constant RED Color <- <255 0 0>
->
-
-Person.ADULT_AGE -> \out
-Color.RED -> \out
-```
-
 #### Structs inheritance
 
-A struct can inherit the fields from another struct.
-It can define new fields and override the default value of an inherited field.
+A struct can inherit the fields from another struct, but beware that the term
+"inheritance" is used loosely here, since we are not talking about "true
+inheritance" like in other object oriented languages; it's just syntax sugar to
+avoid repeating the same fields in multiple structs.
+
+It can define new fields and redefine inherited ones.
 
 ```ruby
 Vehicle <
@@ -1674,13 +1732,13 @@ Real.of(69n)
 Point3D.of(Point.<>)
 ```
 
-## Tuples and Structs
+## Tuples, Records and Structs
 
-Since the widening/narrowing is crucial for type inference, Structs and Tuples
-require some additional attention as they have some differences.
+Since the widening/narrowing is crucial for type inference, Tuples, Records and
+Structs require some additional attention as they have some differences.
 
-The question to ask yourself in order to understand why they behave the way
-they do is: *what information does a tuple or struct carry?*
+In order to quickly understand why they behave the way they do, ask yourself:
+*what information does a tuple or struct carry?*
 
 - `<1 2 3 "foo">` is a tuple with tree Int and a Text
 
@@ -1689,7 +1747,7 @@ they do is: *what information does a tuple or struct carry?*
   <1 2 3 "foo"> != <"foo" 1 2 3> -> \out # are NOT equal
   ```
 
-- `<a:1, b:2, c:3, foo:"foo">` is a tuple with tree Int fields named a, b, c
+- `<a:1, b:2, c:3, foo:"foo">` is a record with tree Int fields named a, b, c
 respectively and one Text field named foo
 
   ```ruby
@@ -1739,26 +1797,30 @@ Let's get back to widening.
 
 ### Tuples
 
-If a tuple (positional) is a subset of another tuple/struct, then it can be
+If a tuple is a subset of another tuple, record or struct, then it can be
 safely widened to it, with "subset" meaning that **it has less or equal amount
-of fields of narrower or equal type in the same order**.<br>
-`<69 true "foo">` can be widened to a tuple or struct `<a Real, b Boolean, c Text, d Int>`<br>
-`<true 69 "foo">` canNOT be widened to a tuple or struct `<a Real, b Boolean, c Text>`
+of fields of narrower or equal type in the same order**.
+- `<69 true "foo">` can be widened to a tuple, record or struct with signature
+`<a Real, b Boolean, c Text, d Int>`
+- `<true 69 "foo">` canNOT be widened to a tuple, record or struct with
+signature `<a Real, b Boolean, c Text>`
 
-### Named Tuples
+### Records
 
-If a named tuple is a subset of another named tuple or struct, then it can be
+If a record is a subset of another record or struct, then it can be
 safely widened to it, with "subset" meaning that **it has less or equal amount of
 equally named fields of narrower or equal type**.<br>
-`<b:true a:69 c:"foo">` can be widened to a named tuple or struct `<a Real, b Boolean, c Text, d Int>`
+- `<b:true a:69 c:"foo">` can be widened to a record or struct with signature
+`<a Real, b Boolean, c Text, d Int>`
 
 ### Struct
 
 Structs can only be (losslessly) widened to structs of the same type (e.g. a
-`Color` can only be (losslessly) widened to a `Color`)
+`Color` can only be widened to a `Color`)
 
-This is a special and unique case of lossy widening; let's define two structs
-`Color` and `Point` (with poorly named fields for the sake of the example)
+This is a unique case of lossy widening.<br>
+Let's define two structs `Color` and `Point` (with poorly named fields for the
+sake of the example)
 
 ```ruby
 Color<a Int, b Int, c Int>
@@ -1766,10 +1828,9 @@ Point<a Int, b Int, c Int>
 ```
 
 Despite having the same fields with the same types, one cannot be widened to
-the other without losing information: what the struct represents (one
-represents a color, the other a position in a 3D coordinate
-system)<br>
-So for example, a list `[Color.<1 1 1>, Point.<1 1 1>]` wouldn't make sense
+the other without losing information: what the struct itself represents.<br>
+In the example, one represents a color, the other a position in a 3D coordinate
+system; a list `[Color.<1 1 1>, Point.<1 1 1>]` wouldn't make sense.
 
 If you're ok with losing such information, widening between different structs
 can still be achieved via explicit casting
@@ -1777,6 +1838,7 @@ can still be achieved via explicit casting
 ```ruby
 Color<r Int, g Int, b Int>
 Rgb<r Int, g Int, b Int>
+
 Color.<> as Rgb -> \out
 Rgb.<> as Color -> \out
 ```
@@ -1828,7 +1890,7 @@ listOfInteger [] <- [-1 0 4 5]     # [Int]
 listOfReal [] <- [1n 2 3.14]       # [Real]
 listOfText [] <- ["Luca" "Paolo"]  # [Text]
 listOfBool [] <- [true false true] # [Bool]
-listOfStruct [] <- [ # [Color]
+listOfColor [] <- [ # [Color]
 	<2 2 2>
 	Color.<1 1 1>
 	<r:3 g:3 b:3>
@@ -1898,9 +1960,9 @@ if color {
 }
 ```
 
-@candidate Note that it's not possible when the `is` operator is negated
+Note that it's not possible when the `is` operator is negated
 
-The lifetime of the variable is limited to the true branch scope
+@candidate The lifetime of the variable is limited to the true branch scope
 
 ```ruby
 color RGB
@@ -1914,6 +1976,15 @@ if ! color is c RGB {
 	# variable c not defined here
 } else {
 	c.r -> \out
+}
+```
+
+@candidate The `is` operator can also be used for deconstruction of a struct
+
+```ruby
+if color {
+	is <r Int, g Int, b Int> do "Do something with $r $g and $b" -> \out
+	is <r Int, b Int> do "I only need $r and $b" -> \out
 }
 ```
 
@@ -2292,23 +2363,12 @@ transparent ColorARGB <- <0 0 0 0>
 
 if color {
 	= default do "it's black" -> \out
-	= red do "it's red" > \out
+	= red do "it's red" -> \out
 	= <240 10 10> do "it's redish" -> \out
 	= <255 default 69> do "255, default green, 69" -> \out
 	= white | = <200 200 200> do "it's white or grey" -> \out
 	= <_ _ 69> do "any red, any green, blue of 69" -> \out
 	= <_ _ _ _> do "It has at least 4 fields" -> \out
-}
-```
-
-It's also possible to deconstruct the struct by using named tuple, so you can
-access the fields
-
-```ruby
-if color {
-	= <r:255 g:69 b:42> do "Something with $r $g and $b" -> \out
-	= <r:_ g:_ b:_> do "Something with $r $g and $b" -> \out
-	= <r:_ b:_> do "I only need $r and $b" -> \out
 }
 ```
 
@@ -3389,32 +3449,6 @@ x Int <- if something {
 } else do ~> 69420
 ```
 
-## @candidate Tuple type
-
-```ruby
-t Tuple <- <true "Hello world" 6.9 420>
-function(x Int, args Tuple) {
-	for arg in 0..args@%-1 do {
-		if arg {
-			is a Int do {}
-			is a Text do {}
-			is a Bool do {}
-			is a Real do {}
-		}
-	}
-}
-
-function(69, t)
-function(69, <"hello world" 69>)
-```
-
-## @candidate Tuple fields override
-
-```ruby
-Tuple -> struct # assign all fields, default for non specified
-Tuple ->+ struct # assign only to specified fields
-```
-
 ## @candidate Formatter directives
 
 Special comment `#!` will be parsed by the formatter; uses the same syntax of
@@ -3774,11 +3808,11 @@ std.in -> input Text
 input -> std.err
 ```
 
-## @candidate Function arguments as a tuple
+## @candidate Function arguments as a record
 
 Like in math, invoking a function with multiple arguments it's like saying it
-has a domain of a Cartesian product (a tuple).
-This would allow using the same symbols for functions and tuples
+has a domain of a Cartesian product (a record).
+This would allow using the same symbols for functions and record
 
 ```ruby
 # f : (IxN) --> R
@@ -3787,9 +3821,9 @@ f(i Int, n Natural) => Real {}
 
 # f : (Ix(NxN)) --> R
 #     (i,(n,m)) |-> r
-f(i Int, tuple <n Natural, m Natural>) => Real {}
-f(i Int, tuple (n Natural, m Natural)) => Real {}
-f(i Int, tuple Tuple) => Real {}
+f(i Int, record <n Natural, m Natural>) => Real {}
+f(i Int, record (n Natural, m Natural)) => Real {}
+f(i Int, record Record) => Real {}
 ```
 
 ## @candidate Build/Packaging (and eventually compile) tool
