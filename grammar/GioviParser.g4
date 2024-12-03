@@ -26,7 +26,7 @@ statement
     | varDeclaration
     | functionDeclaration
     | returnStatement
-    | functionCall
+    | invocation
     ;
 
 statementOrBlock: statement | block;
@@ -90,9 +90,9 @@ redirectionOperatorRTL
     | REDIRECTION_MINUS_RTL
     ;
 
-constantDeclaration: CONSTANT constantIdentifier type REDIRECTION_RTL expression ';'?;
+constantDeclaration: CONSTANT name=constantIdentifier type REDIRECTION_RTL value=expression ';'?;
 
-varDeclaration: identifier type defaultDefinition? ';'?;
+varDeclaration: name=identifier type defaultDefinition? ';'?;
 
 defaultDefinition: literalDefault expression;
 
@@ -114,17 +114,21 @@ namedStructField: identifier ':' expression;
 
 //////////////////////////////////////////////////////////////////////////////// FUNCTIONS
 
-functionDeclaration: identifier '(' formalParameters? ')' (RETURN_SYM returnType=type)? body=block;
+functionDeclaration: functionSignature body=block ;
 
-formalParameters: formalParameter (',' formalParameter)* ','?;
+functionSignature: name=identifier anonFunctionSignature ;
 
-formalParameter: identifier type defaultDefinition?;
+anonFunctionSignature: formalParameters (RETURN_SYM returnType=type)? ;
 
-functionCall: expression '(' functionCallParameters? ')';
+formalParameters: '(' (formalParameter (',' formalParameter)* ','?)? ')';
 
-functionCallParameters: functionCallParameter (',' functionCallParameter)* ','?;
+formalParameter: name=identifier type defaultDefinition?;
 
-functionCallParameter: (identifier ':')? expression;
+invocation: expression actualParameters;
+
+actualParameters: '(' (actualParameter (',' actualParameter)* ','?)? ')';
+
+actualParameter: (label=identifier ':')? value=expression;
 
 //////////////////////////////////////////////////////////////////////////////// FLOW CONTROL
 
@@ -162,7 +166,7 @@ expression
     | mapCreation                                             # expressionMapCreation
     | structCreation                                          # expressionStructCreation
     | '::' referenceable                                      # expressionRef
-    | expression '(' functionCallParameters? ')'              # expressionFunctionCall
+    | expression actualParameters                             # expressionInvocation
     | prefix=('+' | '-') expression                           # expressionPrefixed
     | prefix=(NOT | NOT_SYM) expression                       # expressionNot
     | expression bop='@' accessKey                            # expressionAccess
@@ -176,7 +180,6 @@ expression
     | primary                                                 # expressionPrimary
     ;
 
-// TODO: remove anyIdentifier from literal
 primary: literal | anyIdentifier | primitiveContent;
 
 range: start=expression '..' end=expression ('..' step=expression)?;
@@ -212,13 +215,14 @@ mapEntry:    mapKey=expression ':' mapValue=expression;
 
 //////////////////////////////////////////////////////////////////////////////// FUNCTION REFS
 
-// TODO: make parenthesis mandatory if specifying return type
 referenceable
 	: identifier
-	| ('(' formalParameters? ')')? (RETURN_SYM returnType=type)? body=block
+	| anonFunction
 	;
 
-typeFunctionRef: '::' '(' formalParameters? ')' (RETURN_SYM returnType=type)? ;
+anonFunction: anonFunctionSignature? body=block ;
+
+typeFunctionRef: '::' anonFunctionSignature ;
 
 //////////////////////////////////////////////////////////////////////////////// LITERALS
 literal
@@ -232,7 +236,6 @@ literal
     | literalExactText
     | literalDefault
     | literalPlaceholder
-    | anyIdentifier
     ;
 
 // TODO: this is so retarded... why tf did I do this?
