@@ -420,19 +420,6 @@ someFunction() {
 | Tuple     | Any tuple        | <>            |
 | Record    | Any record       | <>            |
 
-### Declaration
-
-```
-<identifier> <Type>
-```
-
-```ruby
-index Int
-age Natural
-height Real
-name Text
-```
-
 ### Numbers
 
 Numbers type (i.e. Natural, Int, Real) can be defined in more advanced ways.<br>
@@ -513,7 +500,7 @@ text@@         # 0..10 (range)
 text@*         # [ "h" "e" "l" "l" "o" " " "w" "o" "r" "l" "d" ]
 ```
 
-### Text block
+#### Text block
 
 Text blocks can span over multiple lines, without having to worry about
 escaping quotes or other characters.<br>
@@ -566,8 +553,9 @@ recommended to immediately go on a new line after the opening text block tag,
 followed by a 1-level deep indent; this is to avoid any possible ambiguities.
 
 ```ruby
-t Text <- "{this is "fine" but...}"
-t Text <- "{
+t Text
+t <- "{this is "fine" but...}"
+t <- "{
 	...this is preferred
 	}"
 ```
@@ -721,7 +709,7 @@ Yaml."{
 
 ### List
 
-A list is a collection of variables that can be accessed via the index.<br>
+A list is a collection of homogeneous values indexed by an integer value.<br>
 The indexes are 0-based
 
 #### Operators
@@ -929,7 +917,8 @@ cube@{1, 2, 3} -> \out
 
 ### @candidate Set
 
-A set is an unordered collection in which duplicates element are not allowed
+A set is an unordered collection of homogeneous values that doesn't allow
+duplicate elements.
 
 ```ruby
 [()]
@@ -944,9 +933,10 @@ A set is an unordered collection in which duplicates element are not allowed
 
 ### Map
 
-A map contains values on the basis of key, i.e. key and value pair.<br>
-Each key and value pair is known as an entry.<br>
-Map keys are unique.
+A map (aka associative list or dictionary) is a collection of homogeneous
+key-value pairs.<br>
+A key is unique, meaning that it can only appear in one key-value pair.<br>
+A key and value pair may also be called a map entry.
 
 #### Operators
 
@@ -1101,6 +1091,8 @@ for money in bank@{*} do {
 "The bank has a total of $sum €" -> \out
 ```
 
+## Product types
+
 ### Tuples
 
 A Tuple is an ordered collection of heterogeneous values.
@@ -1146,7 +1138,7 @@ Tuple ->+ struct # assign only to specified fields
 
 ### Records
 
-A Record is an unordered collection of named heterogeneous values.
+A Record is an unordered collection of named (labeled) heterogeneous values.
 
 Can be seen as a specialization of Tuples
 
@@ -1193,9 +1185,9 @@ function(69, <"hello world" 69>)
 
 ### Struct
 
-A Struct is a structured data type that you can define; more formally an
-unordered collection of named heterogeneous fields, with a typename associated
-to it.
+A Struct is a structured data type that you can define; more formally, an
+unordered collection of named (labeled) heterogeneous fields, with a typename
+associated to it.
 
 Under the hood, Structs are just Records with a typename associated to it; they
 do have some differences though (e.g. casting).
@@ -1422,7 +1414,7 @@ root Node
 root.nextNode.nextNode -> \out
 ```
 
-#### @candidate Constant fields
+#### Constant fields
 
 Constants can be defined within structs and will be associated to its typename.
 
@@ -1439,12 +1431,12 @@ Person.ADULT_AGE -> \out
 Color.RED -> \out
 ```
 
-#### @candidate Struct functions
+#### Struct functions
 
 Functions can be defined within structs and will be associated to the type.
-Beware that these are by definition NOT methods; it can be seen as simple
+Beware that these are, by definition, NOT methods; it can be seen as simple
 syntax sugar to better organize code using types as "namespaces" for these
-functions. *In Java-land, we would call these "static methods".*
+functions. *In Java-land, we could compare them to "static methods".*
 
 ```ruby
 Vehicle <
@@ -1622,7 +1614,7 @@ Vehicle : Car <
 >
 ```
 
-### @candidate Enums
+## @candidate Enums
 
 They can be simple enums...
 

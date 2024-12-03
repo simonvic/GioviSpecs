@@ -1,5 +1,4 @@
-parser grammar GioviParser
-    ;
+parser grammar GioviParser;
 
 options {
     tokenVocab=GioviLexer;
@@ -103,7 +102,7 @@ structDefinition
     : (parentName=typeIdentifier ':')? structName=typeIdentifier '<' structBodyDefinition '>' ';'?
     ;
 
-structBodyDefinition: (structFieldDefinition | structDefinition | functionDeclaration)*;
+structBodyDefinition: (constantDeclaration | structFieldDefinition | structDefinition | functionDeclaration)*;
 
 structFieldDefinition: identifier type defaultDefinition? ','?;
 
@@ -236,6 +235,7 @@ literal
     | anyIdentifier
     ;
 
+// TODO: this is so retarded... why tf did I do this?
 anyIdentifier:         identifier | constantIdentifier | typeIdentifier;
 identifier:            IDENTIFIER;
 constantIdentifier:    ALLUPPERCASE_IDENTIFIER;
