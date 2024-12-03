@@ -199,6 +199,7 @@ accessKey
     | key=('%' | '@' | '*')            # accessKeySpecial
     | range                            # accessKeyRange
     | literal                          # accessKeyLiteral
+    | anyIdentifier                    # accessKeyIdentifier
     ;
 
 typeList:     '[' type ('*' '*' initSize=expression)? ']';
