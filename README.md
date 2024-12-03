@@ -1355,24 +1355,7 @@ color.red -> \out
 color.blue <- 255  # setting blue channel to 255
 ```
 
-#### @candidate Constant fields
-
-Constants can be defined within structs and will be associated to its typename.
-
-```ruby
-Person <
-	constant ADULT_AGE Int <- 18
->
-
-Color <
-	constant RED Color <- <255 0 0>
->
-
-Person.ADULT_AGE -> \out
-Color.RED -> \out
-```
-
-##### @candidate Nested struct
+#### @candidate Nested struct
 
 You can define struct within struct.
 
@@ -1419,7 +1402,7 @@ Person <
 >
 ```
 
-##### @candidate Recursive struct
+#### @candidate Recursive struct
 
 You can define recursive struct (struct defined with itself)
 
@@ -1439,7 +1422,24 @@ root Node
 root.nextNode.nextNode -> \out
 ```
 
-##### @candidate Struct functions
+#### @candidate Constant fields
+
+Constants can be defined within structs and will be associated to its typename.
+
+```ruby
+Person <
+	constant ADULT_AGE Int <- 18
+>
+
+Color <
+	constant RED Color <- <255 0 0>
+>
+
+Person.ADULT_AGE -> \out
+Color.RED -> \out
+```
+
+#### @candidate Struct functions
 
 Functions can be defined within structs and will be associated to the type.
 Beware that these are by definition NOT methods; it can be seen as simple
@@ -1500,7 +1500,7 @@ c.accelerate()
 # which, again, is syntax sugar for `Car.accelarate(c)`
 ```
 
-###### @candidate Self return
+##### @candidate Self return
 
 A struct function can also return the struct itself, without having to
 explicitly return.<br>
