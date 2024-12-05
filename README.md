@@ -419,6 +419,7 @@ someFunction() {
 | Range     | Any range        | 0..0..1       |
 | Tuple     | Any tuple        | <>            |
 | Record    | Any record       | <>            |
+| Struct    | Any struct       | <>            |
 
 ### Numbers
 
@@ -644,12 +645,6 @@ Certain characters can be escaped with `\\` (backslash)
 "Return: (\r)" -> \out
 "Dollar \$sign" -> \out
 "Braces \{\}" -> \out
-```
-
-@candidate Single quotes doesn't allow escape sequences
-
-```ruby
-'C:\Users\simonvic'
 ```
 
 ##### Unicode escapes
@@ -3537,15 +3532,30 @@ print(c Color) {
 Color <red Int, green Int, blue Int>
 ```
 
-## @candidate Special characters in identifiers
+## @candidate Raw text
+
+No interpolation and no escapes
 
 ```ruby
-`some identifier` Int
-69 -> `some identifier`
+windowsPath Text <- `C:\some\path\to\some\file`
+\out <- `{
+	Writing \n will print the \ character and the n character
+	}`
+```
+
+It can be used as an identifier for variables, functions, and types
+
+```ruby
+69 -> `the expected value` Int
 
 `test that the + operator sums two numbers`() {
-	assertThat(59 + 10).isEqualTo(69)
+	assertThat(59 + 10).isEqualTo(`the expected value`)
 }
+
+`Some struct` <
+	foo Int
+	bar Int
+>
 ```
 
 ## @candidate Union type
@@ -3729,7 +3739,7 @@ loop <r g b> in colors do "hello world <$r $g $b>" -> \out
 loop color<r g b> in colors do "hello world <$r $g $b>" -> \out
 ```
 
-## @candidate Casting custom implementatin
+## @candidate Casting custom implementation
 
 ```ruby
 SomeStruct <

@@ -99,18 +99,28 @@ defaultDefinition: literalDefault expression;
 /////////////////////////////////////////////////////////////////////////////// STRUCTS
 
 structDefinition
-    : (parentName=typeIdentifier ':')? structName=typeIdentifier '<' structBodyDefinition '>' ';'?
-    ;
+	: (parentTypename=typeIdentifier ':')? typename=typeIdentifier body=structBodyDefinition ';'?
+	;
 
-structBodyDefinition: (constantDeclaration | structFieldDefinition | structDefinition | functionDeclaration)*;
+structBodyDefinition
+	: '<'
+	( constantDeclaration
+	| structFieldDefinition
+	| structDefinition
+	| functionDeclaration
+	)*
+	'>'
+	;
 
 structFieldDefinition: identifier type defaultDefinition? ','?;
 
-structCreation: (structType=typeIdentifier '.')? '<' structFields? '>';
+structCreation: typename=typeIdentifier '.' (recordCreation | tupleCreation) ;
 
-structFields: (expression ','?)+ | (namedStructField ','?)+;
+tupleCreation: '<' (expression ','?)* '>' ;
 
-namedStructField: identifier ':' expression;
+recordCreation: '<' (recordEntry ','?)+ '>' ;
+
+recordEntry: identifier ':' expression ;
 
 //////////////////////////////////////////////////////////////////////////////// FUNCTIONS
 
@@ -140,7 +150,6 @@ switchBlock: '{' switchLabel+ '}';
 
 switchLabel: caseMatch (WHEN guard=expression)? DO body=statementOrBlock;
 
-// TODO: move cascade case match to switch label
 caseMatch
     : '{' caseMatch '}'                                     # caseMatchParenthesized
     | caseMatch bop=(AND | AND_SYM | OR | OR_SYM) caseMatch # caseMatchCascade
@@ -164,7 +173,9 @@ expression
     | expression '.' (anyIdentifier | 'default')              # expressionDot
     | listCreation                                            # expressionListCreation
     | mapCreation                                             # expressionMapCreation
+    | tupleCreation                                           # expressionTupleCreation
     | structCreation                                          # expressionStructCreation
+    | recordCreation                                          # expressionRecordCreation
     | '::' referenceable                                      # expressionRef
     | expression actualParameters                             # expressionInvocation
     | prefix=('+' | '-') expression                           # expressionPrefixed
@@ -216,7 +227,9 @@ mapEntry:    mapKey=expression ':' mapValue=expression;
 
 //////////////////////////////////////////////////////////////////////////////// FUNCTION REFS
 
+// TODO: allow expressions (e.g. ::some.struct.function, ::)
 referenceable
+	// : (expression '.')? (identifier | constantIdentifier)
 	: identifier
 	| anonFunction
 	;
