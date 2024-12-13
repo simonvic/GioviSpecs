@@ -1222,7 +1222,7 @@ Person <
 ##### Creation
 
 The creation (or instantiation) of a struct can be done with the typename,
-followed by a dot, followed by a tuple representing the fields
+followed by a dot, followed by a tuple with the fields
 
 ```ruby
 red Color <- Color.<255 0 0>
@@ -1463,6 +1463,10 @@ they're still only related to the type; the syntax is allowed because of the
 `self` can be prefixed to the function and it's a shortcut for defining a
 function that takes as a first argument an instance of the struct in which the
 function is defined
+
+<!--NOTE: since parameters are passed by value, to make this work properly,
+either treat self parameter as special, or more generally pass product types as
+value but the fields by reference -->
 
 ```ruby
 Car <
@@ -3556,6 +3560,46 @@ It can be used as an identifier for variables, functions, and types
 	foo Int
 	bar Int
 >
+```
+
+## @candidate Condensed nested fields label
+
+```ruby
+Person <
+	name Fullname <
+		first Text
+		second Text
+	>
+	prefs Preferences <
+		color Color
+		car Car <
+			model Text
+			paint Color
+		>
+	>
+>
+
+p Person <- <
+	name.first: "Foo"
+	name.second: "Foo"
+	prefs.color: <255 0 0>
+	prefs.car.model: "Ferrari"
+	prefs.car.paint: <255 0 0>
+>
+
+# <
+# 	name: <
+# 		first: "Foo"
+# 		second: "Foo"
+# 	>
+# 	prefs: <
+# 		color: <255 0 0>
+# 		car: <
+# 			model: "Ferrari"
+# 			paint: <255 0 0>
+# 		>
+# 	>
+# >
 ```
 
 ## @candidate Union type

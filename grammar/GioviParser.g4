@@ -26,7 +26,7 @@ statement
     | varDeclaration
     | functionDeclaration
     | returnStatement
-    | invocation
+    | invocationStatement
     ;
 
 statementOrBlock: statement | block;
@@ -134,7 +134,12 @@ formalParameters: '(' (formalParameter (',' formalParameter)* ','?)? ')';
 
 formalParameter: name=identifier type defaultDefinition?;
 
-invocation: expression actualParameters;
+invocationStatement
+	: (expression '.')? invocation # invocationStatementSimple
+	| expression actualParameters  # invocationStatementOfExpression
+	;
+
+invocation: identifier actualParameters ;
 
 actualParameters: '(' (actualParameter (',' actualParameter)* ','?)? ')';
 
@@ -170,7 +175,7 @@ expression
 
     // TODO: add IS tupleDeconstruction
     | expression IS (NOT | identifier)? type                  # expressionTypeCheck
-    | expression '.' (anyIdentifier | 'default')              # expressionDot
+    | expression '.' (anyIdentifier | 'default' | invocation) # expressionDot
     | listCreation                                            # expressionListCreation
     | mapCreation                                             # expressionMapCreation
     | tupleCreation                                           # expressionTupleCreation
@@ -178,6 +183,7 @@ expression
     | recordCreation                                          # expressionRecordCreation
     | '::' referenceable                                      # expressionRef
     | expression actualParameters                             # expressionInvocation
+    | invocation                                              # expressionInvocationSimple
     | prefix=('+' | '-') expression                           # expressionPrefixed
     | prefix=(NOT | NOT_SYM) expression                       # expressionNot
     | expression bop='@' accessKey                            # expressionAccess
@@ -227,10 +233,8 @@ mapEntry:    mapKey=expression ':' mapValue=expression;
 
 //////////////////////////////////////////////////////////////////////////////// FUNCTION REFS
 
-// TODO: allow expressions (e.g. ::some.struct.function, ::)
 referenceable
-	// : (expression '.')? (identifier | constantIdentifier)
-	: identifier
+	: (expression '.')? identifier
 	| anonFunction
 	;
 
@@ -250,6 +254,7 @@ literal
     | literalExactText
     | literalDefault
     | literalPlaceholder
+    | literalSelf
     ;
 
 // TODO: this is so retarded... why tf did I do this?
@@ -267,6 +272,7 @@ literalText:           (typeIdentifier '.')? TEXT_LITERAL;
 literalExactTextBlock: (typeIdentifier '.')? EXACT_TEXT_BLOCK_LITERAL;
 literalExactText:      (typeIdentifier '.')? EXACT_TEXT_LITERAL;
 literalDefault:        DEFAULT;
+literalSelf:           SELF;
 literalPlaceholder:    UNDERSCORE;
 
 // vim: ft=antlr
