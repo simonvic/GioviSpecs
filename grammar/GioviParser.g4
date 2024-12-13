@@ -175,7 +175,7 @@ expression
 
     // TODO: add IS tupleDeconstruction
     | expression IS (NOT | identifier)? type                  # expressionTypeCheck
-    | expression '.' (anyIdentifier | 'default' | invocation) # expressionDot
+    | expression '.' (invocation | anyIdentifier | 'default') # expressionDot
     | listCreation                                            # expressionListCreation
     | mapCreation                                             # expressionMapCreation
     | tupleCreation                                           # expressionTupleCreation
