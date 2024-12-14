@@ -108,11 +108,16 @@ structBodyDefinition
 	| structFieldDefinition
 	| structDefinition
 	| functionDeclaration
+	| selfFunctionDeclaration
 	)*
 	'>'
 	;
 
 structFieldDefinition: identifier type defaultDefinition? ','?;
+
+selfFunctionDeclaration: selfFunctionSignature body=block ;
+
+selfFunctionSignature: self=SELF? name=identifier formalParameters (RETURN_SYM (returnType=type | returnSelf=SELF))? ;
 
 structCreation: typename=typeIdentifier '.' (recordCreation | tupleCreation) ;
 

@@ -1491,38 +1491,36 @@ c.accelerate()
 # which, again, is syntax sugar for `Car.accelarate(c)`
 ```
 
-##### @candidate Self return
+##### Self return
 
-A struct function can also return the struct itself, without having to
-explicitly return.<br>
+A struct function can also specify `self` as return type, to avoid repeating
+the typename.<br>
 This comes very handy when you want to make "chainable" functions.
 
 ```ruby
 Color <
-	r Natural
-	g Natural
-	b Natural
+	r Int
+	g Int
+	b Int
 
-	self rgb(r Natural, g Natural, b Natural) => self {
-		self.r = r
-		self.g = g
-		self.b = b
+	rgb(r Int, g Int, b Int) => self {
+		=> Color.<r g b>
 	}
 
 	self brigthen() => self {
 		self.r *<- 0.5
 		self.g *<- 0.5
 		self.b *<- 0.5
+		=> self
 	}
 
 	self saturate() => self {
 		# however you do it
+		=> self
 	}
 >
 
-c Color <- <5 20 512>
-
-c.rgb(5, 20, 512)
+Color.rgb(5, 20, 512)
 	.brigthen()
 	.saturate()
 	.brighten()
@@ -2134,7 +2132,7 @@ default -> somebody.favoriteCar.paint
 # somebody.favoriteCar is now <"Ferrari" <40 40 40 >>
 ```
 
-@candidate A default value of a specific attribute can be accessed via the struct type
+A default value of a specific attribute can be accessed via the struct type
 
 ```ruby
 Person.name -> defaultPersonName Text # "No name"
@@ -3421,23 +3419,11 @@ chest MagicChest{Gift} <- <"blue" Gift.<"socks">>
 Has to be exhaustive
 
 ```ruby
-x Int <- if true do yield 69 else yield 420
+x Int <- if true yield 69 else 420
 x Int <- if something {
-	= "awf" do yield 69
-	= "awawfwf" do yield 420
-} else do yield 69420
-
-x Int <- if true 69 else 420
-x Int <- if something {
-	= "awf" ~> 69
-	= "aaawfwf" ~> 420
-} else ~> 69420
-
-x Int <- if true do ~> 69 else ~> 420
-x Int <- if something {
-	= "awf" do ~> 69
-	= "awawfwf" do ~> 420
-} else do ~> 69420
+	= "awf" yield 69
+	= "awawfwf" yield 420
+} else 69420
 ```
 
 ## @candidate Formatter directives
@@ -3498,12 +3484,53 @@ for i in 0..7 do list.i
 
 Something like xpath or jq? Or maybe language syntax itself?
 
-## @candidate Struct destructuring
+## @candidate Product types destructuring
+
+Destructuring done via narrowing
 
 ```ruby
-getColor() => Color { }
-getColor() -> red, gren, blue
-getColor() -> <red gren blue>
+Color <red Int, green Int, blue Int>
+c Color
+if true do {
+	c -> <red blue>
+	"$red $blue" -> \out
+}
+if true do {
+	c -> <red Int, blue Int>
+	"$red $blue" -> \out
+}
+
+if c {
+	is <red blue> do "$red $blue" -> \out
+	is <red Int, blue Int> do "$red $blue" -> \out
+}
+```
+
+```ruby
+getRecord() => <x Int, y Int, z Int> {
+	=> <x: 69, y: 420, z: 42>
+}
+getRecord() -> <x y z>
+getRecord() -> <x Int, y Int, z Int>
+if getRecord() {
+	is <x y z> do "$x $y $z" -> \out
+	is <x z> do "$x $z" -> \out
+	is <x _ z> do "$x $z" -> \out
+	is <x Int, z Int> do "$x $z" -> \out
+}
+```
+
+```ruby
+getTuple() => <Int, Int, Int> {
+	=> <69, 420, 42>
+}
+getTuple() -> <x y z>
+getTuple() -> <x Int, y Int, z Int>
+if getTuple() {
+	is <x y z> do "$x $y $z" -> \out
+	is <x Int, y Int, z Int> do "$x $y $z" -> \out
+	is <x Int, _, z Int> do "$x $z" -> \out
+}
 ```
 
 ## @candidate Emoji handling in Text
@@ -3843,15 +3870,9 @@ v1 + (v2 * 2) -> \out
 ## @candidate Standard content/destination syntax
 
 ```ruby
-"hello world" -> $out
-$in -> input Text
-input -> $err
-```
-
-```ruby
-"hello world" -> std.out
-std.in -> input Text
-input -> std.err
+"hello world" -> _out
+_in -> input Text
+input -> _err
 ```
 
 ## @candidate Function arguments as a record
