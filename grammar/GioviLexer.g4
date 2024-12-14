@@ -76,6 +76,7 @@ BOOL_LITERAL: 'true' | 'false';
 IDENTIFIER:              [a-z] LetterOrDigitOrUnderscore*;
 ALLUPPERCASE_IDENTIFIER: [A-Z] ([A-Z] | Digit | '_')*;
 UPPERCASE_IDENTIFIER:    [A-Z] LetterOrDigitOrUnderscore*;
+RESERVERD_IDENTIFIER:    '_' LetterOrDigitOrUnderscore+;
 
 fragment Letter:                    [a-zA-Z];
 fragment LetterOrDigit:             Letter | Digit;

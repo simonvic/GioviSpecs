@@ -58,21 +58,18 @@ skipStatement: CONTINUE ';'?;
 // actually no, probably is needed to avoid ambiguity with expression
 
 redirection
-    : redirectionContent bop=REDIRECTION varDeclaration                    # redirectionToVarDeclaration
-    | redirectionContent bop=redirectionOperator primitiveDestination ';'? # redirectionToPrimitiveDestination
-    | redirectionContent bop=redirectionOperator identifier ';'?           # redirectionToIdentifier
-    | redirectionContent bop=redirectionOperator constantIdentifier ';'?   # redirectionToConstantIdentifier
-    | redirectionContent bop=redirectionOperator expression ';'?           # redirectionToExpression
+    : content=expression bop=REDIRECTION dest=varDeclaration                    # redirectionToVarDeclaration
+    | content=expression bop=redirectionOperator dest=reservedIdentifier ';'?   # redirectionToReservedIdentifier
+    | content=expression bop=redirectionOperator dest=identifier ';'?           # redirectionToIdentifier
+    | content=expression bop=redirectionOperator dest=expression ';'?           # redirectionToExpression
     ;
 
 redirectionRTL
-    : varDeclaration bop=REDIRECTION_RTL redirectionContent                   # redirectionToVarDeclarationRTL
-    | primitiveDestination bop=redirectionOperatorRTL redirectionContent ';'? # redirectionToPrimitiveDestinationRTL
-    | identifier bop=redirectionOperatorRTL redirectionContent ';'?           # redirectionToIdentifierRTL
-    | expression bop=redirectionOperatorRTL redirectionContent ';'?           # redirectionToExpressionRTL
+    : dest=varDeclaration bop=REDIRECTION_RTL content=expression                   # redirectionToVarDeclarationRTL
+    | dest=reservedIdentifier bop=redirectionOperatorRTL content=expression ';'?   # redirectionToReservedIdentifierRTL
+    | dest=identifier bop=redirectionOperatorRTL content=expression ';'?           # redirectionToIdentifierRTL
+    | dest=expression bop=redirectionOperatorRTL content=expression ';'?           # redirectionToExpressionRTL
     ;
-
-redirectionContent: primitiveContent | expression;
 
 redirectionOperator
     : REDIRECTION
@@ -202,13 +199,9 @@ expression
     | primary                                                 # expressionPrimary
     ;
 
-primary: literal | anyIdentifier | primitiveContent;
+primary: literal | anyIdentifier | reservedIdentifier ;
 
 range: start=expression '..' end=expression ('..' step=expression)?;
-
-primitiveContent: '\\' 'in';
-
-primitiveDestination: '\\' identifier;
 
 type: typeComposite | typeFunctionRef | typeIdentifier;
 
@@ -267,6 +260,7 @@ anyIdentifier:         identifier | constantIdentifier | typeIdentifier;
 identifier:            IDENTIFIER;
 constantIdentifier:    ALLUPPERCASE_IDENTIFIER;
 typeIdentifier:        UPPERCASE_IDENTIFIER | ALLUPPERCASE_IDENTIFIER;
+reservedIdentifier:    RESERVERD_IDENTIFIER;
 
 literalInteger:        INTEGER_LITERAL;
 literalNatural:        NATURAL_LITERAL;

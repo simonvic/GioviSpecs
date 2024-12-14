@@ -39,7 +39,7 @@ y Int
 #	@return x + y
 #
 #	@code
-#		sum(1, 2) -> \out
+#		sum(1, 2) -> _out
 #
 #	@see Math
 }#
@@ -140,7 +140,7 @@ The containment operators (`in`, `=~`, `~=`) can be negated with the `not`
 operator
 
 ```ruby
-if "someValue" not in someList do "Not contained" -> \out
+if "someValue" not in someList do "Not contained" -> _out
 ```
 
 ### @candidate Range containment
@@ -213,7 +213,7 @@ There is no difference between the two directions, except for readability.
 Sometimes it's just better to use one instead of the other
 
 ```ruby
-"hello world" -> \out     # Printing
+"hello world" -> _out     # Printing
 counter +<- 1             # Increasing counter by one
 acceleration ->+ velocity # Increasing velocity by "acceleration"
 ```
@@ -222,17 +222,17 @@ acceleration ->+ velocity # Increasing velocity by "acceleration"
 
 | Destination     | Symbol |
 | --------------- | ------ |
-| Standard output | \out   |
-| Standard error  | \error |
+| Standard output | _out   |
+| Standard error  | _err   |
 
 ### Standard output
 
 Print to standard output
 
 ```ruby
-"Hello world" -> \out
+"Hello world" -> _out
 
-"I'm going to print the lorem ipsum" -> \out
+"I'm going to print the lorem ipsum" -> _out
 
 "{
 Qui odit molestias commodi omnis magni sunt. Et et et dolorem mollitia eum
@@ -243,15 +243,15 @@ amet non.
 Pariatur nam nobis placeat. Consequuntur laborum consequatur accusantium totam
 occaecati possimus illo repellat. In fuga earum ea modi ut perspiciatis iusto.
 Iste voluptate qui at. Eos eaque cumque quisquam non nemo tenetur quo fugit.
-}" -> \out
+}" -> _out
 ```
 
 The redirect operator (`->`) will automatically append a new line; if you don't
 want that, you can use the "append redirector" operator (`->+`)
 
 ```ruby
-"Hello " ->+ \out
-"world" -> \out
+"Hello " ->+ _out
+"world" -> _out
 # Hello world\n
 ```
 
@@ -260,30 +260,30 @@ want that, you can use the "append redirector" operator (`->+`)
 Print to standard error
 
 ```ruby
-"Some error happened" -> \error
+"Some error happened" -> _err
 
-"I'm going to print some details:" -> \error
+"I'm going to print some details:" -> _err
 
 "{
 This program has crashed
 because you tried to perform a
 division by zero.
-}" -> \error
+}" -> _err
 ```
 
 ## Standard content
 
 | Destination     | Symbol |
 | --------------- | ------ |
-| Standard input  | \in    |
+| Standard input  | _in    |
 
 Reading from standard content is a blocking operation that will read from stdin.<br>
 Can be used to read input from the user
 
 ```ruby
-"Insert your username: " ->+ \out
-\in -> username Text
-"Hello $username" -> \out
+"Insert your username: " ->+ _out
+_in -> username Text
+"Hello $username" -> _out
 ```
 
 # Variables
@@ -348,16 +348,16 @@ parent scope
 ```ruby
 # global scope
 "hello world" -> aVariable Text
-aVariable -> \out
+aVariable -> _out
 if true do {
 	# "true" scope
-	aVariable -> \out
+	aVariable -> _out
 	69 -> anotherVariable Int
-	anotherVariable -> \out
+	anotherVariable -> _out
 } else {
 	# "false" scope
-	aVariable -> \out
-	anotherVariable -> \out
+	aVariable -> _out
+	anotherVariable -> _out
 	# ERROR: anotherVariable not defined
 }
 ```
@@ -609,7 +609,7 @@ Text can also interpolate expressions
 ```ruby
 x Int <- 59
 y Int <- 10
-"Sum is ${x + y}" -> \out
+"Sum is ${x + y}" -> _out
 # Sum is 69
 
 getName() => Text { => "simonvic" }
@@ -636,15 +636,15 @@ I have 69 $USD in my wallet
 Certain characters can be escaped with `\\` (backslash)
 
 ```ruby
-"Backslash: (\\)" -> \out
-"Space: (\s)" -> \out
-"New line: (\n)" -> \out
-"Tab: (\t)" -> \out
-"Formfeed: (\f)" -> \out
-"Backspace: (\b)" -> \out
-"Return: (\r)" -> \out
-"Dollar \$sign" -> \out
-"Braces \{\}" -> \out
+"Backslash: (\\)" -> _out
+"Space: (\s)" -> _out
+"New line: (\n)" -> _out
+"Tab: (\t)" -> _out
+"Formfeed: (\f)" -> _out
+"Backspace: (\b)" -> _out
+"Return: (\r)" -> _out
+"Dollar \$sign" -> _out
+"Braces \{\}" -> _out
 ```
 
 ##### Unicode escapes
@@ -653,7 +653,7 @@ Text can also contain Unicode escapes, which will be interpolated with the
 character at the specified codepoint.
 
 ```ruby
-"\u0068\u0065\u006c\u006c\u006f\u0020\u0077\u006f\u0072\u006c\u0064" -> \out
+"\u0068\u0065\u006c\u006c\u006f\u0020\u0077\u006f\u0072\u006c\u0064" -> _out
 # hello world
 ```
 
@@ -833,7 +833,7 @@ default entry value.
 
 ```ruby
 numbers [Int] <- [1 2 3]
-numbers@69 -> \out
+numbers@69 -> _out
 # will print 0 (Int default)
 ```
 
@@ -841,8 +841,8 @@ Note that it does not mean a value is automatically added.
 
 ```ruby
 numbers [Int] <- [1 2 3]
-numbers@69 -> \out
-numbers@% -> \out
+numbers@69 -> _out
+numbers@% -> _out
 # will print 3 (entries count)
 ```
 
@@ -906,8 +906,8 @@ rubikCube@2@1@1   # will refer to the central tile of green face
 
 ```ruby
 cube [[[Int]]]
-cube@1@2@3 -> \out
-cube@{1, 2, 3} -> \out
+cube@1@2@3 -> _out
+cube@{1, 2, 3} -> _out
 ```
 
 ### @candidate Set
@@ -1048,7 +1048,7 @@ carCount@*       # [10 7 15 20]
 
 ```ruby
 carCount [Text : Int]
-carCount@"UnkownModel" -> \out
+carCount@"UnkownModel" -> _out
 # will print 0
 ```
 
@@ -1057,8 +1057,8 @@ operator will still return false
 
 ```ruby
 carCount [Text : Int]
-carCount@"UnkownModel" -> \out
-carCount =~ "UnkownModel" -> \out # false
+carCount@"UnkownModel" -> _out
+carCount =~ "UnkownModel" -> _out # false
 ```
 
 Examples
@@ -1071,19 +1071,19 @@ bank [Text : Real] <- [
 	]
 
 for name : money in bank do {
-	"$name has $money € in his wallet" -> \out
+	"$name has $money € in his wallet" -> _out
 }
 
-"List of names: " -> \out
+"List of names: " -> _out
 for name in bank@{@} do {
-	"- $name" -> \out
+	"- $name" -> _out
 }
 
 sum Real
 for money in bank@{*} do {
 	money ->+ sum
 }
-"The bank has a total of $sum €" -> \out
+"The bank has a total of $sum €" -> _out
 ```
 
 ## Product types
@@ -1094,7 +1094,7 @@ A Tuple is an ordered collection of heterogeneous values.
 
 ```ruby
 # Tuple with a Text, Bool and Real fields
-<"a" true 420.69> -> \out
+<"a" true 420.69> -> _out
 ```
 
 #### Tuple Access
@@ -1138,7 +1138,7 @@ A Record is an unordered collection of named (labeled) heterogeneous values.
 Can be seen as a specialization of Tuples
 
 ```ruby
-\out <- <
+_out <- <
 	field1: "a"
 	field2: true
 	field3: 420.69
@@ -1273,7 +1273,7 @@ Creating a struct with a type but no fields, will create a default struct of
 that type
 
 ```ruby
-Color.<> -> \out
+Color.<> -> _out
 ```
 
 When defining or creating a struct, the fields can optionally be separated by
@@ -1338,7 +1338,7 @@ Color <
 >
 color Color <- <255 100 50>
 
-color.red -> \out
+color.red -> _out
 color.blue <- 255  # setting blue channel to 255
 ```
 
@@ -1406,7 +1406,7 @@ time
 
 ```ruby
 root Node
-root.nextNode.nextNode -> \out
+root.nextNode.nextNode -> _out
 ```
 
 #### Constant fields
@@ -1422,8 +1422,8 @@ Color <
 	constant RED Color <- <255 0 0>
 >
 
-Person.ADULT_AGE -> \out
-Color.RED -> \out
+Person.ADULT_AGE -> _out
+Color.RED -> _out
 ```
 
 #### Struct functions
@@ -1452,8 +1452,8 @@ Vehicle <
 
 car Vehicle
 Vehicle.accelerate(car, 10)
-"${car.speed} KMH" -> \out
-"${Vehicle.speedToMilesPerHour(car)} MPH" -> \out
+"${car.speed} KMH" -> _out
+"${Vehicle.speedToMilesPerHour(car)} MPH" -> _out
 ```
 
 Note that, although functions can be invoked from an instance of a struct,
@@ -1650,8 +1650,8 @@ enterClub(age Int) => Result {
 }
 
 if enterClub(69) {
-	= Result.OK.<> do "Welcome" -> \out
-	= Result.ERROR.<reason:_> do "Can't enter because $reason" -> \out
+	= Result.OK.<> do "Welcome" -> _out
+	= Result.ERROR.<reason:_> do "Can't enter because $reason" -> _out
 }
 ```
 
@@ -1659,9 +1659,9 @@ You can omit struct types, but beware of the matching order
 
 ```ruby
 if enterClub(69) {
-	= <reason: "underage"> do "Too young, boy!" -> \out
-	= <reason: _> do "Can't enter because $reason" -> \out
-	= <> do "Welcome" -> \out
+	= <reason: "underage"> do "Too young, boy!" -> _out
+	= <reason: _> do "Can't enter because $reason" -> _out
+	= <> do "Welcome" -> _out
 }
 
 ```
@@ -1732,18 +1732,18 @@ In order to quickly understand why they behave the way they do, ask yourself:
 - `<1 2 3 "foo">` is a tuple with tree Int and a Text
 
   ```ruby
-  <1 2 3 "foo"> = <1 2 3 "foo"> -> \out # are equal
-  <1 2 3 "foo"> != <"foo" 1 2 3> -> \out # are NOT equal
+  <1 2 3 "foo"> = <1 2 3 "foo"> -> _out # are equal
+  <1 2 3 "foo"> != <"foo" 1 2 3> -> _out # are NOT equal
   ```
 
 - `<a:1, b:2, c:3, foo:"foo">` is a record with tree Int fields named a, b, c
 respectively and one Text field named foo
 
   ```ruby
-  <a:1 b:2 b:3 foo:"foo"> = <a:1 b:2 c:3 foo:"foo"> -> \out # are equal
-  <a:1 b:2 b:3 foo:"foo"> = <foo:"foo" b:2 a:1 c:3> -> \out # are also equal
+  <a:1 b:2 b:3 foo:"foo"> = <a:1 b:2 c:3 foo:"foo"> -> _out # are equal
+  <a:1 b:2 b:3 foo:"foo"> = <foo:"foo" b:2 a:1 c:3> -> _out # are also equal
   
-  <a:1 b:2 b:3> != <x:1 y:2 z:3> -> \out # are NOT equal
+  <a:1 b:2 b:3> != <x:1 y:2 z:3> -> _out # are NOT equal
   ```
 
 - `Color.<r:1, g:2, b:3, foo:"foo">` is a struct Color which has a Int field
@@ -1751,15 +1751,15 @@ for the red, green and blue channels named r, g, b respectively, and one Text
 field named foo *(eventually representing the name of the color)*<br>
 
   ```ruby
-  Color.<r:1 g:2 b:3 foo:"foo"> = Color.<r:1 g:2 b:3 foo:"foo"> -> \out # equal
-  Color.<1 2 3 "foo"> = Color.<foo:"foo" r:1 g:2 b:3> -> \out # equal
+  Color.<r:1 g:2 b:3 foo:"foo"> = Color.<r:1 g:2 b:3 foo:"foo"> -> _out # equal
+  Color.<1 2 3 "foo"> = Color.<foo:"foo" r:1 g:2 b:3> -> _out # equal
   
-  Color.<1 2 3 "foo"> = <r:1 g:2 b:3 foo:"foo"> -> \out # equal
-  Color.<1 2 3 "foo"> = <foo:"foo" r:1 g:2 b:3> -> \out # equal
-  Color.<1 2 3 "foo"> != <x:1 y:2 z:3 foo:"foo"> -> \out # NOT equal
+  Color.<1 2 3 "foo"> = <r:1 g:2 b:3 foo:"foo"> -> _out # equal
+  Color.<1 2 3 "foo"> = <foo:"foo" r:1 g:2 b:3> -> _out # equal
+  Color.<1 2 3 "foo"> != <x:1 y:2 z:3 foo:"foo"> -> _out # NOT equal
   
-  Color.<1 2 3 "foo"> = <1 2 3 "foo"> -> \out # equal
-  Color.<1 2 3 "foo"> != <"foo" 1 2 3> -> \out # NOT equal
+  Color.<1 2 3 "foo"> = <1 2 3 "foo"> -> _out # equal
+  Color.<1 2 3 "foo"> != <"foo" 1 2 3> -> _out # NOT equal
   ```
 
 - `Color.<r:1, g:2, b:3, foo:"foo">` is a struct Color which has a Int field
@@ -1772,14 +1772,14 @@ the color<br>
 field for each dimension and a label
 
   ```ruby
-  Color.<> != Point.<> -> \out # NOT equal
-  Color.<1 2 3 "foo"> != Point.<1 2 3 "foo"> -> \out # NOT equal
+  Color.<> != Point.<> -> _out # NOT equal
+  Color.<1 2 3 "foo"> != Point.<1 2 3 "foo"> -> _out # NOT equal
 
-  Color.<> != Rgb.<> -> \out # NOT equal
-  Color.<1 2 3 "foo"> != Rgb.<1 2 3 "foo"> -> \out # NOT equal (despite having equal fields)
+  Color.<> != Rgb.<> -> _out # NOT equal
+  Color.<1 2 3 "foo"> != Rgb.<1 2 3 "foo"> -> _out # NOT equal (despite having equal fields)
 
-  Color.<> = Rgb.<> as Color -> \out # equal
-  Color.<> = Point.<> as Color -> \out # equal
+  Color.<> = Rgb.<> as Color -> _out # equal
+  Color.<> = Point.<> as Color -> _out # equal
   ```
 
 Let's get back to widening.
@@ -1828,8 +1828,8 @@ can still be achieved via explicit casting
 Color<r Int, g Int, b Int>
 Rgb<r Int, g Int, b Int>
 
-Color.<> as Rgb -> \out
-Rgb.<> as Color -> \out
+Color.<> as Rgb -> _out
+Rgb.<> as Color -> _out
 ```
 
 # Type inference
@@ -1839,7 +1839,7 @@ infer it. Giovi relies on types widening information to infer the correct type;
 let's create a list as a example.
 
 ```ruby
-\out <- [69n 420 6.9]
+_out <- [69n 420 6.9]
 ```
 
 Giovi will always infer the widest type. In this example we have a list of a
@@ -1898,12 +1898,12 @@ It's possible to check the type of a value
 
 ```ruby
 if someVariable is Int do {
-	"someVariable is an integer with value ${someVariable}" -> \out
+	"someVariable is an integer with value ${someVariable}" -> _out
 }
 if someVariable {
-	is Int do "It's integer" -> \out
-	is Real do "It's real" -> \out
-	is [Int] do "It's a list of integer" -> \out
+	is Int do "It's integer" -> _out
+	is Real do "It's real" -> _out
+	is [Int] do "It's a list of integer" -> _out
 }
 ```
 
@@ -1911,7 +1911,7 @@ The operator can be negated with the `not` keyword
 
 ```ruby
 if someVariable is not Int do {
-	"It's not an integer" -> \out
+	"It's not an integer" -> _out
 }
 ```
 
@@ -1919,7 +1919,7 @@ which is the same but should be preferred to this
 
 ```ruby
 if not {someVariable is Int} do {
-	"It's not an integer" -> \out
+	"It's not an integer" -> _out
 }
 ```
 
@@ -1931,11 +1931,11 @@ When checking variable type, it's often needed to cast it
 if color {
 	is RGB do {
 		color as RGB -> c RGB
-		"${c.r} ${c.g} ${c.b}" -> \out
+		"${c.r} ${c.g} ${c.b}" -> _out
 	}
 	is ARGB do {
 		color as ARGB -> c ARGB
-		"${c.r} ${c.g} ${c.b} ${c.a}" -> \out
+		"${c.r} ${c.g} ${c.b} ${c.a}" -> _out
 	}
 }
 ```
@@ -1944,8 +1944,8 @@ It's possible to use variable declaration syntax to improve readability
 
 ```ruby
 if color {
-	is c RGB do "${c.r} ${c.g} ${c.b}" -> \out
-	is c RGBA do "${c.r} ${c.g} ${c.b} ${c.a}" -> \out
+	is c RGB do "${c.r} ${c.g} ${c.b}" -> _out
+	is c RGBA do "${c.r} ${c.g} ${c.b} ${c.a}" -> _out
 }
 ```
 
@@ -1956,7 +1956,7 @@ Note that it's not possible when the `is` operator is negated
 ```ruby
 color RGB
 if color is c RGB {
-	c.r -> \out
+	c.r -> _out
 } else {
 	# variable c not defined here
 }
@@ -1964,7 +1964,7 @@ if color is c RGB {
 if ! color is c RGB {
 	# variable c not defined here
 } else {
-	c.r -> \out
+	c.r -> _out
 }
 ```
 
@@ -1972,8 +1972,8 @@ if ! color is c RGB {
 
 ```ruby
 if color {
-	is <r Int, g Int, b Int> do "Do something with $r $g and $b" -> \out
-	is <r Int, b Int> do "I only need $r and $b" -> \out
+	is <r Int, g Int, b Int> do "Do something with $r $g and $b" -> _out
+	is <r Int, b Int> do "I only need $r and $b" -> _out
 }
 ```
 
@@ -2044,9 +2044,9 @@ someNumber Int default 69
 someText Text default "default text"
 someBoolean Bool default true
 
-someNumber.default -> \out  # 69
-someText.default -> \out    # "default text"
-someBoolean.default -> \out # true
+someNumber.default -> _out  # 69
+someText.default -> _out    # "default text"
+someBoolean.default -> _out # true
 ```
 
 Doing the same on a Type will instead return the default value of a variable of
@@ -2054,15 +2054,15 @@ that type, which might be useful to check wether or not a variable's default
 has been overridden
 
 ```ruby
-Natural.default -> \out # 0n
-Int.default -> \out     # 0i
-Real.default -> \out    # 0r
-Text.default -> \out    # "" (empty string)
-Bool.default -> \out    # false
+Natural.default -> _out # 0n
+Int.default -> _out     # 0i
+Real.default -> _out    # 0r
+Text.default -> _out    # "" (empty string)
+Bool.default -> _out    # false
 
 someNumber Int default 69
 if someNumber.default != Int.default do {
-	"someNumber's default has been overriden" -> \out
+	"someNumber's default has been overriden" -> _out
 }
 ```
 
@@ -2213,17 +2213,17 @@ Example:
 name Text
 if name {
 
-	= "Simone" do "hey it's Simone!" -> \out
+	= "Simone" do "hey it's Simone!" -> _out
 
 	= "Mario" do {
-		"heyo Mario" -> \out
-		"where is Luigi?" -> \out
+		"heyo Mario" -> _out
+		"where is Luigi?" -> _out
 	}
 
-	= "Luigi" do -> "heyo green Mario!" -> \out
+	= "Luigi" do -> "heyo green Mario!" -> _out
 
 } else {
-	"greetings $name" -> \out
+	"greetings $name" -> _out
 }
 ```
 
@@ -2237,12 +2237,12 @@ if number {
 	# if equal to 69 or 420
 	= 69
 	| = 420
-	do "Nice!" -> \out
+	do "Nice!" -> _out
 
 	# if greater than 100 and less than 999
 	> 100
 	& < 999
-	do "big boi" -> \out
+	do "big boi" -> _out
 
 }
 ```
@@ -2253,9 +2253,9 @@ Textual boolean operators are allowed
 number Int
 if number {
 
-	= 69 or = 420 do "Nice!" -> \out
+	= 69 or = 420 do "Nice!" -> _out
 
-	> 100 and < 999 do "big boi" -> \out
+	> 100 and < 999 do "big boi" -> _out
 
 }
 ```
@@ -2351,13 +2351,13 @@ red ColorRGB <- <255 0 0>
 transparent ColorARGB <- <0 0 0 0>
 
 if color {
-	= default do "it's black" -> \out
-	= red do "it's red" -> \out
-	= <240 10 10> do "it's redish" -> \out
-	= <255 default 69> do "255, default green, 69" -> \out
-	= white | = <200 200 200> do "it's white or grey" -> \out
-	= <_ _ 69> do "any red, any green, blue of 69" -> \out
-	= <_ _ _ _> do "It has at least 4 fields" -> \out
+	= default do "it's black" -> _out
+	= red do "it's red" -> _out
+	= <240 10 10> do "it's redish" -> _out
+	= <255 default 69> do "255, default green, 69" -> _out
+	= white | = <200 200 200> do "it's white or grey" -> _out
+	= <_ _ 69> do "any red, any green, blue of 69" -> _out
+	= <_ _ _ _> do "It has at least 4 fields" -> _out
 }
 ```
 
@@ -2482,7 +2482,7 @@ graph [Text : [Text : Int]] <- [
 	"f" : ["b":2 "e":8]
 ]
 for nodeA : [nodeB : edgeCost] do {
-	"$nodeA ---$edgeCost---> $nodeB" -> \out
+	"$nodeA ---$edgeCost---> $nodeB" -> _out
 }
 ```
 
@@ -2491,7 +2491,7 @@ This would be the same of doing two nested for loops
 ```ruby
 for nodeA : edges in graph do {
 	for nodeB : edgeCost in edges do {
-		"$nodeA ---$edgeCost---> $nodeB" -> \out
+		"$nodeA ---$edgeCost---> $nodeB" -> _out
 	}
 }
 ```
@@ -2516,11 +2516,11 @@ Color <red Int, green Int, blue Int>
 colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]  
 
 for <red green blue> in colors do {
-	"The color is made of $red $green $blue" -> \out
+	"The color is made of $red $green $blue" -> _out
 }
 
 for color <red green blue> in colors do {
-	"The color $color is made of $red $green $blue" -> \out
+	"The color $color is made of $red $green $blue" -> _out
 }
 ```
 
@@ -2543,7 +2543,7 @@ for <x, y, z <a b c>> in listOfNestedStruct do {
 			- $a
 			- $b
 			- $c
-	}" -> \out
+	}" -> _out
 }
 ```
 
@@ -2554,7 +2554,7 @@ key too, or both)
 mapOfFoo [Text : Foo]
 
 for key : <a b c> in mapOfFoo do {
-	"The key $key is mapped to <$a $b $c>" -> \out
+	"The key $key is mapped to <$a $b $c>" -> _out
 }
 ```
 
@@ -2600,11 +2600,11 @@ digits and underscores.
 
 ```ruby
 printHelloWorld() {
-	"Hello World" -> \out
+	"Hello World" -> _out
 }
 
 greetPerson(name Text, surname Text) {
-	"Greetings $name, $surname" -> \out
+	"Greetings $name, $surname" -> _out
 }
 
 getBestLanguage() => Text {
@@ -2639,8 +2639,8 @@ When invoking a function, you can use named parameters; the order won't matter
 
 ```ruby
 greet(name Text, age Natural) {
-	"My name is $name" -> \out
-	"My age is $age" -> \out
+	"My name is $name" -> _out
+	"My age is $age" -> _out
 }
 
 # positional parameters
@@ -2747,7 +2747,7 @@ returns a value, its return type can be omitted as it will be inferred
 getName() => "Simone"
 sum(x Int, y Int) => x + y
 isEven(x Int) => x % 2 = 0
-greet(name Text) name -> \out
+greet(name Text) name -> _out
 ```
 
 ### Function reference
@@ -2760,7 +2760,7 @@ sum(x Int, y Int) => Int {
 	=> x + y
 }
 
-::sum -> \out # will print sum(x Int, y Int) => Int
+::sum -> _out # will print sum(x Int, y Int) => Int
 ```
 
 It can be stored in variables and struct, and can be passed as a parameter to
@@ -2774,7 +2774,7 @@ sum(x Int, y Int) => Int {
 }
 
 printSomething(txt Text) {
-	txt -> \out
+	txt -> _out
 }
 
 someFunctionRef ::(Text)
@@ -2804,7 +2804,7 @@ someFunctionRef ::()
 
 # Assign an anonymous function reference to someFunctionRef
 someFunctionRef <- ::{
-	"hello world" -> \out
+	"hello world" -> _out
 }
 
 # I can now invoke someFunctionRef
@@ -2827,7 +2827,7 @@ implementation in this case)
 
 ```ruby
 someFunctionRef ::(Text) default ::(txt Text) {
-	txt -> \out
+	txt -> _out
 }
 ```
 
@@ -2869,7 +2869,7 @@ Color <
 	b Int
 >
 someFunctionRef ::() => Color
-someFunctionRef() -> \out # will print Color.<255 0 0>
+someFunctionRef() -> _out # will print Color.<255 0 0>
 ```
 
 
@@ -2986,7 +2986,7 @@ shelfToHTML(shelf [Book]) => [Text] {
 		</table>
 		}"
 
-	table -> \out
+	table -> _out
 }
 
 #?{
@@ -3053,8 +3053,8 @@ shelf [Book] <- [
 		>
 	]
 
-shelfToText(shelf) -> \out
-shelfToHTML(shelf) -> \out
+shelfToText(shelf) -> _out
+shelfToHTML(shelf) -> _out
 ```
 
 ## Find min value in a list
@@ -3076,7 +3076,7 @@ findMinElement(list [Text]) => Text {
 
 findMinElementIndex(list [Text]) => Int {
 	if list@% < 1 do {
-		"list is empty" -> \out
+		"list is empty" -> _out
 		=> -1
 	}
 	0 -> min Int
@@ -3096,7 +3096,7 @@ findMinElementIndex(letters) -> minElementIdx Int
 List: $letters
 	         min value: $minElement
 	min value position: $minElementIdx
-}" -> \out
+}" -> _out
 
 #{
 # 	output:
@@ -3165,9 +3165,9 @@ fibonacciMemoIter(n Int) => Int {
 	=> cache@{n - 1};
 }
 
-"Insert iteration count: " ->+ \out
-\in as Int -> n Int
-"Fibonacci of $n will be computed" -> \out
+"Insert iteration count: " ->+ _out
+_in as Int -> n Int
+"Fibonacci of $n will be computed" -> _out
 algorithm Text
 repeat {
 	"{
@@ -3177,17 +3177,17 @@ repeat {
 		2) iterative (bottom-up)
 		3) iterative (memoization via associative array)
 		4) iterative (memoization via array)
-	> }" ->+ \out
-	\in -> algorithm
+	> }" ->+ _out
+	_in -> algorithm
 	if algorithm {
 		= "0" do break;
-		= "1" do "fibonacci($n) => ${fibonacci(n)}" -> \out
-		= "2" do "fibonacciBottomUp($n) => ${fibonacciBottomUp(n)}" -> \out
-		= "3" do "fibonacciAssociativeMemoIter($n) => ${fibonacciAssociativeMemoIter(n)}"  -> \out
-		= "4" do "fibonacciMemoIter($n) => ${fibonacciMemoIter(n)}" -> \out
+		= "1" do "fibonacci($n) => ${fibonacci(n)}" -> _out
+		= "2" do "fibonacciBottomUp($n) => ${fibonacciBottomUp(n)}" -> _out
+		= "3" do "fibonacciAssociativeMemoIter($n) => ${fibonacciAssociativeMemoIter(n)}"  -> _out
+		= "4" do "fibonacciMemoIter($n) => ${fibonacciMemoIter(n)}" -> _out
 	} else default -> algorithm 
 	if algorithm = default 
-		do "Invalid algorithm" -> \out
+		do "Invalid algorithm" -> _out
 		else break
 }
 ```
@@ -3197,12 +3197,12 @@ repeat {
 ## @candidate Infinity and NaN
 
 ```ruby
-inf -> \out
--inf -> \out
-∞ -> \out
--∞ -> \out
+inf -> _out
+-inf -> _out
+∞ -> _out
+-∞ -> _out
 
-nan -> \out
+nan -> _out
 ```
 
 ## @candidate Module system
@@ -3261,7 +3261,7 @@ main(args Args) => Int {
 
 # or just use structs and funcs
 <"somefile.txt"> -> f File
-for line in f.lines() do line -> \out
+for line in f.lines() do line -> _out
 ```
 
 ## @candidate Regex
@@ -3280,7 +3280,7 @@ Regex."^[a-zA-Z]+:\s*([0-9]+).*$" -> regex Text.Regex
 ```ruby
 <"^[a-zA-Z]+:\s*([0-9]+).*$"> -> regex Regex
 if regex.matches("cpu temp: 69C") do {
-	regex.groups@0 -> \out
+	regex.groups@0 -> _out
 }
 ```
 
@@ -3303,7 +3303,7 @@ fork ::fetchData > result Text.Json
 fork ::{doSomethingBlocking()}
 fork ::doSomethingBlocking
 fork ::{
-	"yeah" > \out
+	"yeah" > _out
 	doSomethingBlocking();
 }
 join
@@ -3316,15 +3316,15 @@ Alias a type, function or struct
 ```ruby
 AVeryVerboseAndLongStructName <i Int>
 alias AVeryVerboseAndLongStructName as SomeStruct
-SomeStruct.() -> \out
+SomeStruct.() -> _out
 
 aVeryLonglyNamedFunction() => Text { => "hello world" }
 alias aVeryLonglyNamedFunction as f
-f() -> \out
+f() -> _out
 
 aVeryLonglyNamedVariable Int
 alias aVeryLonglyNamedVariable as i
-i -> \out
+i -> _out
 ```
 
 ### @candidate Strict aliasing
@@ -3375,16 +3375,16 @@ iColor Int <- me.favoriteColor as Int
 
 printPersons(persons [Person{_}]) {
 	for person in persons do {
-		\out <- "${person.name} has ${person.money} and likes ${person.favoriteColor}"
+		_out <- "${person.name} has ${person.money} and likes ${person.favoriteColor}"
 	}
 }
 
 printFavColor(persons [Person{_}]) {
 	for person in persons do {
-		"${person.name} likes " ->+ \out
+		"${person.name} likes " ->+ _out
 		if person {
-			is p Person{Int} do p.favoriteColor > \out
-			is p Person{RGB} do "${p.favoriteColor.r} ${p.favoriteColor.g} ${p.favoriteColor.b}" -> \out
+			is p Person{Int} do p.favoriteColor > _out
+			is p Person{RGB} do "${p.favoriteColor.r} ${p.favoriteColor.g} ${p.favoriteColor.b}" -> _out
 		}
 	}
 }
@@ -3395,8 +3395,8 @@ Optional{T} <value T>
 
 doSomething(optional Optional{_}) {
 	if optional {
-		is opt Optional{Text} do opt.value -> \out
-		is opt Optional{Int} do opt.value -> \out
+		is opt Optional{Text} do opt.value -> _out
+		is opt Optional{Int} do opt.value -> _out
 	}
 }
 ```
@@ -3433,7 +3433,7 @@ the language.
 
 ```ruby
 #!disable()
-"this will not be formatted" -> \out
+"this will not be formatted" -> _out
 #!enable()
 
 #!align:true
@@ -3493,16 +3493,16 @@ Color <red Int, green Int, blue Int>
 c Color
 if true do {
 	c -> <red blue>
-	"$red $blue" -> \out
+	"$red $blue" -> _out
 }
 if true do {
 	c -> <red Int, blue Int>
-	"$red $blue" -> \out
+	"$red $blue" -> _out
 }
 
 if c {
-	is <red blue> do "$red $blue" -> \out
-	is <red Int, blue Int> do "$red $blue" -> \out
+	is <red blue> do "$red $blue" -> _out
+	is <red Int, blue Int> do "$red $blue" -> _out
 }
 ```
 
@@ -3513,10 +3513,10 @@ getRecord() => <x Int, y Int, z Int> {
 getRecord() -> <x y z>
 getRecord() -> <x Int, y Int, z Int>
 if getRecord() {
-	is <x y z> do "$x $y $z" -> \out
-	is <x z> do "$x $z" -> \out
-	is <x _ z> do "$x $z" -> \out
-	is <x Int, z Int> do "$x $z" -> \out
+	is <x y z> do "$x $y $z" -> _out
+	is <x z> do "$x $z" -> _out
+	is <x _ z> do "$x $z" -> _out
+	is <x Int, z Int> do "$x $z" -> _out
 }
 ```
 
@@ -3527,20 +3527,20 @@ getTuple() => <Int, Int, Int> {
 getTuple() -> <x y z>
 getTuple() -> <x Int, y Int, z Int>
 if getTuple() {
-	is <x y z> do "$x $y $z" -> \out
-	is <x Int, y Int, z Int> do "$x $y $z" -> \out
-	is <x Int, _, z Int> do "$x $z" -> \out
+	is <x y z> do "$x $y $z" -> _out
+	is <x Int, y Int, z Int> do "$x $y $z" -> _out
+	is <x Int, _, z Int> do "$x $z" -> _out
 }
 ```
 
 ## @candidate Emoji handling in Text
 
 ```ruby
-"💩" -> \out
-"💩"@% -> \out # should be 1
-"💩"@0 -> \out # should be :poop:
-"💩".0 -> \out # should be single char
-"💩".1 -> \out # should be single char
+"💩" -> _out
+"💩"@% -> _out # should be 1
+"💩"@0 -> _out # should be :poop:
+"💩".0 -> _out # should be single char
+"💩".1 -> _out # should be single char
 ```
 
 ## @candidate Forward declaration
@@ -3557,7 +3557,7 @@ print(c Color) {
 	red: ${c.red}
 	green: ${c.green}
 	blue: ${c.blue}
-	}" -> \out
+	}" -> _out
 }
 
 Color <red Int, green Int, blue Int>
@@ -3569,7 +3569,7 @@ No interpolation and no escapes
 
 ```ruby
 windowsPath Text <- `C:\some\path\to\some\file`
-\out <- `{
+_out <- `{
 	Writing \n will print the \ character and the n character
 	}`
 ```
@@ -3640,7 +3640,7 @@ someFun(x Int|Text) => Int|Text {
 }
 
 if x {
-	is not y Int|Text do => "$y is neither Int nor Text" -> \out
+	is not y Int|Text do => "$y is neither Int nor Text" -> _out
 }
 ```
 
@@ -3685,8 +3685,8 @@ writeToFile(message Text, filepath Text) ~> LogException {
 
 try writeToFile("hello world", "somefile.log")
 if catch ex LogException do {
-	ex.message -> \out
-	ex.cause.message -> \out
+	ex.message -> _out
+	ex.cause.message -> _out
 }
 ```
 
@@ -3703,7 +3703,7 @@ _APIs design still to be defined_
 ```ruby
 Optional{T} <value T, found Bool>
 fetch() => Optional{Int} { => Optional.<69, true> }
-if fetch() = <value: _, found: true> do "A value $value has been found" -> \out
+if fetch() = <value: _, found: true> do "A value $value has been found" -> _out
 ```
 
 à la Rust
@@ -3719,8 +3719,8 @@ parseDate(text Text) => Result{Date, ParsingError} {
 	=> Ok{Date}.<parsedDate>
 }
 if parseDate("69/69/69") {
-	= <value:_> do value -> \out
-	= <error:_> do error -> \error
+	= <value:_> do value -> _out
+	= <error:_> do error -> _err
 }
 ```
 
@@ -3734,7 +3734,7 @@ parseDate(text Text) => <value Date, err ParsingError> {
 }
 parseDate("69/69/69") -> <value, err>
 if err != default {
-	err -> \error
+	err -> _err
 }
 ```
 
@@ -3747,8 +3747,8 @@ parseDate(text Text) => Date|ParsingError {
 	=> parsedDate
 }
 if parseDate("69/69/69") {
-	is err ParsingError do err -> \error
-	is date Date do date -> \out
+	is err ParsingError do err -> _err
+	is date Date do date -> _out
 }
 ```
 
@@ -3792,22 +3792,22 @@ Vec2 <
 >
 
 v Vec <- Vec2.<69 420>
-v.magnitude() -> \out
+v.magnitude() -> _out
 ```
 
 ## @candidate Unified loop keyword
 
 ```ruby
 loop {
-	"hello world" -> \out
+	"hello world" -> _out
 }
-loop "hello world" -> \out
-loop someFunction -> \out
-loop i in 0..10 do "hello world $i" -> \out
-loop entry in list do "hello world $i" -> \out
-loop key : value in map do "hello world $key : $value" -> \out
-loop <r g b> in colors do "hello world <$r $g $b>" -> \out
-loop color<r g b> in colors do "hello world <$r $g $b>" -> \out
+loop "hello world" -> _out
+loop someFunction -> _out
+loop i in 0..10 do "hello world $i" -> _out
+loop entry in list do "hello world $i" -> _out
+loop key : value in map do "hello world $key : $value" -> _out
+loop <r g b> in colors do "hello world <$r $g $b>" -> _out
+loop color<r g b> in colors do "hello world <$r $g $b>" -> _out
 ```
 
 ## @candidate Casting custom implementation
@@ -3864,15 +3864,7 @@ Vector <
 <69 1 420> -> v1 Vector
 <0 1 0> -> v2 Vector
 
-v1 + (v2 * 2) -> \out
-```
-
-## @candidate Standard content/destination syntax
-
-```ruby
-"hello world" -> _out
-_in -> input Text
-input -> _err
+v1 + (v2 * 2) -> _out
 ```
 
 ## @candidate Function arguments as a record
@@ -3926,7 +3918,7 @@ build() => Build {
 			]
 		]
 		onBuild: ::{
-			"I'm building MyApplication!" -> \out
+			"I'm building MyApplication!" -> _out
 		}
 	>
 }
@@ -3937,10 +3929,10 @@ package() => Package {
 		include: ["*.*"]
 		exclude: [".git" ".gitignore"]
 		onPackage: ::(package File) {
-			"Package complete" -> \out
-			"Publishing the package" -> \out
+			"Package complete" -> _out
+			"Publishing the package" -> _out
 			publish(package, "https://some.website.com")
-			"Done" -> \out
+			"Done" -> _out
 		}
 	>
 }
