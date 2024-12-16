@@ -2679,11 +2679,11 @@ It's possible to mix optional and required parameters in the signature
 processPizzaOrder(
   type Text default "Margherita",
   tableNumber Int,
-  withAnanas Bool default false,
+  withPineapple Bool default false,
   ) {
-  	if withAnanas do return;
-	makePizza(type)
-	bringPizzaTo(tableNumber)
+  	if withPineapple do return
+	makePizza(type) -> pizza Pizza
+	serve(pizza, tableNumber)
 }
 ```
 
@@ -2696,7 +2696,7 @@ parameter type, or eventually the default parameter value if specified
 processPizzaOrder("Diavola", 69) # "Diavola" to table 69
 processPizzaOrder(_, 69) # "Margherita" to table 69
 processPizzaOrder(_, _) # "Margherita" to table 0
-processPizzaOrder(_, 69, true) # "Margherita" with ananas to table 69
+processPizzaOrder(_, 69, true) # "Margherita" with pineapple to table 69
 processPizzaOrder(69) # ERROR: expecting pizza type, but got 69
 ```
 
@@ -2711,34 +2711,86 @@ processPizzaOrder(type:_, tableNumber: 69)
 processPizzaOrder(tableNumber: 69)
 ```
 
-## @candidate Function arguments labels
+## Function invocation labels
+
+Sometimes you have to decide whether to name a parameter to either favor
+readability in the function body...
 
 ```ruby
 processPizzaOrder(
-  ofType Text default "Margherita",
-  atTable: tableNumber Int,
-  withAnanas Bool default false,
-  ) {
+	type Text,
+	table Int,
+	hasPineapple Bool,
+) {
+	if hasPineapple do return
+	makePizza(type) -> pizza Pizza
+	serve(pizza, table)
 }
 
-processPizzaOrder(ofType: "Diavola", atTable: 69, withAnanas: false)
+processPizzaOrder(
+	type: "Diavola",
+	tableNumber: 69,
+	hasPineapple: false
+)
 ```
 
-### @candidate Overloading
+... or at invocation
+
+```ruby
+processPizzaOrder(
+	ofType Text
+	atTableNumber Int,
+	withPineapple Bool,
+) {
+	if withPineapple do return
+	makePizza(ofType) -> pizza Pizza
+	serve(pizza, atTableNumber)
+}
+
+processPizzaOrder(
+	ofType: "Diavola",
+	atTableNumber: 69,
+	withPineapple: false
+)
+```
+
+To improve readability, function formal parameters can "override" the label, so
+that a nicer signature is exposed at invocation, while still being readable in
+the implementation body
+
+```ruby
+processPizzaOrder(
+	ofType: type Text,
+	atTable: tableNumber Int,
+	withPineapple: hasPineapple Bool,
+) {
+	if hasPineapple do return
+	makePizza(type) -> pizza Pizza
+	serve(pizza, tableNumber)
+}
+
+processPizzaOrder(
+	ofType: "Diavola",
+	atTable: 69,
+	withPineapple: false
+)
+```
+
+## @candidate Overloading
 
 Function overloading is possible, as long as all required parameters are
 different (different name and different type)
 
 ```ruby
 makePizza(type Text) { }
-makePizza(type Text, withAnanas Bool) { }
+makePizza(type Text, withPineapple Bool) { }
 makePizza(ingredients [Text]) { }
 
 # ERROR makePizza(type Text) already defined
-makePizza(type Text, withAnanas Bool default false) { }
+makePizza(type Text, withPineapple Bool default false) { }
 ```
 
-### @candidate Statement functions
+## @candidate Statement functions
 
 Functions can have a single statement instead of a body; in case the function
 returns a value, its return type can be omitted as it will be inferred
@@ -2750,7 +2802,7 @@ isEven(x Int) => x % 2 = 0
 greet(name Text) name -> _out
 ```
 
-### Function reference
+# Functions reference
 
 The reference of a function is used to refer to the function itself.<br>
 You can get a reference of a function with the `::` (double colon).
@@ -2765,25 +2817,48 @@ sum(x Int, y Int) => Int {
 
 It can be stored in variables and struct, and can be passed as a parameter to
 other functions as well, just like any other type.<br>
-To ensure type safety, the function signatures must be compatible.<br>
 It can be invoked like a normal function
 
 ```ruby
-sum(x Int, y Int) => Int {
-	=> x + y
-}
+sum(x Int, y Int) => Int { => x + y }
+sub(x Int, y Int) => Int { => x + y }
+mul(x Int, y Int) => Int { => x * y }
+div(x Int, y Int) => Int { => x / y }
 
-printSomething(txt Text) {
-	txt -> _out
-}
+someOperation ::(Int, Int)
 
-someFunctionRef ::(Text)
+::sum -> someOperation
+someOperation(5, 2) -> _out # 5 + 2
 
-::printSomething -> someFunctionRef
-# someFunctionRef is now referencing printSomething
-someFunctionRef("hello world") # will print "hello world"
+::sub -> someOperation
+someOperation(5, 2) -> _out # 5 - 2
+
+::mul -> someOperation
+someOperation(5, 2) -> _out # 5 * 2
+
+::div -> someOperation
+someOperation(5, 2) -> _out # 5 / 2
+```
+
+To ensure type safety, the function signatures must be compatible (i.e. equal
+or wider)
+
+```ruby
+sum(x Int, y Int) => Int { => x + y }
+div(x Real, y Real) => Real { => x + y }
+greet(someone Text) { "hello $someone" -> _out }
+
+# a ref of a function that takes two Real parameters and return a Real
+someFunctionRef ::(Real, Real) => Real
+
+::div -> someFunctionRef
+someFunctionRef(690.0, 10.0) -> _out # 690 / 10
 
 ::sum -> someFunctionRef
+# OK: sum signature can be widened to someFunctionRef signature
+someFunctionRef(49, 10) -> _out # 49 + 10
+
+::greet -> someFunctionRef
 # ERROR: incompatible function signatures
 ```
 
@@ -2831,7 +2906,7 @@ someFunctionRef ::(Text) default ::(txt Text) {
 }
 ```
 
-#### @candidate Signature inference
+## @candidate Signature inference
 
 A function reference with many parameters, a return type and a default
 implementation could be very verbose and cluttered
@@ -2840,7 +2915,7 @@ implementation could be very verbose and cluttered
 # A verbose definition of a function reference which takes a Int, return an Int,
 # with a default implementation which returns the sum of the parameters
 
-# <variable> ::(<params>)     => <return> default ::(<params>)     => <return> <statement
+# <identifier>    ::(<params>)     => <return> default ::(<params>)     => <return> <statement>
 someFunctionRef   ::(x Int, y Int) => Int      default ::(x Int, y Int) => Int      => x + y
 ```
 
@@ -2857,7 +2932,7 @@ have to specify them in the default implementation signature
 someFunctionRef ::(Int, Int) => Int default ::(x, y) => x + y
 ```
 
-#### Default value of a function ref
+## Default value of a function ref
 
 The default value of a function ref will be an "empty" function with no body.<br>
 If the signatures has a return value, its default will be returned instead
@@ -2869,51 +2944,7 @@ Color <
 	b Int
 >
 someFunctionRef ::() => Color
-someFunctionRef() -> _out # will print Color.<255 0 0>
-```
-
-
-### @candidate Pipe operator
-
-```ruby
-reverse(t Text) => Text {}
-split(t Text, separator Text) => [Text] {}
-countLetters(a [Text]) => [Int] {}
-sum(a [Int]) => Int {}
-
-"Hello world my name is Simone"
->> reverse(_)
->> split(_, " ")
->> countLetters(_)
->> sum(_)
-
-"Hello world" >> reverse(_) >> split(_) >> countLetters(_) >> sum(_)
-```
-
-```ruby
-# textual alternative
-"Hello world my name is Simone"
-then reverse(_)
-then split(_)
-then filter(_, ::(i) => i =~ "aeiou")
-then map(_, ::(i) => "($i)")
-then countLetters(_)
-then sum(_)
-
-"Hello world" then reverse(_) then split(_) then countLetters(_) then sum(_)
-```
-
-```ruby
-filter(a [Text], f ::(Text) => Bool) => [Text] {}
-map(a [Text], f ::(Text) => Text) => [Text] {}
-
-"Hello world my name is Simone"
->> reverse(_)
->> split(_)
->> filter(_, ::(i) => i =~ "aeiou")
->> map(_, ::(i) => "($i)")
->> countLetters(_)
->> sum(_)
+someFunctionRef() -> _out # will print Color.<69 0 0>
 ```
 
 # Code examples
@@ -3974,6 +4005,49 @@ sum(#? Sum two integer numbers
 {
 	=> x + y
 }
+```
+
+# @candidate Pipe operator
+
+```ruby
+reverse(t Text) => Text {}
+split(t Text, separator Text) => [Text] {}
+countLetters(a [Text]) => [Int] {}
+sum(a [Int]) => Int {}
+
+"Hello world my name is Simone"
+>> reverse(_)
+>> split(_, " ")
+>> countLetters(_)
+>> sum(_)
+
+"Hello world" >> reverse(_) >> split(_) >> countLetters(_) >> sum(_)
+```
+
+```ruby
+# textual alternative
+"Hello world my name is Simone"
+then reverse(_)
+then split(_)
+then filter(_, ::(i) => i =~ "aeiou")
+then map(_, ::(i) => "($i)")
+then countLetters(_)
+then sum(_)
+
+"Hello world" then reverse(_) then split(_) then countLetters(_) then sum(_)
+```
+
+```ruby
+filter(a [Text], f ::(Text) => Bool) => [Text] {}
+map(a [Text], f ::(Text) => Text) => [Text] {}
+
+"Hello world my name is Simone"
+>> reverse(_)
+>> split(_)
+>> filter(_, ::(i) => i =~ "aeiou")
+>> map(_, ::(i) => "($i)")
+>> countLetters(_)
+>> sum(_)
 ```
 
 <!-- 

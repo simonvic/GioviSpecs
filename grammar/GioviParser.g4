@@ -134,7 +134,7 @@ anonFunctionSignature: formalParameters (RETURN_SYM returnType=type)? ;
 
 formalParameters: '(' (formalParameter (',' formalParameter)* ','?)? ')';
 
-formalParameter: name=identifier type defaultDefinition?;
+formalParameter: (label=identifier ':')? name=identifier type defaultDefinition?;
 
 invocationStatement
 	: (expression '.')? invocation # invocationStatementSimple
