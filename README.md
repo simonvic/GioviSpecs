@@ -774,13 +774,6 @@ default -> someList # set someList to its default value
 default ->+ someList # add default entry to someList
 ```
 
-@candidate Default entry value can be overridden
-
-```ruby
-funnyNumbers [Int default 69]
-default ->+ funnyNumbers
-```
-
 #### List Initialization shorthand
 
 It is possible to initialize a list with a defined amount of values.<br>
@@ -1672,7 +1665,7 @@ Often we need to work with different data types toghether and we may need
 to transform data from one type to another (casting).
 
 There are two kinds of casting:
-- widening: casting from a "smaller" type to a "bigger" one (lossless).
+- **widening**: lossless casting from a "narrower" type to a "wider" one.
   Some examples:
     - `Natural` to `Int`
     - `Int` to `Real`
@@ -1680,9 +1673,9 @@ There are two kinds of casting:
     - `[Natural : [Int]]` to `[Int : [Real]]` *A map with `Natural` keys and
     values of list of `Int` to a map with `Int` keys and values of list of
     `Real`*
-- narrowing: casting from a "bigger" type to a "smaller" one (lossy).
-  Same examples as above, but inverted. This operation can lead to possible
-data loss
+- **narrowing**: lossy casting from a "wider" type to a "narrower" one
+(lossy). Same examples as above, but inverted. This operation can lead to
+possible data loss
 
 Widening happens automatically when necessary (e.g. redirections)
 
@@ -1727,7 +1720,7 @@ Since the widening/narrowing is crucial for type inference, Tuples, Records and
 Structs require some additional attention as they have some differences.
 
 In order to quickly understand why they behave the way they do, ask yourself:
-*what information does a tuple or struct carry?*
+*what information does this data carry?*
 
 - `<1 2 3 "foo">` is a tuple with tree Int and a Text
 
@@ -4007,7 +4000,7 @@ sum(#? Sum two integer numbers
 }
 ```
 
-# @candidate Pipe operator
+## @candidate Pipe operator
 
 ```ruby
 reverse(t Text) => Text {}
@@ -4048,6 +4041,74 @@ map(a [Text], f ::(Text) => Text) => [Text] {}
 >> map(_, ::(i) => "($i)")
 >> countLetters(_)
 >> sum(_)
+```
+
+
+## @candidate ref keyword
+
+```ruby
+ref {}
+ref (){}
+ref ()
+ref () {} 
+ref () => Int {}
+
+
+f ref() <- ref {}
+
+foo(){}
+ref foo -> _out
+```
+
+```ruby
+foo(ref x Int) => Int { }
+x Int
+foo(ref x)
+```
+
+## @candidate super abstract types
+
+```ruby
+n Number
+n <- 69n
+n <- 69i
+n <- 69r
+
+a Any
+a <- 69
+a <- "hello"
+a <- [1 2 3]
+a <- <"hello" 69 true>
+```
+
+## @candidate Range return
+
+```ruby
+probability() => 0r..1r {
+	=> 0.69 # OK
+	=> 2.69 # ERROR: not in range
+}
+```
+
+This candidate would collide with Range type candidate
+
+```ruby
+probability() => 0r..1r {
+	=> 0.69 # ERROR: expecting Range<Int> but real returned
+}
+```
+
+
+## @candidate self support in function refs
+
+```ruby
+Foo <
+	i Int
+
+	foo ::(self) => Int default ::(self) => {
+		=> self.i
+	}
+>
 ```
 
 <!-- 
