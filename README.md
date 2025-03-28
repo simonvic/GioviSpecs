@@ -1364,24 +1364,6 @@ You can access the nested struct using the dot notation
 engine Car.Engine
 ```
 
-You can also define nested struct inline (immediately after the field
-definition), but the type definition won't be immediately available, hence
-not usable from fields defined before.
-
-```ruby
-Person <
-	name Text
-	age Natural
-	# someColor Color
-	#           ^^^^^ ERROR Color not defined
-	favoriteColor Color <
-		red Natural
-		green Natural
-		blue Natural
-	>
->
-```
-
 #### @candidate Recursive struct
 
 You can define recursive struct (struct defined with itself)
@@ -1527,6 +1509,8 @@ inheritance" like in other object oriented languages; it's just syntax sugar to
 avoid repeating the same fields in multiple structs.
 
 It can define new fields and redefine inherited ones.
+
+TODO: clarify about overridden fields. Should the type be equal? Wider?
 
 ```ruby
 Vehicle <
@@ -1714,6 +1698,38 @@ Real.of(69n)
 Point3D.of(Point.<>)
 ```
 
+## Type conversion table
+
+| Symbol | Meaning                                     |
+| ------ | ------------------------------------------- |
+| =      | Identity                                    |
+| w      | Wideneable                                  |
+| n      | Narrowable                                  |
+| W      | Wideneable if its components are wideneable |
+| N      | Narrowable if its components are narrowable |
+| !      | Operation needs explicit cast               |
+
+
+| from \\ to | Void | Type | Bool | Natural | Int | Real | Text |
+|:----------:|:----:|:----:|:----:|:-------:|:---:|:----:|:----:|
+|   Void     |   =  |   w  |   w  |    w    |  w  |   w  |  w   |
+|   Type     |      |   =  |      |         |     |      |      |
+|   Bool     |      |      |   =  |         |     |      |      |
+|  Natural   |      |      |      |    =    |  w  |   w  |      |
+|    Int     |      |      |      |    n!   |  =  |   w  |      |
+|   Real     |      |      |      |    n!   |  n! |   =  |      |
+|   Text     |      |      |      |         |     |      |   =  |
+
+| from \\ to | Void | List | Map  | Function | Tuple | Record | Struct |
+|:----------:|:----:|:----:|:----:|:--------:|:-----:|:------:|:------:|
+|   Void     |  =   |  w   |  w   |    w     |   w   |   w    |   w    |
+|   List     |      | N! W |      |          |       |        |        |
+|    Map     |      |      | N! W |          |       |        |        |
+| Function   |      |      |      |   N! W   |       |        |        |
+|   Tuple    |      |      |      |          |  N! W |   W    |   W    |
+|  Record    |      |      |      |          |   N!  |  N! W  |   W    |
+|  Struct    |      |      |      |          |   N!  |   N!   | N! W!  |
+
 ## Tuples, Records and Structs
 
 Since the widening/narrowing is crucial for type inference, Tuples, Records and
@@ -1828,16 +1844,18 @@ Rgb.<> as Color -> _out
 # Type inference
 
 In certain scenarios the type of a value is not known, so it's necessary to
-infer it. Giovi relies on types widening information to infer the correct type;
-let's create a list as a example.
+infer it. Giovi relies on types widening information to infer the correct type.
+
+Unlike other object oriented languages where a list of a `Natural`, `Integer`
+and `Real` may be inferred to be a list of `Number`, Giovi will infer the
+widest type. Let's create a list as an example.
 
 ```ruby
 _out <- [69n 420 6.9]
 ```
 
-Giovi will always infer the widest type. In this example we have a list of a
-`Natural`, a `Int` and a `Real`, so the list entry type will be `Real` since
-it's the widest among the entries.<br>
+Here we have a list of a `Natural`, a `Int` and a `Real`, so the list entry
+type will be `Real` since it's the widest among the entries.<br>
 All other entries will be widened accordingly to ensure type safety.
 So the list will finally be equal to `[69.0 420.0 6.9]`
 
@@ -1985,14 +2003,16 @@ Constants name must be all UPPERCASE, must start with a letter and can contain
 digits and underscores.
 
 ```ruby
-constant LIGHT_SPEED Natural 299792458n
-constant EARTH_GRAVITY Real 9.81
-constant BEST_LANGUAGE Text "Giovi"
-constant RED Color <255 0 0>
-constant NAME_LIST [Text] ["Simone" "Alessio" "Giada" "Francesca"]
+constant LIGHT_SPEED Natural <- 299792458n
+constant EARTH_GRAVITY Real <- 9.81
+constant BEST_LANGUAGE Text <- "Giovi"
+constant RED Color <- <255 0 0>
+constant NAME_LIST [Text] <- ["Simone" "Alessio" "Giada" "Francesca"]
 ```
 
 # Default value
+
+TODO: this is rather important lol Expand this section
 
 The default keyword can be used in redirections and other statements
 
@@ -2010,8 +2030,7 @@ default -> someText          # This will set someText to empty string
 default -> someBoolean       # This will set someBoolean to false
 ```
 
-It is also possible to overwrite a variable default value (but only at
-declaration)
+A variable's default value (but only at declaration)
 
 ```ruby
 number Natural default 420
@@ -2818,7 +2837,7 @@ sub(x Int, y Int) => Int { => x + y }
 mul(x Int, y Int) => Int { => x * y }
 div(x Int, y Int) => Int { => x / y }
 
-someOperation ::(Int, Int)
+someOperation ::(Int, Int) => Int
 
 ::sum -> someOperation
 someOperation(5, 2) -> _out # 5 + 2
@@ -2834,7 +2853,7 @@ someOperation(5, 2) -> _out # 5 / 2
 ```
 
 To ensure type safety, the function signatures must be compatible (i.e. equal
-or wider)
+or narrower)
 
 ```ruby
 sum(x Int, y Int) => Int { => x + y }
@@ -2858,12 +2877,9 @@ someFunctionRef(49, 10) -> _out # 49 + 10
 Anonymous function references can also be defined
 
 ```
-::{<code block>}
-::() <statement> 
+::{<statements>}
 ::() {<statements>} 
-::(<parameters>) <statement> 
 ::(<parameters>) {<statements>} 
-::(<parameters>) => <return type> <statement>
 ::(<parameters>) => <return type> {<statements>}
 ```
 
@@ -2879,27 +2895,42 @@ someFunctionRef <- ::{
 someFunctionRef()
 ```
 
-When the function has parameters, their names can be omitted in the signature;
-but naming the parameters is advised for better readability
-
-<!-- TODO: what if param names are part of the signature? -->
-
-```ruby
-# both are valid definitions of a function reference with a signature of (Text,Bool) => Real
-makePizza ::(type Text, extraTopping Bool) => Real
-makePizza ::(Text, Bool) => Real
-```
-
 Like other data types, a function reference can have a default value (a default
 implementation in this case)
 
 ```ruby
-someFunctionRef ::(Text) default ::(txt Text) {
+someFunctionRef ::(txt Text) default ::(txt Text) {
 	txt -> _out
 }
 ```
 
-## @candidate Signature inference
+## Signature conversion
+
+Like any other type, a function reference type can be widened/narrowed/casted
+where possible; they behave very similarily to [product types](#product-types):
+a function reference can be converted if its parameters and return type can be
+converted
+
+```ruby
+someFunctionRef    ::(x Real,    y [Real]) => Real
+someFunctionRef <- ::(x Natural, y [Int])  => Int { => 69 }
+```
+
+In this example, `x` will be widened from `Natural` to `Real`, `y` from `[Int]`
+to `[Real]` and the return type from `Int` to `Real`.
+
+Some more examples
+
+```ruby
+someFunctionRef    ::(x Real,    y [Real]) => Real
+
+someFunctionRef <- ::(x Natural, y [Int])  => Int { => 69 }
+someFunctionRef <- ::(x Natural) => Int { => 69 }
+someFunctionRef <- ::(y [Natural]) => Natural { => 69n }
+someFunctionRef <- ::(x Real) { => 69n }
+someFunctionRef <- ::{ => 69 }
+```
+
 
 A function reference with many parameters, a return type and a default
 implementation could be very verbose and cluttered
@@ -2908,21 +2939,18 @@ implementation could be very verbose and cluttered
 # A verbose definition of a function reference which takes a Int, return an Int,
 # with a default implementation which returns the sum of the parameters
 
-# <identifier>    ::(<params>)     => <return> default ::(<params>)     => <return> <statement>
-someFunctionRef   ::(x Int, y Int) => Int      default ::(x Int, y Int) => Int      => x + y
+# identifier    ::(params)       => return         ::(params)       => return
+someFunctionRef ::(x Int, y Int) => Int    default ::(x Int, y Int) => Int {
+	=> x + y
+}
 ```
 
-But the default implementation signature can be inferred
+so leveraging type widening, the declaration can be much more concise
 
 ```ruby
-someFunctionRef ::(x Int, y Int) => Int default ::{=> x + y}
-```
-
-Alternatively, if you don't specify parameters names in the signature, you'll
-have to specify them in the default implementation signature
-
-```ruby
-someFunctionRef ::(Int, Int) => Int default ::(x, y) => x + y
+someFunctionRef ::(x Int, y Int) => Int default ::{
+	=> x + y
+}
 ```
 
 ## Default value of a function ref
@@ -2940,282 +2968,6 @@ someFunctionRef ::() => Color
 someFunctionRef() -> _out # will print Color.<69 0 0>
 ```
 
-# Code examples
-
-## Book store
-
-```ruby
-Author <
-	name Text
-	surname Text
-	age Natural
->
-
-Book <
-	title Text
-	description Text
-	author Author
-	price Real
-	pagesCount Natural
->
-
-#?{
-#	@brief Convert a list of book to text
-#	@param shelf - list of book
-#	@return list of text
-}#
-shelfToText(shelf [Book]) => [Text] {
-	books [Text]
-	for book in shelf do {
-		books +<- "{
-		Title:        ${book.title}
-		Description:  ${book.description }
-		Price:        ${book.price}
-		Page count:   ${book.pageCount}
-		Author:       ${book.author}
-			Name:       ${book.author.name}
-			Surname:    ${book.author.surname}
-			Age:        ${book.author.age}
-		}"
-	}
-	=> books
-}
-
-#?{
-#	@brief Convert a list of book to a HTML table
-#	@param shelf - list of book
-#	@return text - html table
-}#
-shelfToHTML(shelf [Book]) => [Text] {
-	table Text <- "{
-		<table>
-			<thead>
-				<tr>
-					<th>Title</th>
-					<th>Description</th>
-					<th>Price(€)</th>
-					<th>Page Count</th>
-					<th>Author</th>
-				</tr>
-			</thead>
-		<tbody>
-		}"
-
-	for book in shelf do {
-		"${toRowHTML(book)}" ->+ table
-	}
-
-	table +<- "{
-			</tbody>
-		</table>
-		}"
-
-	table -> _out
-}
-
-#?{
-#	@brief Convert Book to a HTML table row
-#	@param book
-#	@return html table row
-}#
-toRowHTML(book Book) => Text {
-	=> "{
-		<tr>
-			<td>${book.name}</td>
-			<td>${book.description}</td>
-			<td>${book.price}</td>
-			<td>${book.pageCount}</td>
-			<td>${book.author}</td>
-		</tr>
-		}"
-}
-
-
-
-author1 Author <- <"Simone" "Vicinanza" 22>
-author2 Author <- <"Mario" "Rossi" 35>
-
-shelf [Book] <- [
-		<
-			title: "Giovi for dummies"
-			description: "A book describing very easily the Giovi"
-			author: author1
-			price: 0.0
-			pageCount: 69
-		>
-		<
-			title: "How to make a new Language"
-			description: "{
-				A step by step guide on how to build a new language from scratch
-				It even has pictures!!!
-				}"
-			author: author2
-			price: 6.9
-			pageCount: 420
-		>
-		<
-			title: "How to make a new Language | 2 edition"
-			description: "{
-				A step by step guide on how to build a new language from scratch
-				It even has pictures!!!
-				Revisioned edition
-				}"
-			author: author2
-			price: 4.2
-			pageCount: 690
-		>
-		<
-			title: "Story of a bored programmer"
-			description: "Biography of a bored programmer"
-			author: <
-				name:"Luigi"
-				surname: "Bianchi"
-				age: 55
-			>
-			price: 10.5
-			pageCount: 120
-		>
-	]
-
-shelfToText(shelf) -> _out
-shelfToHTML(shelf) -> _out
-```
-
-## Find min value in a list
-
-```ruby
-findMinElement(list [Text]) => Text {
-	if list@% < 1 do {
-		"list is empty" -> \err
-		=> ""
-	}
-	list@0 > min Text
-	for element in list do {
-		if element < min do {
-			element -> min
-		}
-	}
-	=> min
-}
-
-findMinElementIndex(list [Text]) => Int {
-	if list@% < 1 do {
-		"list is empty" -> _out
-		=> -1
-	}
-	0 -> min Int
-	for index in list@@ do {
-		if list@{index} < list@{min} do {
-			index -> min
-		}
-	}
-	=> min
-}
-
-["z" "s" "a" "h" "j" "h" "w" "f"] -> letters [Text]
-findMinElement(letters) -> minElement Text
-findMinElementIndex(letters) -> minElementIdx Int
-
-"{
-List: $letters
-	         min value: $minElement
-	min value position: $minElementIdx
-}" -> _out
-
-#{
-# 	output:
-# 
-# List: ["z" "s" "a" "h" "j" "h" "w" "f"]
-# 	         min value: a
-# 	min value position: 2
-}#
-```
-
-## Fibonacci
-
-```ruby
-#?{
-# @brief Recursive fibonacci. T(n) = O(2^n)
-# @param n = value of fibonacci to find
-# @return fibonacci sequence at n
-}#
-fibonacci(n Int) => Int {
-	if n <= 2 do => 1
-	=> fibonacci(n - 1) + fibonacci(n - 2)
-}
-
-#?{
-# @brief Iterative bottom-up fibonacci T(n) = O(n)
-# @param n = value of fibonacci to find
-# @return fibonacci of sequence at n
-}#
-fibonacciBottomUp(n Int) => Int {
-	if n = 0 | n = 1 do => n
-	cache [Int] <- [1 1]
-	for i in 2..n do {
-		cache@{i - 2} + cache@{i - 1} ->+ cache
-	}
-	=> cache@{n - 1}
-}
-
-#?{
-# @brief Iterative fibonacci with memoization via associative array
-#	T(n) = O(n)
-#	S(n) = O(n)
-# @param n = value of fibonacci to find
-# @return fibonacci sequence at n
-}#
-fibonacciAssociativeMemoIter(n Int) => Int {
-	cache [Int : Int] <- [ 1:1 2:1 ]
-	for i in 3..n do {
-		cache +<- [ i : cache@{i - 1} + cache@{i - 2} ]
-	}
-	=> cache@n;
-}
-
-#?{
-# @brief Iterative fibonacci with memoization via array
-#	T(n) = O(n)
-#	S(n) = O(n)
-# @param n = value of fibonacci to find
-# @return fibonacci sequence at n
-}#
-fibonacciMemoIter(n Int) => Int {
-	cache [Int] <- [1 1]
-	# NOTE: arrays indexes are 0-based
-	for i in 2..n-1 do {
-		cache +<- cache@{i - 1} + cache@{i - 2}
-	}
-	=> cache@{n - 1};
-}
-
-"Insert iteration count: " ->+ _out
-_in as Int -> n Int
-"Fibonacci of $n will be computed" -> _out
-algorithm Text
-repeat {
-	"{
-	Select algorithm:
-		0) to exit
-		1) recursive
-		2) iterative (bottom-up)
-		3) iterative (memoization via associative array)
-		4) iterative (memoization via array)
-	> }" ->+ _out
-	_in -> algorithm
-	if algorithm {
-		= "0" do break;
-		= "1" do "fibonacci($n) => ${fibonacci(n)}" -> _out
-		= "2" do "fibonacciBottomUp($n) => ${fibonacciBottomUp(n)}" -> _out
-		= "3" do "fibonacciAssociativeMemoIter($n) => ${fibonacciAssociativeMemoIter(n)}"  -> _out
-		= "4" do "fibonacciMemoIter($n) => ${fibonacciMemoIter(n)}" -> _out
-	} else default -> algorithm 
-	if algorithm = default 
-		do "Invalid algorithm" -> _out
-		else break
-}
-```
-
 # @candidate Other
 
 ## @candidate Infinity and NaN
@@ -3223,9 +2975,6 @@ repeat {
 ```ruby
 inf -> _out
 -inf -> _out
-∞ -> _out
--∞ -> _out
-
 nan -> _out
 ```
 
@@ -3438,6 +3187,19 @@ garage CarBox <- <"grey" Car.<"Ferrari">>
 chest MagicChest{Gift} <- <"blue" Gift.<"socks">>
 ```
 
+### @candidate Generics upper and lower bounds
+
+```ruby
+Color <name Text>
+Color : RGB <r Int, g Int, b Int>
+Color : CMYK <c Int, m Int, y Int, k Int>
+# Upper bounded by color
+Box{Color : T} <something T>
+
+# Lower bounded by Color
+Box{T : Color} <something T>
+```
+
 ## @candidate If expression (ternary operator like)
 
 Has to be exhaustive
@@ -3604,7 +3366,7 @@ It can be used as an identifier for variables, functions, and types
 69 -> `the expected value` Int
 
 `test that the + operator sums two numbers`() {
-	assertThat(59 + 10).isEqualTo(`the expected value`)
+	assertThat(59 + 10).isEqualTo(`the expected value`) # is this Text or variable identifier?
 }
 
 `Some struct` <
@@ -3817,6 +3579,42 @@ Vec2 <
 
 v Vec <- Vec2.<69 420>
 v.magnitude() -> _out
+```
+
+
+## @candidate Multiple inheritance
+
+```ruby
+Car <
+	licensePlate Text
+	fuelTankSize Int
+	wheels Int default 4
+>
+Bike <
+	licensePlate Text
+	wheels Int default 2
+>
+
+Car,Bike : ApeCar <
+	wheels Int default 3 # NOTE: default is mandatory since we don't know which one to inherit
+>
+```
+
+
+```ruby
+Color1 <r Int, g Int, b Int>
+Color2 <r Natural, g Natural, b Natural>
+Color1,Color2 : Rgb <
+	# all Int
+>
+```
+
+```ruby
+Food <calories Int>
+Edible <calories Text>
+
+Food,Edible : Apple <>
+# ERROR: can't inherit both calories
 ```
 
 ## @candidate Unified loop keyword
@@ -4105,7 +3903,7 @@ probability() => 0r..1r {
 Foo <
 	i Int
 
-	foo ::(self) => Int default ::(self) => {
+	foo ::(self) => self default ::(self) => self {
 		=> self.i
 	}
 >
