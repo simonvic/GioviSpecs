@@ -2931,6 +2931,28 @@ someFunctionRef <- ::(x Real) { => 69n }
 someFunctionRef <- ::{ => 69 }
 ```
 
+TODO: clarify about parameters optionality and labels
+Note that an optional parameter cannot be widened to a non-optional parameter;
+the opposite is possible.
+
+```ruby
+greet ::(someone Text) => Text
+goodMorning(someone Text) => Text {
+	=> "Good morning $someone"
+}
+goodNight(someone Text default "") => Text {
+	if someone = default do => "Good night everybody!"
+	=> "Good night $someone"
+}
+greet <- ::goodMorning # OK!
+greet <- ::goodNight # ERROR!
+```
+
+```ruby
+greet ::(someone Text default "")
+greet <- ::goodMorning # OK!
+greet <- ::goodNight # OK!
+```
 
 A function reference with many parameters, a return type and a default
 implementation could be very verbose and cluttered
