@@ -3002,19 +3002,106 @@ nan -> _out
 
 ## @candidate Module system
 
-```ruby
-import some.fully.qualified.module
-import [
-	some.fully.qualified.module
-	someother.fully.qualified.module
-]
+A module is a container for code; each file is implicitly a module, whose name
+is the filename containing it.
 
-module MyModule {
-	someFunction() {}
-	someValue SomeType
-	someValue2 some.fully.qualified.module.SomeType
-	someValue3 someother.fully.qualified.module.SomeType
+```ruby
+# Foo.giovi
+"hello from Foo module" -> _out
+constant SOME_CONSTANT Real <- 3.14
+someFunction() => Int {
+	"hello from Foo.someFunction" -> _out
+	=> 69
 }
+```
+
+Nested modules can be defined with the `module` keyword.
+
+```ruby
+# someDir/Bar.giovi
+"hello from Bar module" -> _out
+SomeStruct <x Int, y Int>
+module SomeModule {
+	someBazFunction() {}
+}
+```
+
+### Importing a module
+
+Before using a module you will have to import it with the `import` statement.
+
+```ruby
+import Foo
+```
+
+You can also import multiple modules using the list syntax
+
+```ruby
+import [
+	Foo
+	someDir.Bar
+	someDir.Bar.SomeModule
+]
+```
+
+You can now access the module components (e.g. functions, constants, variables
+etc.) using the dot notation.
+
+```ruby
+Foo.PI -> _out
+someStruct someDir.Bar.SomeStruct
+```
+
+A module can be aliased as a "typename" for easier access
+
+```ruby
+import giovi.lang.Random as Random
+Random.real() -> _out
+Random.integer() -> _out
+
+import [
+	someDir.Bar as Bar
+	someDir.Bar.SomeModule as SomeModule
+]
+```
+
+#### Module lifetime
+
+The `import` statement can be performed anywhere just like any other statement.
+The imported module lifetime, like for variables and other definitions, will be
+bound to the scope in which the import statement has been invoked. This allows
+you to defer the import of a module as late as you wish:
+
+```ruby
+# Main.giovi
+import giovi.lang.Random as Random
+# Random is imported as soon as Main.giovi is executed
+Random.float() -> probability Real
+if probability > 0.5 do {
+	import giovi.lang.Math as Math
+	# Math is now loaded and available to use
+	Math.floor(6.9) -> _out
+}
+# Math is no longer available
+```
+
+### Cycling	imports 
+
+The import statement will throw an error when a cycle is detected
+
+```ruby
+# A.giovi
+import B
+```
+
+```ruby
+# B.giovi
+import A
+```
+
+```ruby
+# Main.giovi
+import A # ERROR: cycle detected
 ```
 
 ## @candidate Launch entry point (args)
