@@ -3661,35 +3661,81 @@ someFunc() => Int {
 
 ## @candidate Interfaces and implicit implementation
 
+Interfaces describe a set of function signatures.
+
 ```ruby
 interface Vec <
 	self magnitude() => Real
 	self normalize() => Vec
-	self distance(to Vec) => Real
+	distance(from Vec, to Vec) => Real
 >
+
+i Vec # variable of interface Vec
+```
+
+Unlike other variables where in an assignment the operand needs to be narrower
+or equal which gets widened, with interface variables the assignment can be
+seen as narrowing operation: an interface variable can hold any value whose
+type implements those function signatures
+
+```ruby
 
 Vec2 <
 	x Real
 	y Real
-
-	self magnitude() => Real {
-		=> {x^2 + y^2}^{1/2}
-	}
-
-	self normalize() => Vec {
-		mag Real <- magnitude()
-		=> Vec2.<x/mag y/mag>
-	}
-
-	self distance(to Vec) => Real {
-		=> {{self.x - to.x}^2 + {self.y - to.y}^2}^{1/2}
-	}
+	self magnitude() => Real { #{ actual implementation }# }
+	self normalize() => Vec { #{ actual implementation }# }
+	distance(from Vec, to Vec) => Real { #{ actual implementation }# }
 >
 
-v Vec <- Vec2.<69 420>
-v.magnitude() -> _out
+Vec3 <
+	x Real
+	y Real
+	z Real
+	self magnitude() => Real { #{ actual implementation }# }
+	self normalize() => Vec { #{ actual implementation }# }
+	distance(from Vec, to Vec) => Real { #{ actual implementation }# }
+>
+
+v Vec
+v <- Vec2.<69 420>
+v <- Vec3.<69 420 420.69>
 ```
 
+### Empty interfaces
+
+An empty interface variable can hold any value, since all types implements at
+least zero functions
+
+```ruby
+interface Any <>
+
+i Any
+i <- 69
+i <- "hello world"
+i <- [1 2 3]
+i <- Vec.<>
+i <- Int
+```
+
+### Textifier
+
+```ruby
+interface Textifiable <
+	toText() => Text
+>
+```
+
+### Interface type check
+
+```ruby
+a Any
+if a {
+	is i Int do i -> _out
+	is r Real do r -> _out
+	is t Text do t -> _out
+}
+```
 
 ## @candidate Multiple inheritance
 
@@ -3733,7 +3779,6 @@ loop {
 	"hello world" -> _out
 }
 loop "hello world" -> _out
-loop someFunction -> _out
 loop i in 0..10 do "hello world $i" -> _out
 loop entry in list do "hello world $i" -> _out
 loop key : value in map do "hello world $key : $value" -> _out
@@ -3757,6 +3802,8 @@ MyStruct <
 
 >
 ```
+
+Eventually to be removed in favor of generic interfaces
 
 ## @candidate Operators override
 
