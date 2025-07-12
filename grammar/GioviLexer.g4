@@ -61,6 +61,7 @@ BREAK:                          'break';
 CONTINUE:                       'skip';
 CONSTANT:                       'constant';
 IMPORT:                         'import';
+MODULE:                         'module';
 DEFAULT:                        'default';
 ALIAS:                          'alias';
 AS:                             'as';

@@ -13,7 +13,8 @@ block: '{' statement* '}';
 //////////////////////////////////////////////////////////////////////////////// STATEMENTS
 
 statement
-    : ifStatement
+    : importStatement
+    | ifStatement
     | switchStatement
     | repeatStatement
     | forStatement
@@ -21,6 +22,7 @@ statement
     | skipStatement
     | redirection
     | redirectionRTL
+    | moduleDeclaration
     | structDefinition
     | constantDeclaration
     | varDeclaration
@@ -30,6 +32,13 @@ statement
     ;
 
 statementOrBlock: statement | block;
+
+importStatement
+	: IMPORT importEntry
+	| IMPORT '[' (importEntry ','?)+ ']'
+	;
+
+importEntry: (anyIdentifier '.')* anyIdentifier (AS alias=anyIdentifier)? ;
 
 repeatStatement: REPEAT (IF expression)? statementOrBlock;
 
@@ -93,6 +102,9 @@ varDeclaration: name=identifier type defaultDefinition? ';'?;
 
 defaultDefinition: literalDefault expression;
 
+// TODO: should be identifier and not anyIdentifier
+moduleDeclaration: MODULE anyIdentifier body=block ;
+
 /////////////////////////////////////////////////////////////////////////////// STRUCTS
 
 structDefinition
@@ -116,7 +128,7 @@ selfFunctionDeclaration: selfFunctionSignature body=block ;
 
 selfFunctionSignature: self=SELF? name=identifier formalParameters (RETURN_SYM (returnType=type | returnSelf=SELF))? ;
 
-structCreation: typename=typeIdentifier '.' (recordCreation | tupleCreation) ;
+structCreation: (typeQualified | typeIdentifier) '.' (recordCreation | tupleCreation) ;
 
 tupleCreation: '<' (expression ','?)* '>' ;
 
@@ -203,9 +215,11 @@ primary: literal | anyIdentifier | reservedIdentifier ;
 
 range: start=expression '..' end=expression ('..' step=expression)?;
 
-type: typeComposite | typeFunctionRef | typeIdentifier;
+type: typeComposite | typeFunctionRef | typeIdentifier | typeQualified ;
 
 typeComposite: typeList | typeMap;
+
+typeQualified: (anyIdentifier '.')+ typename=typeIdentifier ;
 
 //////////////////////////////////////////////////////////////////////////////// COMPOSITE TYPES
 

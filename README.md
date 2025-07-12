@@ -3065,7 +3065,37 @@ import [
 ]
 ```
 
-#### Module lifetime
+#### Module precedence
+
+In case there is a module definition with the same name of a file module, the
+former will take precedence when importing.
+
+```ruby
+# Foo.giovi
+```
+
+```ruby
+# Main.giovi
+module Foo {}
+
+import Foo # Main.Foo will be imported
+```
+
+#### Import caching
+
+An util function is available for importing and caching a module.
+
+```ruby
+# some.module
+"hello from some.module" -> _out
+```
+
+```ruby
+import("some.module") # will print hello message
+import("some.module") # will NOT print hello message
+```
+
+### Module lifetime
 
 The `import` statement can be performed anywhere just like any other statement.
 The imported module lifetime, like for variables and other definitions, will be
