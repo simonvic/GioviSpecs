@@ -38,7 +38,7 @@ importStatement
 	| IMPORT '[' (importEntry ','?)+ ']'
 	;
 
-importEntry: (anyIdentifier '.')* anyIdentifier (AS alias=anyIdentifier)? ;
+importEntry: (identifier '.')* identifier (AS alias=identifier)? ;
 
 repeatStatement: REPEAT (IF expression)? statementOrBlock;
 
@@ -47,12 +47,11 @@ iterable: range | expression;
 forStatement: FOR iterator IN iterable DO statementOrBlock;
 
 iterator
-	// TODO: check if it's possible to use prec.right so we can parse k : v : w
-	: key=iterator ':' value=iterator                 # iteratorMap
-	| '[' key=iterator ':' value=iterator ']'         # iteratorMap
-	| whole=unaryIterator? '<' (iterator ','?)+ '>'   # iteratorAggregate
-	| unaryIterator                                   # iteratorUnary
-	| literalPlaceholder                              # iteratorPlaceholder
+	: key=iterator ':' value=iterator                               # iteratorMap
+	| '[' key=iterator ':' value=iterator ']'                       # iteratorMap
+	| whole=unaryIterator? '<' iterator (',' iterator )* ','? '>'   # iteratorAggregate
+	| unaryIterator                                                 # iteratorUnary
+	| literalPlaceholder                                            # iteratorPlaceholder
 	;
 
 unaryIterator: identifier type? ;
@@ -96,19 +95,18 @@ redirectionOperatorRTL
     | REDIRECTION_MINUS_RTL
     ;
 
-constantDeclaration: CONSTANT name=constantIdentifier type REDIRECTION_RTL value=expression ';'?;
+constantDeclaration: CONSTANT name=identifier type REDIRECTION_RTL value=expression ';'?;
 
 varDeclaration: name=identifier type defaultDefinition? ';'?;
 
 defaultDefinition: literalDefault expression;
 
-// TODO: should be identifier and not anyIdentifier
-moduleDeclaration: MODULE anyIdentifier body=block ;
+moduleDeclaration: MODULE identifier body=block ;
 
 /////////////////////////////////////////////////////////////////////////////// STRUCTS
 
 structDefinition
-	: (parentTypename=typeIdentifier ':')? typename=typeIdentifier body=structBodyDefinition ';'?
+	: (parentTypename=identifier ':')? typename=identifier body=structBodyDefinition ';'?
 	;
 
 structBodyDefinition
@@ -128,7 +126,7 @@ selfFunctionDeclaration: selfFunctionSignature body=block ;
 
 selfFunctionSignature: self=SELF? name=identifier formalParameters (RETURN_SYM (returnType=type | returnSelf=SELF))? ;
 
-structCreation: (typeQualified | typeIdentifier) '.' (recordCreation | tupleCreation) ;
+structCreation: (typeQualified | identifier) '.' (recordCreation | tupleCreation) ;
 
 tupleCreation: '<' (expression ','?)* '>' ;
 
@@ -189,7 +187,7 @@ expression
 
     // TODO: add IS tupleDeconstruction
     | expression IS (NOT | identifier)? type                  # expressionTypeCheck
-    | expression '.' (invocation | anyIdentifier | 'default') # expressionDot
+    | expression '.' (invocation | identifier | 'default')    # expressionDot
     | listCreation                                            # expressionListCreation
     | mapCreation                                             # expressionMapCreation
     | tupleCreation                                           # expressionTupleCreation
@@ -211,15 +209,15 @@ expression
     | primary                                                 # expressionPrimary
     ;
 
-primary: literal | anyIdentifier | reservedIdentifier ;
+primary: literal | identifier | reservedIdentifier ;
 
 range: start=expression '..' end=expression ('..' step=expression)?;
 
-type: typeComposite | typeFunctionRef | typeIdentifier | typeQualified ;
+type: typeComposite | typeFunctionRef | identifier | typeQualified ;
 
 typeComposite: typeList | typeMap;
 
-typeQualified: (anyIdentifier '.')+ typename=typeIdentifier ;
+typeQualified: (identifier '.')+ typename=identifier ;
 
 //////////////////////////////////////////////////////////////////////////////// COMPOSITE TYPES
 
@@ -228,7 +226,7 @@ accessKey
     | key=('%' | '@' | '*')            # accessKeySpecial
     | range                            # accessKeyRange
     | literal                          # accessKeyLiteral
-    | anyIdentifier                    # accessKeyIdentifier
+    | identifier                    # accessKeyIdentifier
     ;
 
 typeList:     '[' type ('*' '*' initSize=expression)? ']';
@@ -269,21 +267,17 @@ literal
     | literalSelf
     ;
 
-// TODO: this is so retarded... why tf did I do this?
-anyIdentifier:         identifier | constantIdentifier | typeIdentifier;
-identifier:            IDENTIFIER;
-constantIdentifier:    ALLUPPERCASE_IDENTIFIER;
-typeIdentifier:        UPPERCASE_IDENTIFIER | ALLUPPERCASE_IDENTIFIER;
+identifier:            IDENTIFIER | ALLUPPERCASE_IDENTIFIER | UPPERCASE_IDENTIFIER ;
 reservedIdentifier:    RESERVERD_IDENTIFIER;
 
 literalInteger:        INTEGER_LITERAL;
 literalNatural:        NATURAL_LITERAL;
 literalReal:           REAL_LITERAL;
 literalBool:           BOOL_LITERAL;
-literalTextBlock:      (typeIdentifier '.')? TEXT_BLOCK_LITERAL;
-literalText:           (typeIdentifier '.')? TEXT_LITERAL;
-literalExactTextBlock: (typeIdentifier '.')? EXACT_TEXT_BLOCK_LITERAL;
-literalExactText:      (typeIdentifier '.')? EXACT_TEXT_LITERAL;
+literalTextBlock:      (identifier '.')? TEXT_BLOCK_LITERAL;
+literalText:           (identifier '.')? TEXT_LITERAL;
+literalExactTextBlock: (identifier '.')? EXACT_TEXT_BLOCK_LITERAL;
+literalExactText:      (identifier '.')? EXACT_TEXT_LITERAL;
 literalDefault:        DEFAULT;
 literalSelf:           SELF;
 literalPlaceholder:    UNDERSCORE;

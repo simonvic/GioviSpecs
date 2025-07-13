@@ -59,7 +59,7 @@ IN:                             'in';
 REPEAT:                         'repeat';
 BREAK:                          'break';
 CONTINUE:                       'skip';
-CONSTANT:                       'constant';
+CONSTANT:                       'constant'; // TODO: rename to const?
 IMPORT:                         'import';
 MODULE:                         'module';
 DEFAULT:                        'default';

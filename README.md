@@ -2527,11 +2527,11 @@ for <struct iterator> < <field iterator> > in <list of struct> do <statement>
 Color <red Int, green Int, blue Int>
 colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]  
 
-for <red green blue> in colors do {
+for <red, green, blue> in colors do {
 	"The color is made of $red $green $blue" -> _out
 }
 
-for color <red green blue> in colors do {
+for color <red, green, blue> in colors do {
 	"The color $color is made of $red $green $blue" -> _out
 }
 ```
@@ -2546,7 +2546,7 @@ listOfNestedStruct [Bar] <- [
 	Bar.<2, 2, Foo.<2, 2, 2>>,
 	Bar.<3, 3, Foo.<3, 3, 3>>
 ]
-for <x, y, z <a b c>> in listOfNestedStruct do {
+for <x, y, z <a, b, c>> in listOfNestedStruct do {
 	"{
 	Bar is made of:
 		- $x
@@ -2565,7 +2565,7 @@ key too, or both)
 ```ruby
 mapOfFoo [Text : Foo]
 
-for key : <a b c> in mapOfFoo do {
+for key : <a, b, c> in mapOfFoo do {
 	"The key $key is mapped to <$a $b $c>" -> _out
 }
 ```
@@ -2577,7 +2577,7 @@ can also be used; the order doesn't matter.
 Color <red Int, green Int, blue Int>
 colors [Color]
 
-for <blue red> in colors do {}
+for <blue, red> in colors do {}
 ```
 
 @candidate Explicit deconstructing method
@@ -2585,14 +2585,16 @@ for <blue red> in colors do {}
 positional deconstructing
 
 ```ruby
-for <red _ blue> in colors do {}
+for <red, _, blue> in colors do {}
 ```
 
 named fields deconstructing
 
 ```ruby
-for <.blue .red> in colors do {}
+for <.blue, .red> in colors do {}
 ```
+
+TODO: mention optional iterator type
 
 # Functions
 
@@ -3063,6 +3065,13 @@ import [
 	someDir.Bar as Bar
 	someDir.Bar.SomeModule as SomeModule
 ]
+```
+
+which is equivalent of doing
+
+```ruby
+immport some.very.deep.Module
+alias some.very.deep.Module as Module
 ```
 
 #### Module precedence
