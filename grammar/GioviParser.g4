@@ -38,7 +38,12 @@ importStatement
 	| IMPORT '[' (importEntry ','?)+ ']'
 	;
 
-importEntry: (identifier '.')* identifier (AS alias=identifier)? ;
+importEntry: importEntryPath (AS alias=identifier)? ;
+
+importEntryPath
+	: (EXACT_TEXT_LITERAL '.')? (identifier '.')* identifier
+	| EXACT_TEXT_LITERAL
+	;
 
 repeatStatement: REPEAT (IF expression)? statementOrBlock;
 
