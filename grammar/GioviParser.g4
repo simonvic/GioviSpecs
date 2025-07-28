@@ -125,7 +125,7 @@ structBodyDefinition
 	'>'
 	;
 
-structFieldDefinition: identifier type defaultDefinition? ','?;
+structFieldDefinition: identifier (type defaultDefinition? | SELF) ','?;
 
 selfFunctionDeclaration: selfFunctionSignature body=block ;
 

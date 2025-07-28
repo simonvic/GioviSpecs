@@ -1197,7 +1197,9 @@ do have some differences though (e.g. casting).
 #### Syntax
 
 ```
-<Typename> <   <fields>   >
+{Typename} <
+	{fields}
+>
 ```
 
 The typename must start with a letter and can contain letters, digits and
@@ -1245,8 +1247,8 @@ me Person <- Person.<
 	>
 ```
 
-The same syntax of records can be also be used. (note that order doesn't matter
-when using record syntax)
+The same syntax of records can be also be used. (note that fields order doesn't
+matter when using record syntax)
 
 ```ruby
 me Person <- Person.<
@@ -1380,14 +1382,17 @@ You can access the nested struct using the dot notation
 engine Car.Engine
 ```
 
-#### @candidate Recursive struct
+#### Recursive struct
 
-You can define recursive struct (struct defined with itself)
+You can define recursive struct (struct defined with itself) using the `self`
+keyword
+
+@candidate allow to use typename instead of `self` keyword
 
 ```ruby
 Node <
 	data Text
-	nextNode Node
+	nextNode self
 >
 ```
 
@@ -1451,13 +1456,19 @@ Note that, although functions can be invoked from an instance of a struct,
 they're still only related to the type; the syntax is allowed because of the
 `self` keyword.
 
-`self` can be prefixed to the function and it's a shortcut for defining a
+`self` can be prefixed to the function, and it's a shortcut for defining a
 function that takes as a first argument an instance of the struct in which the
 function is defined
 
 <!--NOTE: since parameters are passed by value, to make this work properly,
 either treat self parameter as special, or more generally pass product types as
 value but the fields by reference -->
+
+In the function body, you can use `self` as a variable; it will be the instance
+of the struct from which the function has been invoked.
+
+@candidate if we rework the struct to have an actual scope, allow omitting the
+`self` when accessing fields
 
 ```ruby
 Car <
