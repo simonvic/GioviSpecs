@@ -3245,6 +3245,14 @@ main(args Args) => Int {
 }
 ```
 
+Alternatively use reserved identifier and let user handle the parsing
+
+```ruby
+_args -> _out # ["-s", "--long", "--long_attr=69", "-abc"]
+for arg in _args do {
+}
+```
+
 ## @candidate Files
 
 ```ruby
