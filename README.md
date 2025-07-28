@@ -177,6 +177,38 @@ The output of the access depends on the "key" and to what type you're accessing.
 > - [Map access](#map-access)
 > - [Struct access](#struct-access)
 
+## Dot operator
+
+The dot operator `.` is used to access nested properties of value. For example:
+accessing structs and records fields, module members and more
+
+```ruby
+someStruct.someField -> _out
+someModule.SOME_CONSTANT -> _out
+someVariable.default -> _out
+SomeStruct.someField -> _out
+```
+
+@candidate accessing a value with an unknown identifier will return a Void value.
+
+```ruby
+Color <r Int, g Int, b Int>
+color Color
+color.foo -> _out # void
+if color.foo is not Void do {
+	color.foo -> _out
+}
+if color.r is red Int do {
+	red -> _out
+}
+if color.r {
+	is red Int do red -> _out
+	is red Real do red -> _out
+	is red Natural do red -> _out
+	is Void do "field r not present" -> _out
+}
+```
+
 # Redirection
 
 Giovi "moves" data (content) to destinations; this is done through
