@@ -2992,20 +2992,13 @@ someFunctionRef ::() => Color
 someFunctionRef() -> _out # will print Color.<69 0 0>
 ```
 
-# @candidate Other
+# Module system
 
-## @candidate Infinity and NaN
+A module is a "container" for code and shares the same behavior of a Scope: it
+can hold code, variables, functions, constants, types definition etcetera; in
+fact it can be seen as a "named scope".
 
-```ruby
-inf -> _out
--inf -> _out
-nan -> _out
-```
-
-## @candidate Module system
-
-A module is a container for code; each file is implicitly a module, whose name
-is the filename containing it.
+Each file is implicitly a module, whose name is the filename containing it.
 
 ```ruby
 # Foo.giovi
@@ -3023,12 +3016,18 @@ Nested modules can be defined with the `module` keyword.
 # someDir/Bar.giovi
 "hello from Bar module" -> _out
 SomeStruct <x Int, y Int>
+
 module SomeModule {
-	someBazFunction() {}
+	"hello from Bar.SomeModule" -> _out
+	someFunction() {}
+
+	module SomeDeeplyNestedModule {
+		"hello from Bar.SomeModule.SomeDeeplyNestedModule" -> _out
+	}
 }
 ```
 
-### Importing a module
+## Importing a module
 
 Before using a module you will have to import it with the `import` statement.
 
@@ -3054,10 +3053,10 @@ Foo.PI -> _out
 someStruct someDir.Bar.SomeStruct
 ```
 
-A module can be aliased as a "typename" for easier access
+A module can be aliased during import, which allows for easier access
 
 ```ruby
-import giovi.lang.Random as Random
+import giovi.util.Random as Random
 Random.real() -> _out
 Random.integer() -> _out
 
@@ -3074,7 +3073,38 @@ immport some.very.deep.Module
 alias some.very.deep.Module as Module
 ```
 
-#### Module precedence
+### File modules
+
+Importing a file module, requires you to provide the URI with the Text syntax.
+
+Accessing the module internals requires an alias
+
+```ruby
+import 'some/dir/to/some/module' as Module
+Module.foo -> _out
+```
+
+@candidate Like for Text, a URI can be defined using single quotes (the URI
+will be parsed as is) or double quotes, which allows for variable interpolation
+opening to many possibilities
+
+```ruby
+implementation Text default "giovi.util"
+if useAlternativeImplementation do {
+	implementation <- "some.other.implementation"
+}
+import "${implementation}/Module"
+```
+
+### @candidate Remote modules
+
+The import statement can also import "remote" modules; you can specify the scheme in the URI of the module
+
+```ruby
+import "http://some.server/some/remote/Module" as RemoteModule
+```
+
+### Module precedence
 
 In case there is a module definition with the same name of a file module, the
 former will take precedence when importing.
@@ -3090,9 +3120,23 @@ module Foo {}
 import Foo # Main.Foo will be imported
 ```
 
-#### Import caching
+### @candidate Import syntax change
 
-An util function is available for importing and caching a module.
+Use quotes for any kind of URI; if no scheme is specified, assume nested module.
+
+```ruby
+import [
+	"some.nested.module"
+	"${implementation}.module"
+	"file://some/file/module"
+	"http://some/remote/module"
+	"ftp://some/remote/module"
+]
+```
+
+### @candidate Import caching
+
+A util function is available for importing and caching a module.
 
 ```ruby
 # some.module
@@ -3100,13 +3144,20 @@ An util function is available for importing and caching a module.
 ```
 
 ```ruby
+import "some.module" # will print hello message
+import "some.module" # will print hello message again
+
 import("some.module") # will print hello message
 import("some.module") # will NOT print hello message
 ```
 
+### @candidate Remote modules
+
+
 ### Module lifetime
 
 The `import` statement can be performed anywhere just like any other statement.
+
 The imported module lifetime, like for variables and other definitions, will be
 bound to the scope in which the import statement has been invoked. This allows
 you to defer the import of a module as late as you wish:
@@ -3124,7 +3175,7 @@ if probability > 0.5 do {
 # Math is no longer available
 ```
 
-### Cycling	imports 
+### @candidate Cycling imports 
 
 The import statement will throw an error when a cycle is detected
 
@@ -3141,6 +3192,16 @@ import A
 ```ruby
 # Main.giovi
 import A # ERROR: cycle detected
+```
+
+# @candidate Other
+
+## @candidate Infinity and NaN
+
+```ruby
+inf -> _out
+-inf -> _out
+nan -> _out
 ```
 
 ## @candidate Launch entry point (args)
