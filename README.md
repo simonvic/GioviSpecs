@@ -326,31 +326,13 @@ A variable is identified by a unique name, and it is of a specific type
 
 The general rules for naming variables are:
   - Names must be unique
-  - Names must begin with a lower case letter
   - Names can contain letters, digits and underscores
   - Names cannot contain whitespace
   - Names are case-sensitive ("myVar" and "myvar" are different variables)
   - Type (primitive and struct) names cannot be used
-  - Reserved words cannot be used
-    - if
-    - do
-    - else
-    - when
-    - for
-    - not
-    - in
-    - repeat
-    - break
-    - skip
-    - constant
-    - null
-    - return
-    - import
-    - default
-    - alias
-    - as
-    - is
-    - self
+  - Reserved keywords (e.g. `if`, `else`, `do`) cannot be used
+
+By convention, variable identifiers are written in camelCase
 
 ## Declaration
 
@@ -1218,8 +1200,10 @@ do have some differences though (e.g. casting).
 <Typename> <   <fields>   >
 ```
 
-The typename must start with an Uppercase letter and can contain letters, digits
-and underscores.<br>
+The typename must start with a letter and can contain letters, digits and
+underscores.<br>
+By convention, typenames are written in CamelCase
+
 Primitive types cannot be used as name.
 
 ```ruby
@@ -2031,8 +2015,10 @@ constant <CONSTANT_NAME> <Type> <value>
 <CONSTANT_NAME> <Type> <value>
 ```
 
-Constants name must be all UPPERCASE, must start with a letter and can contain
-digits and underscores.
+Constants identifiers must start with a letter and can contain digits and
+underscores.
+
+By convention constant identifiers are written in SCREAMING_CASE.
 
 ```ruby
 constant LIGHT_SPEED Natural <- 299792458n
@@ -2641,8 +2627,10 @@ Functions are special types of code block
 }
 ```
 
-Functions names must start with a lower case letter, and can contain letters,
-digits and underscores.
+Functions names must start with a letter and can contain letters, digits and
+underscores.
+
+By convention, they're written in camelCase
 
 ```ruby
 printHelloWorld() {
@@ -2941,7 +2929,7 @@ someFunctionRef ::(txt Text) default ::(txt Text) {
 ## Signature conversion
 
 Like any other type, a function reference type can be widened/narrowed/casted
-where possible; they behave very similarily to [product types](#product-types):
+where possible; they behave very similarly to [product types](#product-types):
 a function reference can be converted if its parameters and return type can be
 converted
 
@@ -2966,6 +2954,7 @@ someFunctionRef <- ::{ => 69 }
 ```
 
 TODO: clarify about parameters optionality and labels
+
 Note that an optional parameter cannot be widened to a non-optional parameter;
 the opposite is possible.
 
