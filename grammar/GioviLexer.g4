@@ -59,7 +59,7 @@ IN:                             'in';
 REPEAT:                         'repeat';
 BREAK:                          'break';
 CONTINUE:                       'skip';
-CONSTANT:                       'constant'; // TODO: rename to const?
+CONST:                          'const';
 IMPORT:                         'import';
 MODULE:                         'module';
 DEFAULT:                        'default';
@@ -134,6 +134,7 @@ fragment BinaryDigit:                [01];
 fragment BinaryDigitsAndUnderscores: BinaryDigitOrUnderscore+;
 fragment BinaryDigitOrUnderscore:    BinaryDigit | '_';
 
+// TODO: add binary and octal numeral
 REAL_LITERAL: DecimalFloatingPointLiteral | HexadecimalFloatingPointLiteral;
 
 fragment RealSuffix: 'r';

@@ -349,6 +349,57 @@ See [Default value](#default-value)
 <name> <Type> default <default value>
 ```
 
+## @candidate let
+
+```ruby
+let x Int <- 69
+let y <- 69
+```
+
+## @candidate type prefix
+
+`::` for function, `$` for modules, maybe `?` for types?
+
+```ruby
+someVar ?SomeType
+```
+
+it could be useful for naive generics
+
+```ruby
+someType Type
+someGenericValue ?someType
+```
+
+Other possibilities:
+
+```ruby
+foo \Foo
+foo\ Foo
+foo \ Foo
+foo\Foo
+
+foo \\Foo
+foo\\ Foo
+foo \\ Foo
+foo\\Foo
+
+foo :Foo
+foo: Foo
+foo : Foo
+foo:Foo
+
+foo $Foo
+foo$ Foo
+foo $ Foo
+foo$Foo
+
+foo //Foo
+foo//Foo
+foo// Foo
+```
+
+
 ## Scopes and variables lifetime
 
 <!-- TODO: clarify passing as by reference of by value (e.g. a list to a function) -->
@@ -2022,8 +2073,7 @@ Constants are read-only; its value is defined at declaration and cannot change.
 ## Syntax
 
 ```
-constant <CONSTANT_NAME> <Type> <value>
-<CONSTANT_NAME> <Type> <value>
+const <CONSTANT_NAME> <Type> <- <value>
 ```
 
 Constants identifiers must start with a letter and can contain digits and
@@ -2032,11 +2082,17 @@ underscores.
 By convention constant identifiers are written in SCREAMING_CASE.
 
 ```ruby
-constant LIGHT_SPEED Natural <- 299792458n
-constant EARTH_GRAVITY Real <- 9.81
-constant BEST_LANGUAGE Text <- "Giovi"
-constant RED Color <- <255 0 0>
-constant NAME_LIST [Text] <- ["Simone" "Alessio" "Giada" "Francesca"]
+const LIGHT_SPEED Natural <- 299792458n
+const EARTH_GRAVITY Real <- 9.81
+const BEST_LANGUAGE Text <- "Giovi"
+const RED Color <- <255 0 0>
+const NAME_LIST [Text] <- ["Simone" "Alessio" "Giada" "Francesca"]
+```
+
+The type can be omitted as it will be inferred from the assigned value
+
+```ruby
+const PI <- 3.1415926535
 ```
 
 # Default value
@@ -3449,6 +3505,15 @@ Box{Color : T} <something T>
 Box{T : Color} <something T>
 ```
 
+## @candidate Generics but with types as first class citizen
+
+```ruby
+doSomethingGeneric(someType SomeType) {
+	someValue someType <- someType.<>
+	someValue -> _out
+}
+```
+
 ## @candidate If expression (ternary operator like)
 
 Has to be exhaustive
@@ -3578,7 +3643,7 @@ if getTuple() {
 "💩".1 -> _out # should be single char
 ```
 
-## @candidate Forward declaration
+## @candidate Hoisting
 
 Structs and functions in a scope will be visited first, so we can use them
 before defining them

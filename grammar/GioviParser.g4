@@ -100,7 +100,7 @@ redirectionOperatorRTL
     | REDIRECTION_MINUS_RTL
     ;
 
-constantDeclaration: CONSTANT name=identifier type REDIRECTION_RTL value=expression ';'?;
+constantDeclaration: CONST name=identifier type? REDIRECTION_RTL value=expression ';'?;
 
 varDeclaration: name=identifier type defaultDefinition? ';'?;
 
