@@ -134,8 +134,13 @@ fragment BinaryDigit:                [01];
 fragment BinaryDigitsAndUnderscores: BinaryDigitOrUnderscore+;
 fragment BinaryDigitOrUnderscore:    BinaryDigit | '_';
 
-// TODO: add binary and octal numeral
-REAL_LITERAL: DecimalFloatingPointLiteral | HexadecimalFloatingPointLiteral;
+REAL_LITERAL
+    : DecimalFloatingPointLiteral
+    | HexadecimalFloatingPointLiteral
+    | NumeralHex RealSuffix
+    | NumeralOctal RealSuffix
+    | NumeralBinary RealSuffix
+    ;
 
 fragment RealSuffix: 'r';
 
