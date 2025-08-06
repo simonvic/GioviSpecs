@@ -125,6 +125,7 @@ structBodyDefinition
 	'>'
 	;
 
+// TODO: what about list or map of self?
 structFieldDefinition: identifier (type defaultDefinition? | SELF) ','?;
 
 selfFunctionDeclaration: selfFunctionSignature body=block ;
