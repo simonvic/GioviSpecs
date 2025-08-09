@@ -464,6 +464,35 @@ someFunction() {
 
 <!-- TODO: mention variable shadowing -->
 
+# Constants
+
+Constants are read-only; its value is defined at declaration and cannot change.
+
+## Syntax
+
+```
+const <CONSTANT_NAME> <Type> <- <value>
+```
+
+Constants identifiers must start with a letter and can contain digits and
+underscores.
+
+By convention constant identifiers are written in SCREAMING_CASE.
+
+```ruby
+const LIGHT_SPEED Natural <- 299792458n
+const EARTH_GRAVITY Real <- 9.81
+const BEST_LANGUAGE Text <- "Giovi"
+const RED Color <- <255 0 0>
+const NAME_LIST [Text] <- ["Simone" "Alessio" "Giada" "Francesca"]
+```
+
+The type can be omitted as it will be inferred from the assigned value
+
+```ruby
+const PI <- 3.1415926535
+```
+
 # Data types
 
 ## Primitive Types
@@ -1951,16 +1980,6 @@ bankAccounts [Person : [Account]] <- [
 ]
 ```
 
-## @candidate Constants type inference
-
-```ruby
-constant LIGHT_SPEED 299792458n
-constant EARTH_GRAVITY 9.81
-constant BEST_LANGUAGE "Giovi"
-constant RED Color.<255 0 0>
-constant NAME_LIST ["Simone" "Alessio" "Giada" "Francesca"]
-```
-
 ## @candidate List type inference
 
 ```ruby
@@ -2064,35 +2083,6 @@ if color {
 	is <r Int, g Int, b Int> do "Do something with $r $g and $b" -> _out
 	is <r Int, b Int> do "I only need $r and $b" -> _out
 }
-```
-
-# Constants
-
-Constants are read-only; its value is defined at declaration and cannot change.
-
-## Syntax
-
-```
-const <CONSTANT_NAME> <Type> <- <value>
-```
-
-Constants identifiers must start with a letter and can contain digits and
-underscores.
-
-By convention constant identifiers are written in SCREAMING_CASE.
-
-```ruby
-const LIGHT_SPEED Natural <- 299792458n
-const EARTH_GRAVITY Real <- 9.81
-const BEST_LANGUAGE Text <- "Giovi"
-const RED Color <- <255 0 0>
-const NAME_LIST [Text] <- ["Simone" "Alessio" "Giada" "Francesca"]
-```
-
-The type can be omitted as it will be inferred from the assigned value
-
-```ruby
-const PI <- 3.1415926535
 ```
 
 # Default value
