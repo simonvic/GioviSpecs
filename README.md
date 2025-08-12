@@ -3110,25 +3110,26 @@ module SomeModule {
 Before using a module you will have to import it with the `import` statement.
 
 ```ruby
-import Foo
+import giovi.util.Random
 ```
 
-You can also import multiple modules using the list syntax
+You can import multiple modules using the list syntax (comma is optional)
 
 ```ruby
 import [
-	Foo
-	someDir.Bar
-	someDir.Bar.SomeModule
+	giovi.util.Random
+	giovi.util.Math
+	giovi.util.Color
 ]
 ```
 
 You can now access the module components (e.g. functions, constants, variables
-etc.) using the dot notation.
+etc.) using the dot notation on the fully qualified module
 
 ```ruby
-Foo.PI -> _out
-someStruct someDir.Bar.SomeStruct
+giovi.util.Math.PI -> _out
+giovi.util.Random.integer() -> _out
+color giovi.util.Color
 ```
 
 A module can be aliased during import, which allows for easier access
@@ -3151,65 +3152,56 @@ immport some.very.deep.Module
 alias some.very.deep.Module as Module
 ```
 
-### File modules
 
-Importing a file module, requires you to provide the URI with the Text syntax.
+### Module URI
 
-Accessing the module internals requires an alias
+The URI of a module can be a simple identifier...
 
 ```ruby
-import 'some/dir/to/some/module' as Module
+import Foo
+```
+
+... or a Text literal.
+
+Both Text and exact Text literals are permitted, and they follow the same rules
+of a normal Text literal, allowing text interpolation, escaping etc.
+
+But with great power comes greate responasibilty; use this carefully
+
+```ruby
+import '$Foo' # dollar sign followed by Foo
+
+moduleToImport Text <- "Foo"
+import "$Foo" # "Foo"
+```
+
+### File modules
+
+The module URI can also specify a *scheme*. Currently only the `file` scheme is
+supported
+
+Accessing the file module internals requires an alias
+
+```ruby
+import "file://some/dir/to/some/Module" as Module
 Module.foo -> _out
 ```
 
-@candidate Like for Text, a URI can be defined using single quotes (the URI
-will be parsed as is) or double quotes, which allows for variable interpolation
-opening to many possibilities
+It's also possible to import modules nested within a file module, without
+having to import the whole file module
 
 ```ruby
-implementation Text default "giovi.util"
-if useAlternativeImplementation do {
-	implementation <- "some.other.implementation"
-}
-import "${implementation}/Module"
+import "file://some/Module".Foo.Bar as Bar
+Bar.foo -> _out
 ```
 
 ### @candidate Remote modules
 
-The import statement can also import "remote" modules; you can specify the scheme in the URI of the module
+The import statement can also import "remote" modules; you can specify the
+scheme in the URI of the module
 
 ```ruby
 import "http://some.server/some/remote/Module" as RemoteModule
-```
-
-### Module precedence
-
-In case there is a module definition with the same name of a file module, the
-former will take precedence when importing.
-
-```ruby
-# Foo.giovi
-```
-
-```ruby
-# Main.giovi
-module Foo {}
-
-import Foo # Main.Foo will be imported
-```
-
-### @candidate Import syntax change
-
-Use quotes for any kind of URI; if no scheme is specified, assume nested module.
-
-```ruby
-import [
-	"some.nested.module"
-	"${implementation}.module"
-	"file://some/file/module"
-	"http://some/remote/module"
-	"ftp://some/remote/module"
-]
 ```
 
 ### @candidate Import caching
@@ -3228,9 +3220,6 @@ import "some.module" # will print hello message again
 import("some.module") # will print hello message
 import("some.module") # will NOT print hello message
 ```
-
-### @candidate Remote modules
-
 
 ### Module lifetime
 

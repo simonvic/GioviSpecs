@@ -38,11 +38,12 @@ importStatement
 	| IMPORT '[' (importEntry ','?)+ ']'
 	;
 
-importEntry: importEntryPath (AS alias=identifier)? ;
+importEntry: importURI ('.' importURI)* (AS alias=identifier)? ;
 
-importEntryPath
-	: (EXACT_TEXT_LITERAL '.')? (identifier '.')* identifier
-	| EXACT_TEXT_LITERAL
+importURI
+	: identifier         # importURIIdentifier
+	| TEXT_LITERAL       # importURIText
+	| EXACT_TEXT_LITERAL # importURIExactText
 	;
 
 repeatStatement: REPEAT (IF expression)? statementOrBlock;
