@@ -14,6 +14,7 @@ block: '{' statement* '}';
 
 statement
     : importStatement
+    | aliasStatement
     | ifStatement
     | switchStatement
     | repeatStatement
@@ -45,6 +46,8 @@ importURI
 	| TEXT_LITERAL       # importURIText
 	| EXACT_TEXT_LITERAL # importURIExactText
 	;
+
+aliasStatement: ALIAS expression AS alias=identifier ;
 
 repeatStatement: REPEAT (IF expression)? statementOrBlock;
 

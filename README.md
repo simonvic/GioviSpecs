@@ -3070,6 +3070,36 @@ someFunctionRef ::() => Color
 someFunctionRef() -> _out # will print Color.<69 0 0>
 ```
 
+# Aliasing
+
+Sometimes a type, a function or a constant might be verbosely named. You can
+alias them to another name with the `alias` statement
+
+```
+alias some_identifier as some_alias
+```
+
+You can alias types, functions, constants and modules
+
+```ruby
+AVeryVerboseAndLongStructName <i Int>
+alias AVeryVerboseAndLongStructName as SomeStruct
+SomeStruct.<> -> _out
+
+aVeryLonglyNamedFunction() => Text { => "hello world" }
+alias aVeryLonglyNamedFunction as f
+f() -> _out
+
+
+const A_VERY_LONGLY_NAMED_CONSTANT <- 3.14
+alias A_VERY_LONGLY_NAMED_CONSTANT as PI
+PI -> _out
+```
+
+## @candidate variable aliasing
+
+Would it even make sense?
+
 # Module system
 
 A module is a "container" for code and shares the same behavior of a Scope: it
@@ -3132,7 +3162,7 @@ giovi.util.Random.integer() -> _out
 color giovi.util.Color
 ```
 
-A module can be aliased during import, which allows for easier access
+A module can be aliased during import
 
 ```ruby
 import giovi.util.Random as Random
@@ -3145,7 +3175,7 @@ import [
 ]
 ```
 
-which is equivalent of doing
+which is a shorthand for
 
 ```ruby
 immport some.very.deep.Module
@@ -3364,46 +3394,6 @@ fork ::{
 	doSomethingBlocking();
 }
 join
-```
-
-## @candidate Aliasing
-
-Alias a type, function or struct
-
-```ruby
-AVeryVerboseAndLongStructName <i Int>
-alias AVeryVerboseAndLongStructName as SomeStruct
-SomeStruct.() -> _out
-
-aVeryLonglyNamedFunction() => Text { => "hello world" }
-alias aVeryLonglyNamedFunction as f
-f() -> _out
-
-aVeryLonglyNamedVariable Int
-alias aVeryLonglyNamedVariable as i
-i -> _out
-```
-
-### @candidate Strict aliasing
-
-loose (default)
-
-```ruby
-alias Int as SomeFlag
-someFunction(f someFlag) {}
-someFunction(0b1)
-0b1 -> i Int
-someFunction(i) # OK
-```
-
-strict
-
-```ruby
-strict alias Int as SomeFlag
-someFunction(f someFlag) {}
-someFunction(0b1)
-0b1 -> i Int
-someFunction(i) # ERROR or WARN
 ```
 
 ## @candidate Generics
