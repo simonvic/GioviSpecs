@@ -3762,6 +3762,15 @@ if catch ex LogException do {
 The catch expression can be non-exhaustive. The uncaught exceptions will be
 wrapped as a cause and re-thrown
 
+@candidate what if we use a "trailing" catch statement without `try`?
+
+```ruby
+doSomething() if catch ex {
+	is Exception1 do {}
+	is Exception2 do {}
+}
+```
+
 ### @candidate Errors
 
 Errors are instead used for expected good/bad code paths, and they are part of
