@@ -7,45 +7,151 @@ embedded configuration
 
 # Comments
 
-```ruby
+```
 # Single line comment
 
 #{
 	This is a multiline
-	comment block.
-	For when you need to write long
-	comments.
+	comment block
+	that can span over
+	multiple lines.
 }#
 
-#{ this is an inline comment block }#
+if true #{ inline comment blocks... }# do #{ ...can appear anywhere }# {
+
+}
 ```
+
+By convention the open comment delimiters `#` and `#{` are immediately followed
+by a space; the first character is "reserved" to indicate a special comment
+(e.g. documentation)
 
 ## Documentation
 
+Documentation comments are used to describe the goal, use or meaning of a
+variable, function, type and more.
+
+They're just normal comments starting with a `?`, but may be treated
+differently by other tools (e.g. language servers, syntax highlighters)
+
 ```ruby
-x Int #? Some number that means something
+#? The ratio of the circumference of a circle to its diameter.
+const PI <- 3.14
+```
 
-#? Some other number
-y Int
+Any contiguous sequence (non newline separated) of documentation comments is
+considered as a single documentation section
 
-#?{
-#	@brief Sum two values
-#	@param x
-#		@pre x has some precodition
-#		@post x has some postcondition
-#	@param y
-#		@pre y has some precodition
-#		@post y has some postcondition
-#	@return x + y
-#
-#	@code
-#		sum(1, 2) -> _out
-#
-#	@see Math
+````ruby
+#? Computes the sum of two values
+#?
+#? - parameters:
+#? 	- x: the first operand
+#? 	- y: the second operand
+#? - returns: the sum of the first and second operand x + y
+#?
+#? Example usage
+#?
+#? ```giovi
+#? sum(1, 2) -> _out
+#? ```
+#?
+#? Also see [Math](giovi://giovi$util$Math)
+sum(x Int, y Int) => Int {
+	=> x + y
+}
+````
+
+In an editor, it would be rendered as follows:
+
+
+> Computes the sum of two values
+> 
+> - parameters:
+> 	- x: the first operand
+> 	- y: the second operand
+> - returns: the sum of the first and second operand x + y
+> 
+> Example usage
+>
+> ```ruby
+> sum(1, 2) -> _out
+> ```
+>
+> Also see [Math](giovi://giovi$util$Math)
+
+Comment blocks can also be marked as documentation
+
+````
+#{?
+Computes the sum of two values
+
+- parameters:
+	- x: the first operand
+	- y: the second operand
+- returns: the sum of the first and second operand x + y
+
+Example usage
+
+```giovi
+sum(1, 2) -> _out
+```
+
+Also see [Math](giovi://giovi$util$Math)
 }#
 sum(x Int, y Int) => Int {
 	=> x + y
 }
+````
+
+By convention, they're written in `markdown` 
+
+````
+#{?
+This is *italic*, **bold**, __underline__, `code`
+
+```giovi
+"hello world" -> _out
+```
+
+> quote
+
+- item
+- item
+	- item
+- item
+}#
+````
+
+## @candidate Directives
+
+You can "tag" a tool, to tell the comment is aimed at them
+
+```ruby
+#@formatter disable
+_out   <-        "this will not be formatted"
+#@formatter enable
+
+foo() {
+	return;
+	#@lsp ignore:dead-code
+	_out <- "this is deadcode"
+}
+```
+
+Opening and closing directives
+
+```ruby
+#@formatter align:true {
+[
+	[0 0.0 0]
+	[0 0   0]
+]
+#@formatter }
+
+#@formatter minimize:true {
+someFunction(x Int,y Int)=>Int{=>x+y}
+#@formatter }
 ```
 
 # Operators
@@ -3495,31 +3601,6 @@ x Int <- if something {
 } else 69420
 ```
 
-## @candidate Formatter directives
-
-Special comment `#!` will be parsed by the formatter; uses the same syntax of
-the language.
-
-```ruby
-#!disable()
-"this will not be formatted" -> _out
-#!enable()
-
-#!align:true
-[
-	[0 0.0 0]
-	[0 0   0]
-]
-#!align:false
-
-#!minimize:true
-someFunction(x Int,y Int)=>Int{=>x+y}
-#!minimize:false
-
-#!align:true, minimize:true
-#!minimize:false
-```
-
 ## @candidate 1-based array indexing
 
 ### Accessing via index (1-based) vs accessing via offset (0-based)
@@ -4099,28 +4180,157 @@ package() => Package {
 }
 ```
 
+## @candidate Aside documentation
+
+A function with a complex behavior may require lots of comments and
+documentation to describe it.
+
+Interleaving comments/documentation with code may hinder readability (for both
+code and documentation)
+
+From the [giovi implementation of the Konway's game of
+life](https://github.com/simonvic/GioviExamples/blob/main/game_of_life_random.giovi)
+
+```ruby
+#? Abstraction struct that represents the state of a generation
+State <
+
+	#? Actual state data (a matrix of cells)
+	state [[Int]]
+
+	#? Convert the state to a text representation using braille characters
+	#? - parameters:
+	#?	- state: the state to convert
+	#? - returns: text representation
+	toBraille(state [[Int]]) => Text {
+		output Text
+		rows Int <- state@%
+		columns Int <- state@0@%
+		# Iterate the 3 rows and
+		for chunkRowIdx in 0..rows-1..3 do {
+			# and 2 columns (3x2 chunk) that makes a braille character
+			for chunkColIdx in 0..columns-1..2 do {
+				#? Binary of braille char index
+				"0b" -> char Text
+				# Iterate first and second column of the chunk
+				for colIdx in chunkColIdx..chunkColIdx + 1 do {
+					# Iterate first, second and third row of the chunk's column
+					for rowIdx in chunkRowIdx..chunkRowIdx + 2 do {
+						if rowIdx >= rows | colIdx >= columns do {
+							char +<- "0"
+						} else if state@rowIdx@colIdx {
+							<= 0 do char +<- "0";
+							>= 1 do char +<- "1";
+						}
+					}
+				}
+				output +<- CODEX@{char as Int}
+			}
+			output +<- "\n"
+		}
+		=> output
+	}
+>
+```
+
+Alternatively, we can put comments/documentations aside.
+
+Pros:
+- We can read uninterrupted both the code and documentation in parallel.
+- More efficient use of screen widths
+- When commenting a statement or a line of code, the comment could be above,
+but it might be ambiguous: is it related to the statement before or after the
+comment?
+- Incentivize writing vertical code which is better for reading, visualizing on
+narrow screens (splits), easier to document, easier to diff
+- who documents as soon as you write code? This allows to add documentation
+after the code has been written, without heavily modifying the code structure
+
+Cons:
+- hinders writing; mainly suited for "stable" code that doesn't change
+- requires tooling for formatting
+- how to handle comments spanning on multiple lines?
+- it's ugly af
+
+```ruby
+State <                                                                        #?< Abstraction struct that represents the state of a generation
+
+	state [[Int]]                                                              #?< Actual state data (a matrix of cells)
+
+	toBraille(                                                                 #?< Convert the state to a text representation using braille characters
+		state [[Int]]                                                          #?< the state to convert
+	) => Text {                                                                #?< text representation
+		output Text
+		rows Int <- state@%
+		columns Int <- state@0@%
+		for chunkRowIdx in 0..rows-1..3 do {                                   # Iterate the 3 rows and
+			for chunkColIdx in 0..columns-1..2 do {                            # and 2 columns (3x2 chunk) that makes a braille character
+				"0b" -> char Text                                              #?< Binary of braille char index
+				for colIdx in chunkColIdx..chunkColIdx + 1 do {                # Iterate first and second column of the chunk
+					for rowIdx in chunkRowIdx..chunkRowIdx + 2 do {            # Iterate first, second and third row of the chunk's column
+						if rowIdx >= rows | colIdx >= columns do {
+							char +<- "0"
+						} else if state@rowIdx@colIdx {
+							<= 0 do char +<- "0";
+							>= 1 do char +<- "1";
+						}
+					}
+				}
+				output +<- CODEX@{char as Int}
+			}
+			output +<- "\n"
+		}
+		=> output
+	}
+>
+```
+
+### Alternative easier to write syntax
+
+```ruby
+State <                                                                        #?? Abstraction struct that represents the state of a generation
+
+	state [[Int]]                                                              #?? Actual state data (a matrix of cells)
+
+	toBraille(                                                                 #?? Convert the state to a text representation using braille characters
+		state [[Int]]                                                          #?? the state to convert
+	) => Text {                                                                #?? text representation
+		output Text
+		rows Int <- state@%
+		columns Int <- state@0@%
+		for chunkRowIdx in 0..rows-1..3 do {                                   # Iterate the 3 rows and
+			for chunkColIdx in 0..columns-1..2 do {                            # and 2 columns (3x2 chunk) that makes a braille character
+				"0b" -> char Text                                              #?? Binary of braille char index
+				for colIdx in chunkColIdx..chunkColIdx + 1 do {                # Iterate first and second column of the chunk
+					for rowIdx in chunkRowIdx..chunkRowIdx + 2 do {            # Iterate first, second and third row of the chunk's column
+						if rowIdx >= rows | colIdx >= columns do {
+							char +<- "0"
+						} else if state@rowIdx@colIdx {
+							<= 0 do char +<- "0";
+							>= 1 do char +<- "1";
+						}
+					}
+				}
+				output +<- CODEX@{char as Int}
+			}
+			output +<- "\n"
+		}
+		=> output
+	}
+>
+```
+
 ## @candidate Function documentation alternatives
 
 default
 
 ```ruby
 #? Sum two numbers
-#? @param x Int
-#? @param y Int
-#? @return sum of x and y
+#? - parameters:
+#?	- x: first operand
+#?	- y: second operand
+#? - returns: sum of x and y
 sum(x Int, y Int) => Int {
-	=> x + y
-}
-```
-
-inside body
-
-```ruby
-sum(x Int, y Int) => Int {
-	#? Sum two numbers
-	#? @param x Int
-	#? @param y Int
-	#? @return sum of x and y
 	=> x + y
 }
 ```
@@ -4128,11 +4338,26 @@ sum(x Int, y Int) => Int {
 inline
 
 ```ruby
-sum(#? Sum two integer numbers
-	x Int, #? Some random value
-	y Int, #? Some other random value
-) => Int #? Returns the sum of x and y
-{
+#? Sum two numbers
+sum(
+	#? first operand
+	x Int,
+	#? second operand
+	y Int,
+#? the sum of x and y
+) => Int {
+	=> x + y
+}
+```
+
+aside
+
+```ruby
+#? Sum two integer numbers
+sum(
+	x Int, #?< Some random value
+	y Int, #?< Some other random value
+) => Int { #?< Returns the sum of x and y
 	=> x + y
 }
 ```

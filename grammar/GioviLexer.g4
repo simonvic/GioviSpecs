@@ -69,8 +69,8 @@ IS:                             'is';
 SELF:                           'self';
 
 WS:            [ \t\r\n\u000C]+ -> skip;
-COMMENT_BLOCK: ('#{' | '#?{') .*? ('}#' | EOF) -> channel(HIDDEN);
-COMMENT:       '#' ~[{?\r\n]? ~[\r\n]* '\n'? -> channel(HIDDEN);
+COMMENT_BLOCK: '#{' .*? ('}#' | EOF) -> channel(HIDDEN);
+COMMENT:       '#' (~[{\r\n] ~[\r\n]*)? ([\r\n] | EOF) -> channel(HIDDEN);
 
 BOOL_LITERAL: 'true' | 'false';
 
