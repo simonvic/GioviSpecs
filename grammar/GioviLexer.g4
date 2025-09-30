@@ -68,7 +68,7 @@ AS:                             'as';
 IS:                             'is';
 SELF:                           'self';
 
-WS:            [ \t\r\n\u000C]+ -> skip;
+WS:            [ \t\r\n]+ -> skip;
 COMMENT_BLOCK: '#{' .*? ('}#' | EOF) -> channel(HIDDEN);
 COMMENT:       '#' (~[{\r\n] ~[\r\n]*)? ([\r\n] | EOF) -> channel(HIDDEN);
 
