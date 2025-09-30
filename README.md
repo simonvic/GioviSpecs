@@ -4248,6 +4248,13 @@ Foo <
 >
 ```
 
+## @candidate safe dot access
+
+```ruby
+i Int <- someTuple?someField?someOtherField
+# if any of the access fails, short circuit and return void, default or something
+```
+
 <!-- 
 vim: noet
 -->
