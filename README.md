@@ -4525,6 +4525,36 @@ i <- 420
 t -> _out # hello 420 world
 ```
 
+## @candidate Docs part of the code
+
+Docs are parsed like code and not skipped.
+Can be read with "reflection".
+
+```ruby
+#? This function does something
+someFun() {}
+
+someFun@? -> _out
+someFun@# -> _out
+someFun@doc -> _out
+```
+
+It might return a struct made of the various parts of a doc
+
+```ruby
+#? This function computes the sum of two numbers
+#? @param x first operant
+#? @param y second operant
+#? @return the sum of x and y
+sum(x Int, y Int) {=> x + y}
+sum@{doc} -> doc Doc
+doc.body -> _out
+doc.params@0 -> _out
+doc.params@1 -> _out
+doc.return -> _out
+```
+
 <!-- 
 vim: noet
 -->
+
