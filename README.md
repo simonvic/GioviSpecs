@@ -4516,6 +4516,15 @@ i Int <- someTuple?someField?someOtherField
 # if any of the access fails, short circuit and return void, default or something
 ```
 
+## @candidate lazily evaluated strings
+
+```ruby
+i Int <- 69
+t Text <- ''hello $i world''
+i <- 420
+t -> _out # hello 420 world
+```
+
 <!-- 
 vim: noet
 -->
