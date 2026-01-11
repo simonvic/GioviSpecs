@@ -2019,9 +2019,9 @@ If a tuple is a subset of another tuple, record or struct, then it can be
 safely widened to it, with "subset" meaning that **it has less or equal amount
 of fields of narrower or equal type in the same order**.
 - `<69 true "foo">` can be widened to a tuple, record or struct with signature
-`<a Real, b Boolean, c Text, d Int>`
+`<a Real, b Bool, c Text, d Int>`
 - `<true 69 "foo">` canNOT be widened to a tuple, record or struct with
-signature `<a Real, b Boolean, c Text>`
+signature `<a Real, b Bool, c Text>`
 
 ### Records
 
@@ -2029,7 +2029,7 @@ If a record is a subset of another record or struct, then it can be
 safely widened to it, with "subset" meaning that **it has less or equal amount of
 equally named fields of narrower or equal type**.<br>
 - `<b:true a:69 c:"foo">` can be widened to a record or struct with signature
-`<a Real, b Boolean, c Text, d Int>`
+`<a Real, b Bool, c Text, d Int>`
 
 ### Struct
 
