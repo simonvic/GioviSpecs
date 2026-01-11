@@ -464,17 +464,17 @@ let y <- 69
 
 ## @candidate type prefix
 
-`::` for function, `$` for modules, maybe `?` for types?
+`::` for function, `$` for modules, maybe `~` for types?
 
 ```ruby
-someVar ?SomeType
+someVar ~SomeType
 ```
 
 it could be useful for naive generics
 
 ```ruby
 someType Type
-someGenericValue ?someType
+someGenericValue ~someType
 ```
 
 Other possibilities:
@@ -503,8 +503,15 @@ foo$Foo
 foo //Foo
 foo//Foo
 foo// Foo
-```
 
+foo ?Foo
+foo?Foo
+foo? Foo
+
+foo ~Foo
+foo~Foo
+foo~ Foo
+```
 
 ## Scopes and variables lifetime
 
