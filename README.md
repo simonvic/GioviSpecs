@@ -2389,10 +2389,39 @@ if true & true | false do {}
 if true & {true | false} do {}
 ```
 
-## Multiple if (match)
+## @candidate if-chain
 
 ```
-if <variable> {
+if {
+	<condition> do {}
+	<condition2> do {}
+} else {
+	<else body>
+}
+```
+
+```ruby
+name Text
+if name {
+
+	name = "Simone" do "hey it's Simone!" -> _out
+
+	name = "Mario" do {
+		"heyo Mario" -> _out
+		"where is Luigi?" -> _out
+	}
+
+	name = "Luigi" do -> "heyo green Mario!" -> _out
+
+} else {
+	"greetings $name" -> _out
+}
+```
+
+## if-chain with subject
+
+```
+if <subject> {
 	<condition> do {
 		<condition body>
 	}
