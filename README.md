@@ -2402,7 +2402,7 @@ if {
 
 ```ruby
 name Text
-if name {
+if {
 
 	name = "Simone" do "hey it's Simone!" -> _out
 
