@@ -192,34 +192,34 @@ caseMatch
 // FIXME(ambiguity): [<1 2 3> <4 5 6> <7 8 9>]
 
 expression
-    : '{' expression '}'                                      # expressionParenthesized
-    | expression AS type                                      # expressionCast
+    : '{' expression '}'                                                 # expressionParenthesized
+    | expression AS type                                                 # expressionCast
 
     // TODO: add IS tupleDeconstruction
-    | expression IS (NOT | identifier)? type                  # expressionTypeCheck
-    | expression '.' (invocation | identifier | 'default')    # expressionDot
-    | listCreation                                            # expressionListCreation
-    | mapCreation                                             # expressionMapCreation
-    | tupleCreation                                           # expressionTupleCreation
-    | structCreation                                          # expressionStructCreation
-    | recordCreation                                          # expressionRecordCreation
-    | '::' referenceable                                      # expressionRef
-    | expression actualParameters                             # expressionInvocation
-    | invocation                                              # expressionInvocationSimple
-    | BIT_NOT expression                                      # expressionBitwiseNot
-    | expression bop=(BIT_AND | BIT_OR | BIT_XOR) expression  # expressionBitwiseBool
+    | expression IS (NOT | identifier)? type                             # expressionTypeCheck
+    | expression '.' (invocation | identifier | 'default')               # expressionDot
+    | listCreation                                                       # expressionListCreation
+    | mapCreation                                                        # expressionMapCreation
+    | tupleCreation                                                      # expressionTupleCreation
+    | structCreation                                                     # expressionStructCreation
+    | recordCreation                                                     # expressionRecordCreation
+    | '::' referenceable                                                 # expressionRef
+    | expression actualParameters                                        # expressionInvocation
+    | invocation                                                         # expressionInvocationSimple
+    | BIT_NOT expression                                                 # expressionBitwiseNot
+    | expression bop=(BIT_AND | BIT_OR | BIT_XOR) expression             # expressionBitwiseBool
     | expression bop=(BIT_LSHIFT | BIT_RSHIFT | BIT_RUSHIFT) expression  # expressionBitwiseShift
-    | prefix=('+' | '-') expression                           # expressionPrefixed
-    | prefix=(NOT | NOT_SYM) expression                       # expressionNot
-    | expression bop='@' accessKey                            # expressionAccess
-    | expression bop='^' expression                           # expressionPower
-    | expression bop=('*' | '/' | '%') expression             # expressionMultiplicative
-    | expression bop=('+' | '-') expression                   # expressionAdditive
-    | expression bop=('<=' | '>=' | '>' | '<') expression     # expressionRelational
-    | expression bop=('=' | '!=') expression                  # expressionEquality
-    | expression NOT? bop=(IN | '~=' | '=~') expression       # expressionContainment
-    | expression bop=(AND | AND_SYM | OR | OR_SYM) expression # expressionBool
-    | primary                                                 # expressionPrimary
+    | prefix=('+' | '-') expression                                      # expressionPrefixed
+    | prefix=(NOT | NOT_SYM) expression                                  # expressionNot
+    | expression bop='@' accessKey                                       # expressionAccess
+    | expression bop='^' expression                                      # expressionPower
+    | expression bop=('*' | '/' | '%') expression                        # expressionMultiplicative
+    | expression bop=('+' | '-') expression                              # expressionAdditive
+    | expression bop=('<=' | '>=' | '>' | '<') expression                # expressionRelational
+    | expression bop=('=' | '!=') expression                             # expressionEquality
+    | expression NOT? bop=(IN | '~=' | '=~') expression                  # expressionContainment
+    | expression bop=(AND | AND_SYM | OR | OR_SYM) expression            # expressionBool
+    | primary                                                            # expressionPrimary
     ;
 
 primary: literal | identifier | reservedIdentifier ;
