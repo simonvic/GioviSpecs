@@ -136,7 +136,7 @@ selfFunctionDeclaration: selfFunctionSignature body=block ;
 
 selfFunctionSignature: self=SELF? name=identifier formalParameters (RETURN_SYM (returnType=type | returnSelf=SELF))? ;
 
-structCreation: (typeQualified | identifier) '.' (recordCreation | tupleCreation) ;
+structCreation: typeQualified '.' (recordCreation | tupleCreation) ;
 
 tupleCreation: '<' (expression ','?)* '>' ;
 
@@ -224,11 +224,11 @@ primary: literal | identifier | reservedIdentifier ;
 
 range: start=expression '..' end=expression ('..' step=expression)?;
 
-type: typeComposite | typeFunctionRef | identifier | typeQualified ;
+type: typeComposite | typeFunctionRef | typeQualified ;
 
 typeComposite: typeList | typeMap;
 
-typeQualified: (identifier '.')+ typename=identifier ;
+typeQualified: (identifier '.')* typename=identifier ;
 
 //////////////////////////////////////////////////////////////////////////////// COMPOSITE TYPES
 
