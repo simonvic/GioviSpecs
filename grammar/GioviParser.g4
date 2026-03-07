@@ -115,7 +115,7 @@ moduleDeclaration: MODULE identifier body=block ;
 /////////////////////////////////////////////////////////////////////////////// STRUCTS
 
 structDefinition
-	: (parentTypename=identifier ':')? typename=identifier body=structBodyDefinition ';'?
+	: (parentType=typeQualified ':')? typename=identifier body=structBodyDefinition ';'?
 	;
 
 structBodyDefinition
