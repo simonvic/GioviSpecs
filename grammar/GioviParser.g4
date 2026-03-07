@@ -198,12 +198,13 @@ expression
     // TODO: add IS tupleDeconstruction
     | expression IS (NOT | identifier)? type                  # expressionTypeCheck
     | expression '.' (invocation | identifier | 'default')    # expressionDot
+    | expression '::' identifier                              # expressionDotRef
+    | '::' referenceable                                      # expressionRef
     | listCreation                                            # expressionListCreation
     | mapCreation                                             # expressionMapCreation
     | tupleCreation                                           # expressionTupleCreation
     | structCreation                                          # expressionStructCreation
     | recordCreation                                          # expressionRecordCreation
-    | '::' referenceable                                      # expressionRef
     | expression actualParameters                             # expressionInvocation
     | invocation                                              # expressionInvocationSimple
     | prefix=('+' | '-') expression                           # expressionPrefixed
@@ -236,7 +237,7 @@ accessKey
     | key=('%' | '@' | '*')            # accessKeySpecial
     | range                            # accessKeyRange
     | literal                          # accessKeyLiteral
-    | identifier                    # accessKeyIdentifier
+    | identifier                       # accessKeyIdentifier
     ;
 
 typeList:     '[' type ('*' '*' initSize=expression)? ']';
@@ -254,7 +255,7 @@ mapEntry:    mapKey=expression ':' mapValue=expression;
 //////////////////////////////////////////////////////////////////////////////// FUNCTION REFS
 
 referenceable
-	: (expression '.')? identifier
+	: identifier
 	| anonFunction
 	;
 

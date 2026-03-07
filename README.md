@@ -3035,22 +3035,56 @@ isEven(x Int) => x % 2 = 0
 greet(name Text) name -> _out
 ```
 
-# Functions reference
+## Function type
 
-The reference of a function is used to refer to the function itself.<br>
-You can get a reference of a function with the `::` (double colon).
+Functions are first-class citizens. This means they behave like any other
+value: they have a type, can be assigned to variables, can be passed as
+arguments to other functions and returned, etcetera.
+
+You can refer to a function simply by its name
 
 ```ruby
 sum(x Int, y Int) => Int {
 	=> x + y
 }
 
-::sum -> _out # will print sum(x Int, y Int) => Int
+sum -> _out # function sum(x Int, y Int) => Int {}
 ```
 
-It can be stored in variables and struct, and can be passed as a parameter to
-other functions as well, just like any other type.<br>
-It can be invoked like a normal function
+If a variable with the same name is shadowing the function, you can use the
+`::` (double colon) syntax to explicitly refer to the function
+
+```ruby
+sum(x Int, y Int) => Int { => x + y }
+sum Int default 69
+
+sum -> _out   # 69
+::sum -> _out # function sum(x Int, y Int) => Int {}
+```
+
+The same applies when accessing a function within a struct or module
+
+```ruby
+Color <
+	rgb Int default 0xff0000
+	rgb(r Int, g Int, b Int) => Color { => Color.<> } # pretend this function works
+>
+Color.rgb -> _out # 0xff0000
+Color::rgb -> _out # function rgb(r Int, g Int, b Int) => Color {}
+
+giovi.util.Color.rgb -> _out
+giovi.util.Color::rgb -> _out
+```
+
+The double colon notation is recommended anyway for improved readability in
+case of ambiguously or poorly named functions.
+
+You can declare a variable with a function type like so:
+
+```
+<name> ::( <formal_parameters> )
+<name> ::( <formal_parameters> ) => <return_type>
+```
 
 ```ruby
 sum(x Int, y Int) => Int { => x + y }
@@ -3058,7 +3092,7 @@ sub(x Int, y Int) => Int { => x + y }
 mul(x Int, y Int) => Int { => x * y }
 div(x Int, y Int) => Int { => x / y }
 
-someOperation ::(Int, Int) => Int
+someOperation ::(x Int, y Int) => Int
 
 ::sum -> someOperation
 someOperation(5, 2) -> _out # 5 + 2
@@ -3077,20 +3111,19 @@ To ensure type safety, the function signatures must be compatible (i.e. equal
 or narrower)
 
 ```ruby
-sum(x Int, y Int) => Int { => x + y }
+# a ref of a function that takes two Real parameters and returns a Real
+someFunctionRef ::(x Real, y Real) => Real
+
 div(x Real, y Real) => Real { => x + y }
-greet(someone Text) { "hello $someone" -> _out }
-
-# a ref of a function that takes two Real parameters and return a Real
-someFunctionRef ::(Real, Real) => Real
-
 ::div -> someFunctionRef
 someFunctionRef(690.0, 10.0) -> _out # 690 / 10
 
+sum(x Int, y Int) => Int { => x + y }
 ::sum -> someFunctionRef
 # OK: sum signature can be widened to someFunctionRef signature
 someFunctionRef(49, 10) -> _out # 49 + 10
 
+greet(someone Text) { "hello $someone" -> _out }
 ::greet -> someFunctionRef
 # ERROR: incompatible function signatures
 ```
@@ -3125,7 +3158,7 @@ someFunctionRef ::(txt Text) default ::(txt Text) {
 }
 ```
 
-## Signature conversion
+### Signature conversion
 
 Like any other type, a function reference type can be widened/narrowed/casted
 where possible; they behave very similarly to [product types](#product-types):
@@ -3197,10 +3230,11 @@ someFunctionRef ::(x Int, y Int) => Int default ::{
 }
 ```
 
-## Default value of a function ref
+### Default value of a function ref
 
-The default value of a function ref will be an "empty" function with no body.<br>
-If the signatures has a return value, its default will be returned instead
+The default value of a function ref will be an "empty" function with no body.
+
+If the signatures has a return value, its default will be returned.
 
 ```ruby
 Color <
@@ -3209,7 +3243,7 @@ Color <
 	b Int
 >
 someFunctionRef ::() => Color
-someFunctionRef() -> _out # will print Color.<69 0 0>
+someFunctionRef() -> _out # Color.<69 0 0>
 ```
 
 # Aliasing
