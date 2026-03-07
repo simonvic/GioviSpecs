@@ -3973,6 +3973,18 @@ interface Vec <
 i Vec # variable of interface Vec
 ```
 
+@candidate Alternative syntax with no interface keyword. Any Struct with no
+field and zero or more abstract functions is an interface
+
+```ruby
+Any<>
+Vec <
+	self magnitude() => Real
+	self normalize() => Vec
+	distance(from Vec, to Vec) => Real
+>
+```
+
 Unlike other variables where in an assignment the operand needs to be narrower
 or equal which gets widened, with interface variables the assignment can be
 seen as narrowing operation: an interface variable can hold any value whose
