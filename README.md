@@ -4500,15 +4500,6 @@ probability() => 0r..1r {
 }
 ```
 
-This candidate would collide with Range type candidate
-
-```ruby
-probability() => 0r..1r {
-	=> 0.69 # ERROR: expecting Range<Int> but real returned
-}
-```
-
-
 ## @candidate self support in function refs
 
 ```ruby
