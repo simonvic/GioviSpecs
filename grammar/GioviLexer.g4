@@ -67,6 +67,7 @@ ALIAS:                          'alias';
 AS:                             'as';
 IS:                             'is';
 SELF:                           'self';
+FUNCTION:                       'function';
 
 WS:            [ \t\r\n]+ -> skip;
 COMMENT_BLOCK: '#{' .*? ('}#' | EOF) -> channel(HIDDEN);
