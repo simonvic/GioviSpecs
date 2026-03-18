@@ -189,7 +189,7 @@ someFunction(x Int,y Int)=>Int{=>x+y}
 | Not       | !      | !{2 > 10}         |
 |           | not    | not {2 > 10}      |
 
-## @candidate Bitwise operators
+## Bitwise operators
 
 | Operation            | Symbol  | Example             |
 | -------------------- | ------- | ------------------- |
@@ -197,9 +197,9 @@ someFunction(x Int,y Int)=>Int{=>x+y}
 | And                  | &&      | 0b001 && 0b001      |
 | Or                   | \|\|    | 0b001 \|\| 0b010    |
 | Xor                  | \|\|\|  | 0b001 \|\|\| 0b010  |
-| Left shift           | <<      | 1 << 5              |
-| Signed right shift   | >>      | 1 >> 5              |
-| Unsigned right shift | >>>     | 32 >>> 5            |
+| Left shift           | {<}     | 1 {<} 5             |
+| Signed right shift   | {>}     | 1 {>} 5             |
+| Unsigned right shift | {>>}    | 32 {>>} 5           |
 
 ## Redirection (assignment)
 

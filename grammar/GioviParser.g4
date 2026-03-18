@@ -207,6 +207,9 @@ expression
     | recordCreation                                          # expressionRecordCreation
     | expression actualParameters                             # expressionInvocation
     | invocation                                              # expressionInvocationSimple
+    | BIT_NOT expression                                      # expressionBitwiseNot
+    | expression bop=(BIT_AND | BIT_OR | BIT_XOR) expression  # expressionBitwiseBool
+    | expression bop=(BIT_LSHIFT | BIT_RSHIFT | BIT_RUSHIFT) expression  # expressionBitwiseShift
     | prefix=('+' | '-') expression                           # expressionPrefixed
     | prefix=(NOT | NOT_SYM) expression                       # expressionNot
     | expression bop='@' accessKey                            # expressionAccess
