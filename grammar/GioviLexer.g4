@@ -74,7 +74,13 @@ ALIAS:                          'alias';
 AS:                             'as';
 IS:                             'is';
 SELF:                           'self';
+// reserved
 FUNCTION:                       'function';
+TUPLE:                          'tuple';
+RECORD:                         'record';
+STRUCT:                         'struct';
+TYPE:                           'type';
+DEF:                            'def';
 
 WS:            [ \t\r\n]+ -> skip;
 COMMENT_BLOCK: '#{' .*? ('}#' | EOF) -> channel(HIDDEN);
