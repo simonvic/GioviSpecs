@@ -4591,6 +4591,301 @@ doc.params@1 -> _out
 doc.return -> _out
 ```
 
+## @candidate More explicit keyword for definition/declaration
+
+Current:
+
+```giovi
+module SomeModule {
+	const PI <- 3.14
+
+	someFunction() => Text {
+		=> "hello world"
+	}
+
+	SomeStruct <x Int, y Int>
+
+	SomeOtherStruct <
+		x Int
+		y Int
+
+		const TAU <- PI * 2
+
+		self sum() => Int {
+			=> x + y
+		}
+	>
+}
+```
+
+vs dedicated keywords:
+
+```giovi
+module SomeModule {
+	const PI <- 3.14
+
+	function someFunction() => Text {
+		=> "hello world"
+	}
+
+	struct SomeStruct <x Int, y Int>
+
+	struct SomeOtherStruct <
+		x Int
+		y Int
+
+		const TAU <- PI * 2
+
+		self function sum() => Int {
+			=> x + y
+		}
+	>
+}
+```
+
+vs generic def:
+
+```giovi
+def SomeModule {
+	def PI <- 3.14
+
+	def someFunction() => Text {
+		=> "hello world"
+	}
+
+	def SomeStruct <x Int, y Int>
+
+	def SomeOtherStruct <
+		x Int
+		y Int
+
+		def TAU <- PI * 2
+
+		def self sum() => Int {
+			=> x + y
+		}
+	>
+}
+```
+
+More consistent but a lot more noisy
+
+## @candidate Builtin types
+
+```giovi
+someTuple Tuple<Int, Int>
+getSomeTuple() => Tuple<Int, Int> {
+	=> <1 2>
+}
+
+someRecord Record<x Int, y Int>
+getSomeRecord() => Record<x Int, y Int> {
+	=> <x:1 y:2>
+}
+
+SomeStruct <x Int, y Int>
+someStruct SomeStruct
+getSomeStruct() => SomeStruct {
+	=> SomeStruct.<>
+}
+
+someRef Function(x Int, y Int) => Int
+getSomeFunction() => Function(x Int, y Int) => Int {
+	=> ::(x Int, y Int) { => x + y }
+}
+
+someType Type
+getSomeType() => Type {
+	=> Int
+}
+
+someModule Module
+module SomeModule { }
+getSomeModule() => Module {
+	=> SomeModule
+}
+```
+
+### Instantiation disambiguation
+
+A lot more consistent with struct declaration and instantiation
+
+```giovi
+Point<x Int, y Int>
+point Point
+point <- Point.<x:1 y:2>
+
+foo Tuple<Int Int>
+foo <- Tuple.<1 2>
+
+bar Record<x Int y Int>
+bar <- Record.<x:1 y:2>
+
+calculator Function(x Int, y Int) => Int
+calculator <- Function.(x Int, y Int) => Int {
+	=> x + y
+}
+calculator <- Function.{ => x - y }
+
+someType Type
+someType <- Type.Int
+
+listOfTypes [Type]
+listOfTypes <- [Type.Int, Type.Real]
+listOfTypes <- [Type.[Int], Type.[Real]]
+
+someListType Type []
+someListType <- Type.[Int]
+
+someMapType Type [:]
+someMapType <- Type.[Text:Int]
+
+# for even more consistency:
+Point<x Int, y Int>
+point Point
+point <- Struct.Point.<x:1 y:2>
+```
+
+#### with keywords
+
+Less consistent, but it wouldn't feel weird putting PascalCase in the lexer
+
+```giovi
+Point<x Int, y Int>
+point Point
+point <- Point.<x:1 y:2>
+
+foo tuple<Int Int>
+foo <- tuple.<1 2>
+
+bar record<x Int y Int>
+bar <- record.<x:1 y:2>
+
+calculator function(x Int, y Int) => Int
+calculator <- function.(x Int, y Int) => Int {
+	=> x + y
+}
+calculator <- function.{ => x - y }
+
+someType type
+someType <- type.Int
+
+listOfTypes [type]
+listOfTypes <- [type.Int, type.Real]
+listOfTypes <- [type.[Int], type.[Real]]
+
+someListType type []
+someListType <- type.[Int]
+
+someMapType type [:]
+someMapType <- type.[Text:Int]
+
+# for even more consistency:
+Point<x Int, y Int>
+point Point
+point <- struct.Point.<x:1 y:2>
+```
+
+## @candidate(inheritance_symbol) Different inheritance symbol
+
+Less ambiguity with semicolons used elsewhere.
+
+Clearer meaning (union with parent)
+
+```ruby
+Point + Point3D<z Int>
+Coordinate,Point + Point3D<z Int>
+```
+
+```ruby
+Point + Point3D<z Int>
+Coordinate,Point + Point3D<z Int>
+```
+
+## @candidate(needs:inheritance_symbol) Use semicolon for instantiation
+
+```ruby
+Point<x Int, y Int>
+origin Point
+origin <- Point:<x:0, y:0>
+```
+
+### together with instantiation disambiguation
+
+```giovi
+Point<x Int, y Int>
+point Point
+point <- Point:<x:1 y:2>
+
+foo Tuple<Int Int>
+foo <- Tuple:<1 2>
+
+bar Record<x Int y Int>
+bar <- Record:<x:1 y:2>
+
+calculator Function(x Int, y Int) => Int
+calculator <- Function:(x Int, y Int) => Int {
+	=> x + y
+}
+calculator <- Function:{ => x - y }
+
+someType Type
+someType <- Type:Int
+
+listOfTypes [Type]
+listOfTypes <- [Type:Int, Type:Real]
+listOfTypes <- [Type:[Int], Type:[Real]]
+
+someListType Type []
+someListType <- Type:[Int]
+
+someMapType Type [:]
+someMapType <- Type:[Text:Int]
+
+# for even more consistency:
+Point<x Int, y Int>
+point Point
+point <- Struct:Point:<x:1 y:2>
+```
+
+#### with keywords
+
+```giovi
+Point<x Int, y Int>
+point Point
+point <- Point:<x:1 y:2>
+
+foo tuple<Int Int>
+foo <- tuple:<1 2>
+
+bar record<x Int y Int>
+bar <- record:<x:1 y:2>
+
+calculator function(x Int, y Int) => Int
+calculator <- function:(x Int, y Int) => Int {
+	=> x + y
+}
+calculator <- function:{ => x - y }
+
+someType type
+someType <- type:Int
+
+listOfTypes [type]
+listOfTypes <- [type:Int, type:Real]
+listOfTypes <- [type:[Int], type:[Real]]
+
+someListType type []
+someListType <- type:[Int]
+
+someMapType type [:]
+someMapType <- type:[Text:Int]
+
+# for even more consistency:
+Point<x Int, y Int>
+point Point
+point <- struct:Point:<x:1 y:2>
+```
+
 <!-- 
 vim: noet
 -->
