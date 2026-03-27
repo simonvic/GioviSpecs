@@ -158,6 +158,7 @@ formalParameter: (label=identifier ':')? name=identifier type defaultDefinition?
 
 invocationStatement
 	: (expression '.')? invocation # invocationStatementSimple
+	// TODO: what if we enforce parenthesizedExpression?
 	| expression actualParameters  # invocationStatementOfExpression
 	;
 
