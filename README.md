@@ -4886,6 +4886,36 @@ point Point
 point <- struct:Point:<x:1 y:2>
 ```
 
+## @candidate Type, struct invocation (constructor)
+
+Allow the invocation to be applied to types or struct. This could be seen as
+constructor invocation so we could expose function-like parameters for product
+types
+
+If a constructor is not defined, the canonical constructor signature is with
+all fields as optional
+
+```giovi
+Point <
+	x Int default 69
+	y Int default 420
+>
+p Point <- Point() # <69, 420>
+```
+
+```giovi
+Point <
+	x Int
+	y Int
+
+	self(x Int, y Int) {
+		=> Point.<x:x, y:y>
+	}
+
+>
+p Point <- Point(y:2) # ERROR: x not specified
+```
+
 <!-- 
 vim: noet
 -->
