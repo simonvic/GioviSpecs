@@ -4786,6 +4786,16 @@ point Point
 point <- struct.Point.<x:1 y:2>
 ```
 
+optional for tuples and records but comma is mandatory
+
+```giovi
+someTuple <Foo, Foo>
+someRecord <foo Foo>
+```
+
+this conflicts with composite iterators. Either enforce `tuple` keyword here,
+or disallow tuple types in iterators
+
 ## @candidate(inheritance_symbol) Different inheritance symbol
 
 Less ambiguity with semicolons used elsewhere.
@@ -4908,7 +4918,8 @@ Point <
 	x Int
 	y Int
 
-	self(x Int, y Int) {
+	# strawman syntax
+	self(x Int, y Int) => self {
 		=> Point.<x:x, y:y>
 	}
 
