@@ -121,7 +121,7 @@ structDefinition
 structBodyDefinition
 	: '<'
 	( constantDeclaration
-	| structFieldDefinition
+	| fieldDeclaration
 	| structDefinition
 	| functionDeclaration
 	| selfFunctionDeclaration
@@ -130,7 +130,7 @@ structBodyDefinition
 	;
 
 // TODO: what about list or map of self?
-structFieldDefinition: identifier (type defaultDefinition? | SELF) ','?;
+fieldDeclaration: identifier (type defaultDefinition? | SELF) ','?;
 
 selfFunctionDeclaration: selfFunctionSignature body=block ;
 
@@ -144,7 +144,7 @@ tupleCreationBody: '<' (expression ','?)* '>' ;
 
 recordCreation: RECORD '.' recordCreationBody ;
 
-recordCreationBody: '<' (structFieldDefinition ','?)+ '>' ;
+recordCreationBody: '<' (fieldDeclaration ','?)+ '>' ;
 
 //////////////////////////////////////////////////////////////////////////////// FUNCTIONS
 
@@ -244,7 +244,7 @@ typeTuple: TUPLE '<' (typeTupleEntry ','?)* '>' ;
 
 typeTupleEntry: type defaultDefinition?;
 
-typeRecord: RECORD '<' (structFieldDefinition ','?)* '>' ;
+typeRecord: RECORD '<' (fieldDeclaration ','?)* '>' ;
 
 typeRecordEntry: identifier type defaultDefinition?;
 
