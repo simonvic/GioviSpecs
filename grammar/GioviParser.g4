@@ -136,13 +136,15 @@ selfFunctionDeclaration: selfFunctionSignature body=block ;
 
 selfFunctionSignature: self=SELF? name=identifier formalParameters (RETURN_SYM (returnType=type | returnSelf=SELF))? ;
 
-structCreation: typeQualified '.' (recordCreation | tupleCreation) ;
+structCreation: typeQualified '.' (recordCreationBody | tupleCreationBody) ;
 
-tupleCreation: '<' (expression ','?)* '>' ;
+tupleCreation: (TUPLE '.')? tupleCreationBody ;
 
-recordCreation: '<' (recordEntry ','?)+ '>' ;
+tupleCreationBody: '<' (expression ','?)* '>' ;
 
-recordEntry: identifier ':' expression ;
+recordCreation: RECORD '.' recordCreationBody ;
+
+recordCreationBody: '<' (structFieldDefinition ','?)+ '>' ;
 
 //////////////////////////////////////////////////////////////////////////////// FUNCTIONS
 
