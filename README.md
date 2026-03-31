@@ -1604,11 +1604,11 @@ Constants can be defined within structs and will be associated to its typename.
 
 ```ruby
 Person <
-	constant ADULT_AGE Int <- 18
+	const ADULT_AGE Int <- 18
 >
 
 Color <
-	constant RED Color <- <255 0 0>
+	const RED Color <- <255 0 0>
 >
 
 Person.ADULT_AGE -> _out
@@ -3287,7 +3287,7 @@ Each file is implicitly a module, whose name is the filename containing it.
 ```ruby
 # Foo.giovi
 "hello from Foo module" -> _out
-constant SOME_CONSTANT Real <- 3.14
+const SOME_CONSTANT Real <- 3.14
 someFunction() => Int {
 	"hello from Foo.someFunction" -> _out
 	=> 69
