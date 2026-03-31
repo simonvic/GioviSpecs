@@ -228,11 +228,23 @@ primary: literal | identifier | reservedIdentifier ;
 
 range: start=expression '..' end=expression ('..' step=expression)?;
 
-type: typeComposite | typeFunctionRef | typeQualified ;
+type: typeProduct | typeComposite | typeFunctionRef | typeQualified ;
 
-typeComposite: typeList | typeMap;
+typeProduct: typeTuple | typeRecord ;
+
+typeComposite: typeList | typeMap ;
 
 typeQualified: (identifier '.')* typename=identifier ;
+
+//////////////////////////////////////////////////////////////////////////////// PRODUCT TYPES
+
+typeTuple: TUPLE '<' (typeTupleEntry ','?)* '>' ;
+
+typeTupleEntry: type defaultDefinition?;
+
+typeRecord: RECORD '<' (structFieldDefinition ','?)* '>' ;
+
+typeRecordEntry: identifier type defaultDefinition?;
 
 //////////////////////////////////////////////////////////////////////////////// COMPOSITE TYPES
 
