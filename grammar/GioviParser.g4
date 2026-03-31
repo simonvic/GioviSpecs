@@ -142,9 +142,11 @@ tupleCreation: (TUPLE '.')? tupleCreationBody ;
 
 tupleCreationBody: '<' (expression ','?)* '>' ;
 
-recordCreation: RECORD '.' recordCreationBody ;
+recordCreation: (RECORD '.')? recordCreationBody ;
 
-recordCreationBody: '<' (fieldDeclaration ','?)+ '>' ;
+recordCreationBody: '<' (recordEntry ','?)+ '>' ;
+
+recordEntry: identifier ':' expression ;
 
 //////////////////////////////////////////////////////////////////////////////// FUNCTIONS
 
@@ -245,8 +247,6 @@ typeTuple: TUPLE '<' (typeTupleEntry ','?)* '>' ;
 typeTupleEntry: type defaultDefinition?;
 
 typeRecord: RECORD '<' (fieldDeclaration ','?)* '>' ;
-
-typeRecordEntry: identifier type defaultDefinition?;
 
 //////////////////////////////////////////////////////////////////////////////// COMPOSITE TYPES
 
