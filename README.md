@@ -1297,6 +1297,42 @@ A Tuple is an ordered collection of heterogeneous values.
 <"a" true 420.69> -> _out
 ```
 
+#### Syntax
+
+A tuple type can be defined by writing its signature (list of types) after the
+`tuple` keyword
+
+```ruby
+someTuple tuple<Text, Bool, Real>
+
+getSomeTuple() => tuple<Text, Bool, Real> {
+	=> <"a", true, 6.9>
+}
+```
+
+The default value of a field can be overridden
+
+```ruby
+someTuple tuple<Text default "foo", Real default 69>
+someTuple -> _out # <"foo", 69>
+```
+
+##### Creation
+
+The creation (or instantiation) of a tuple can be done by simply listing the
+values in the angular parenthesis `< >`
+
+```ruby
+someTuple tuple<Text, Real>
+someTuple <- <"foo" 69>
+```
+
+Optionally, it can be prefixed with the `tuple` keyword and a dot `.`
+
+```ruby
+someTuple <- tuple.<"foo" 69>
+```
+
 #### Tuple Access
 
 | key   | output                                       |
@@ -1306,29 +1342,11 @@ A Tuple is an ordered collection of heterogeneous values.
 | %     | fields count                                 |
 | @     | Range 0 to fields count - 1                  |
 
-#### @candidate Tuple type
-
-```ruby
-t Tuple <- <true "Hello world" 6.9 420>
-function(x Int, args Tuple) {
-	for i in args@@ do {
-		if args@i {
-			is a Int do {}
-			is a Text do {}
-			is a Bool do {}
-			is a Real do {}
-		}
-	}
-}
-function(69, t)
-function(69, <"hello world" 69>)
-```
-
 #### @candidate Tuple fields override
 
 ```ruby
-Tuple -> struct # assign all fields, default for non specified
-Tuple ->+ struct # assign only to specified fields
+tuple.<> -> struct # assign all fields, default for non specified
+tuple.<> ->+ struct # assign only to specified fields
 ```
 
 ### Records
@@ -1338,11 +1356,47 @@ A Record is an unordered collection of named (labeled) heterogeneous values.
 Can be seen as a specialization of Tuples
 
 ```ruby
-_out <- <
+<
 	field1: "a"
 	field2: true
 	field3: 420.69
->
+> -> _out
+```
+
+#### Syntax
+
+A record type can be defined by writing its signature (list of field) after the
+`record` keyword
+
+```ruby
+someRecord record<field1 Text, field2 Bool, field3 Real>
+
+getSomeRecord() => record<field1 Text, field2 Bool, field3 Real> {
+	=> <field1:"a", field2:true, field3:6.9>
+}
+```
+
+The default value of a field can be overridden
+
+```ruby
+someRecord record<field1 Text default "foo", field2 Real default 69>
+someRecord -> _out # <field1:"foo", field2:69>
+```
+
+##### Creation
+
+The creation (or instantiation) of a record can be done by simply listing the
+labeled fields in the angular parenthesis `< >`
+
+```ruby
+someRecord record<field1 Text, field2 Real>
+someRecord <- <field1:"foo", field2:6.9>
+```
+
+Optionally, it can be prefixed with the `record` keyword and a dot `.`
+
+```ruby
+someRecord <- record.<field1:"foo", field2:69>
 ```
 
 #### Record Access
@@ -1354,29 +1408,6 @@ _out <- <
 | %     | fields count                                 |
 | @     | Range 0 to fields count - 1                  |
 | *     | List of fields names                         |
-
-#### @candidate Record type
-
-```ruby
-t Record <- <
-	a: true
-	b: "Hello world"
-	c: 6.9
-	d: 420
->
-function(x Int, args Record) {
-	for i in args@* do {
-		if argsi {
-			is a Int do {}
-			is a Text do {}
-			is a Bool do {}
-			is a Real do {}
-		}
-	}
-}
-function(69, t)
-function(69, <"hello world" 69>)
-```
 
 ### Struct
 
@@ -1438,6 +1469,13 @@ me Person <- Person.<
 		Car.<"Ferrari" red>
 		Car.<"Fiat600" Color.<0 0 255>>
 	>
+```
+
+@candidate For consistency, it can optionally be prefixed by the `struct`
+keyword and a `dot`
+
+```ruby
+me Person <- struct.Person.<>
 ```
 
 The same syntax of records can be also be used. (note that fields order doesn't
@@ -4591,7 +4629,7 @@ doc.params@1 -> _out
 doc.return -> _out
 ```
 
-## @candidate More explicit keyword for definition/declaration
+## @candidate(explicit_decl_keyword) More explicit keyword for definition/declaration
 
 Current:
 
@@ -4670,85 +4708,11 @@ def SomeModule {
 
 More consistent but a lot more noisy
 
-## @candidate Builtin types
+## @candidate Function and Type instantiation disambiguation
 
-```giovi
-someTuple Tuple<Int, Int>
-getSomeTuple() => Tuple<Int, Int> {
-	=> <1 2>
-}
+A lot more consistent with product types declaration and instantiation
 
-someRecord Record<x Int, y Int>
-getSomeRecord() => Record<x Int, y Int> {
-	=> <x:1 y:2>
-}
-
-SomeStruct <x Int, y Int>
-someStruct SomeStruct
-getSomeStruct() => SomeStruct {
-	=> SomeStruct.<>
-}
-
-someRef Function(x Int, y Int) => Int
-getSomeFunction() => Function(x Int, y Int) => Int {
-	=> ::(x Int, y Int) { => x + y }
-}
-
-someType Type
-getSomeType() => Type {
-	=> Int
-}
-
-someModule Module
-module SomeModule { }
-getSomeModule() => Module {
-	=> SomeModule
-}
-```
-
-### Instantiation disambiguation
-
-A lot more consistent with struct declaration and instantiation
-
-```giovi
-Point<x Int, y Int>
-point Point
-point <- Point.<x:1 y:2>
-
-foo Tuple<Int Int>
-foo <- Tuple.<1 2>
-
-bar Record<x Int y Int>
-bar <- Record.<x:1 y:2>
-
-calculator Function(x Int, y Int) => Int
-calculator <- Function.(x Int, y Int) => Int {
-	=> x + y
-}
-calculator <- Function.{ => x - y }
-
-someType Type
-someType <- Type.Int
-
-listOfTypes [Type]
-listOfTypes <- [Type.Int, Type.Real]
-listOfTypes <- [Type.[Int], Type.[Real]]
-
-someListType Type []
-someListType <- Type.[Int]
-
-someMapType Type [:]
-someMapType <- Type.[Text:Int]
-
-# for even more consistency:
-Point<x Int, y Int>
-point Point
-point <- Struct.Point.<x:1 y:2>
-```
-
-#### with keywords
-
-Less consistent, but it wouldn't feel weird putting PascalCase in the lexer
+It also fixes ambiguation with types and list of types
 
 ```giovi
 Point<x Int, y Int>
@@ -4766,6 +4730,7 @@ calculator <- function.(x Int, y Int) => Int {
 	=> x + y
 }
 calculator <- function.{ => x - y }
+# allow old :: syntax?
 
 someType type
 someType <- type.Int
@@ -4779,22 +4744,45 @@ someListType <- type.[Int]
 
 someMapType type [:]
 someMapType <- type.[Text:Int]
-
-# for even more consistency:
-Point<x Int, y Int>
-point Point
-point <- struct.Point.<x:1 y:2>
 ```
 
-optional for tuples and records but comma is mandatory
+### @candidate Same for list and maps?
 
 ```giovi
-someTuple <Foo, Foo>
-someRecord <foo Foo>
+someList list[Int]
+someList <- list.[1 2 3]
+
+someMap map[Text:Int]
+someMap <- map.["a":1 "b":2 "c:"3]
 ```
 
-this conflicts with composite iterators. Either enforce `tuple` keyword here,
-or disallow tuple types in iterators
+## @candidate Optional keyword for non primitive types
+
+```giovi
+# composite types
+someList [Int]
+someMap [Text:Int]
+```
+
+### @candidate(needs:explicit_decl_keyword) Product types
+
+This conflicts with aggregate iterators. Eventually product types won't be
+allowed in iterators
+
+With mandatory comma
+
+```giovi
+someTuple <Int, Text>
+someRecord <foo Int, bar Text>
+```
+
+Alternatively
+
+```giovi
+# product types
+someTuple <Int Text>
+someRecord <foo:Int bar:Text>
+```
 
 ## @candidate(inheritance_symbol) Different inheritance symbol
 
