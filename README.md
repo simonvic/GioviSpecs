@@ -5010,6 +5010,14 @@ Point <
 p Point <- Point(y:2) # ERROR: x not specified
 ```
 
+## @candidate At keyword
+
+```ruby
+for name at index in someList do something()
+someList at 1 -> _out
+```
+
+
 <!-- 
 vim: noet
 -->
