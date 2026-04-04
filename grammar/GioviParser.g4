@@ -56,11 +56,16 @@ iterable: range | expression;
 forStatement: FOR iterator IN iterable DO statementOrBlock;
 
 iterator
-	: key=iterator ':' value=iterator                               # iteratorMap
-	| '[' key=iterator ':' value=iterator ']'                       # iteratorMap
-	| whole=unaryIterator? '<' iterator (',' iterator )* ','? '>'   # iteratorAggregate
-	| unaryIterator                                                 # iteratorUnary
-	| literalPlaceholder                                            # iteratorPlaceholder
+	: key=nestedIterator ':' value=nestedIterator                            # iteratorTopLevelMap
+	| nestedIterator                                                         # iteratorTopLevelNested
+	;
+
+nestedIterator
+	: '[' nestedIterator ']'                                                 # iteratorNestedList
+	| '[' key=nestedIterator ':' value=nestedIterator ']'                    # iteratorNestedMap
+	| whole=unaryIterator? '<' nestedIterator (',' nestedIterator)* ','? '>' # iteratorNestedProduct
+	| unaryIterator                                                          # iteratorNestedUnary
+	| literalPlaceholder                                                     # iteratorNestedPlaceholder
 	;
 
 unaryIterator: identifier type? ;

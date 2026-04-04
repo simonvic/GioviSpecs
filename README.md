@@ -2710,7 +2710,8 @@ repeat {
 
 ## for loop
 
-The for loop is used to iterate over lists, maps or ranges
+In its simplest form, the for loop is used to iterate over lists, maps or
+ranges
 
 ```
 for <iterator> in <list|map|range> do <statement>
@@ -2720,24 +2721,147 @@ for <iterator> in <list|map|range> do {
 ```
 
 ```ruby
-for i in 0..10 do {}
-for number in [1 2 3 4] do {}
-for rgb in [<1 2 3>, <4 5 6>, <7 8 9>] do {}
-for key in ["Simone":69 "Luca":420 "Paolo":10] do {}
+for i in 0..10 do something()
+for number in [1 2 3 4] do something()
+for key in ["Simone":69 "Luca":420 "Paolo":10] do something()
 ```
 
-It's like a usual for-each loop, but on steroids; when you iterate over a map,
-you can provide two identifiers: one for the key and one for the value.
-
-```
-for <key iterator> : <value iterator> in <map> do <statement>
-```
+If you don't need the iterator, you can use the underscore `_`
 
 ```ruby
-for key : value in ["Simone":69 "Luca":420 "Paolo":10] do {}
+for _ in 0..10 do something()
 ```
 
-Nested maps can also be iterated with a single for statement.
+@candidate If you need the index when iterating, you can specify a counter
+which will hold the iteration count
+
+```ruby
+for name @ index in ["Simone" "Mario" "Luigi"] do {
+	"The name $name is at index @index" -> _out
+}
+
+for _ @ index in ["Simone" "Mario" "Luigi"] do {
+	index -> _out
+}
+```
+
+### Deconstruction
+
+The for statement is like an usual for-each loop, but on steroids; when
+iterating, it can deconstruct complex data types, like maps, product types or
+any combination of them.
+
+There are four kind of iterators
+
+#### Placeholder iterator
+
+The simplest iterator is the "placeholder iterator": the iteration will be
+performed but without deconstruction
+
+```ruby
+for _ in [0 1 2 3] do something()
+```
+
+### List iterator
+
+The list iterator is used to iterate over a list
+
+```ruby
+for [i] in [0 1 2 3] do something()
+```
+
+NOTE: the brackets are optional for "top level" iterator, but are required when
+nesting iterators
+
+#### Map iterator
+
+You can provide two identifiers (one for the key and one for the value) to
+iterate over map key-value pair entries and deconstruct them accordingly
+
+```ruby
+for [key : value] in ["Simone":69 "Luca":420 "Paolo":10] do something()
+```
+
+NOTE: the brackets are optional for "top level" iterator, but are required when
+nesting iterators
+
+A placeholder (underscore `_`) can be used in case an iterator is not needed
+
+```ruby
+for _ : value in someMap do {}
+for key : _ in someMap do {}
+for _ : _ in someMap do {} # possible but useless
+```
+
+#### Product types deconstruction
+
+The for-statement can also deconstruct product types (tuples, records, structs)
+
+```ruby
+Color <red Int, green Int, blue Int>
+colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]  
+
+for <red, green, blue> in colors do {
+	"The color is made of $red $green $blue" -> _out
+}
+```
+
+An iterator for the whole entry can optionally be specified
+
+```ruby
+for color <red, green, blue> in colors do {
+	"The color $color is made of $red $green $blue" -> _out
+}
+```
+
+Deconstructing is done via field names, so a subset of the fields
+can also be used; the order doesn't matter.
+
+```ruby
+for <blue, red> in colors do {
+	"I only care about $blue and $red" -> _out
+}
+```
+
+@candidate Explicit deconstructing method
+
+positional deconstructing
+
+```ruby
+for <red, _, blue> in colors do {}
+```
+
+named fields deconstructing
+
+```ruby
+for <.blue, .red> in colors do {}
+```
+
+#### Nested iterators
+
+Iterators can be "nested" in order to deconstruct more complex data structures.
+
+For example, a list of lists can be iterated with a single for statement
+
+```ruby
+identityMatrix [[Real]] <- [
+	[1 0 0]
+	[0 1 0]
+	[0 0 1]
+]
+
+for [[i]] in identityMatrix do {
+	i -> _out
+}
+# equivalent to
+for row in identityMatrix do {
+	for i in row do {
+		i -> _out
+	}
+}
+```
+
+Same applies to maps
 
 ```ruby
 graph [Text : [Text : Int]] <- [
@@ -2748,14 +2872,11 @@ graph [Text : [Text : Int]] <- [
 	"e" : ["a":3 "c":6 "d":7 "f":8]
 	"f" : ["b":2 "e":8]
 ]
-for nodeA : [nodeB : edgeCost] do {
+
+for nodeA : [nodeB : edgeCost] in graph do {
 	"$nodeA ---$edgeCost---> $nodeB" -> _out
 }
-```
-
-This would be the same of doing two nested for loops
-
-```ruby
+# equivalent to
 for nodeA : edges in graph do {
 	for nodeB : edgeCost in edges do {
 		"$nodeA ---$edgeCost---> $nodeB" -> _out
@@ -2763,35 +2884,7 @@ for nodeA : edges in graph do {
 }
 ```
 
-A placeholder (underscore `_`) can be used in case an iterator is not needed
-
-```ruby
-for _ in list do {}
-for _ : value in map do {}
-for key : _ in map do {}
-```
-
-The for loop is also capable of deconstructing structs and tuples.
-
-```
-for < <field iterator> > in <list of struct> do <statement>
-for <struct iterator> < <field iterator> > in <list of struct> do <statement>
-```
-
-```ruby
-Color <red Int, green Int, blue Int>
-colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]  
-
-for <red, green, blue> in colors do {
-	"The color is made of $red $green $blue" -> _out
-}
-
-for color <red, green, blue> in colors do {
-	"The color $color is made of $red $green $blue" -> _out
-}
-```
-
-Nested structs can also be deconstructed
+Same applies to nested product types
 
 ```ruby
 Foo<a Int, b Int, c Int>
@@ -2814,39 +2907,41 @@ for <x, y, z <a, b, c>> in listOfNestedStruct do {
 }
 ```
 
-Deconstructing can also occur in a map iteration as a value (or eventually as a
-key too, or both)
+This enables you to deconstruct any combination of list, maps or product types
 
 ```ruby
-mapOfFoo [Text : Foo]
-
-for key : <a, b, c> in mapOfFoo do {
-	"The key $key is mapped to <$a $b $c>" -> _out
+# An extreme example of iterating over a map whose values are maps whose values
+# are list of struct
+Color<r Int, g Int, b Int>
+crazyMap [Text : [Text : [Color]]] <- [
+	"gradients" : [
+		"reds" : [
+			<255, 0, 0>
+			<250, 10, 10>
+		]
+		"blues" : [
+			<0, 0, 255>
+			<10, 10, 250>
+		]
+	]
+	"gradients 2" : [
+		"reds" : [
+			<255, 0, 0>
+			<250, 10, 10>
+		]
+		"blues" : [
+			<0, 0, 255>
+			<10, 10, 250>
+		]
+	]
+]
+for category : [colorCategory : [color <r, g, b>]] in crazyMap do {
+	"{
+	$category:
+		$colorCategory:
+			$color: $r $g $b
+	}" -> _out
 }
-```
-
-Deconstructing is done via field names, so a subset of the fields
-can also be used; the order doesn't matter.
-
-```ruby
-Color <red Int, green Int, blue Int>
-colors [Color]
-
-for <blue, red> in colors do {}
-```
-
-@candidate Explicit deconstructing method
-
-positional deconstructing
-
-```ruby
-for <red, _, blue> in colors do {}
-```
-
-named fields deconstructing
-
-```ruby
-for <.blue, .red> in colors do {}
 ```
 
 TODO: mention optional iterator type
