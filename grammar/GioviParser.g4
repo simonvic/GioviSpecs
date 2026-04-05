@@ -56,14 +56,14 @@ iterable: range | expression;
 forStatement: FOR iterator IN iterable DO statementOrBlock;
 
 iterator
-	: key=nestedIterator ':' value=nestedIterator                            # iteratorTopLevelMap
+	: iteratorMap                                                            # iteratorTopLevelMap
 	| nestedIterator                                                         # iteratorTopLevelNested
 	| iteratorProductFields                                                  # iteratorTopLevelProduct
 	;
 
 nestedIterator
 	: '[' nestedIterator ']'                                                 # iteratorNestedList
-	| '[' key=nestedIterator ':' value=nestedIterator ']'                    # iteratorNestedMap
+	| '[' iteratorMap ']'                                                    # iteratorNestedMap
 	| whole=unaryIterator? '<' iteratorProductFields '>'                     # iteratorNestedProduct
 	| unaryIterator                                                          # iteratorNestedUnary
 	| literalPlaceholder                                                     # iteratorNestedPlaceholder
@@ -71,11 +71,11 @@ nestedIterator
 
 unaryIterator: identifier type? ;
 
-// iteratorMap: key=nestedIterator ':' value=nestedIterator ;
+iteratorMap: key=nestedIterator ':' value=nestedIterator ;
 
 iteratorProductFields
 	: nestedIterator (',' nestedIterator)* ','?             # iteratorProductPositional
-	| '.' nestedIterator (',' '.' nestedIterator)* ','?       # iteratorProductNamed
+	| '.' nestedIterator (',' '.' nestedIterator)* ','?     # iteratorProductNamed
 	;
 
 returnStatement: (RETURN | RETURN_SYM) expression? ';'?;
