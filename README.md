@@ -2797,12 +2797,30 @@ for _ : _ in someMap do {} # possible but useless
 
 The for-statement can also deconstruct product types (tuples, records, structs)
 
+There are two deconstruction approach you can use: positional and named
+
+##### Positional
+
+With the positional approach, the fields will be iteratively deconstructed
+based on the position
+
 ```ruby
 Color <red Int, green Int, blue Int>
 colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]  
 
-for <red, green, blue> in colors do {
-	"The color is made of $red $green $blue" -> _out
+for <r, g, b> in colors do {
+	"The color is made of $r $g $b" -> _out
+}
+```
+
+NOTE: the parenthesis are optional for "top level" iterator, but are required when
+nesting iterators
+
+If you don't need a specific field, you can use a placeholder iterator (`_`)
+
+```ruby
+for <r, _, b> in colors do {
+	"I only care about $r and $b" -> _out
 }
 ```
 
@@ -2814,27 +2832,27 @@ for color <red, green, blue> in colors do {
 }
 ```
 
-Deconstructing is done via field names, so a subset of the fields
-can also be used; the order doesn't matter.
+##### Named
+
+With the named approach, deconstruction is done via field names: the iterator
+names must match the field names, also, a subset of the fields can be used and
+therefore the order doesn't matter.
 
 ```ruby
-for <blue, red> in colors do {
+for <.blue, .red> in colors do {
 	"I only care about $blue and $red" -> _out
 }
 ```
 
-@candidate Explicit deconstructing method
+NOTE: the parenthesis are optional for "top level" iterator, but are required
+when nesting iterators
 
-positional deconstructing
-
-```ruby
-for <red, _, blue> in colors do {}
-```
-
-named fields deconstructing
+An iterator for the whole entry can optionally be specified
 
 ```ruby
-for <.blue, .red> in colors do {}
+for color <.red, .green, .blue> in colors do {
+	"The color $color is made of $red $green $blue" -> _out
+}
 ```
 
 #### Nested iterators
@@ -2944,6 +2962,7 @@ for category : [colorCategory : [color <r, g, b>]] in crazyMap do {
 }
 ```
 
+TODO: mention nested iterators limitations
 TODO: mention optional iterator type
 
 # Functions
@@ -4861,7 +4880,7 @@ someMap [Text:Int]
 
 ### @candidate(needs:explicit_decl_keyword) Product types
 
-This conflicts with aggregate iterators. Eventually product types won't be
+This conflicts with product iterators. Eventually product types won't be
 allowed in iterators
 
 With mandatory comma
@@ -5017,6 +5036,21 @@ for name at index in someList do something()
 someList at 1 -> _out
 ```
 
+## @candidate Product values deconstruction
+
+Positional
+
+```ruby
+foo -> <a, _, c>
+"$a _ $c" -> _out
+```
+
+Named
+
+```ruby
+foo -> <.a, .c>
+"$a $c" -> _out
+```
 
 <!-- 
 vim: noet

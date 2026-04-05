@@ -58,17 +58,25 @@ forStatement: FOR iterator IN iterable DO statementOrBlock;
 iterator
 	: key=nestedIterator ':' value=nestedIterator                            # iteratorTopLevelMap
 	| nestedIterator                                                         # iteratorTopLevelNested
+	| iteratorProductFields                                                  # iteratorTopLevelProduct
 	;
 
 nestedIterator
 	: '[' nestedIterator ']'                                                 # iteratorNestedList
 	| '[' key=nestedIterator ':' value=nestedIterator ']'                    # iteratorNestedMap
-	| whole=unaryIterator? '<' nestedIterator (',' nestedIterator)* ','? '>' # iteratorNestedProduct
+	| whole=unaryIterator? '<' iteratorProductFields '>'                     # iteratorNestedProduct
 	| unaryIterator                                                          # iteratorNestedUnary
 	| literalPlaceholder                                                     # iteratorNestedPlaceholder
 	;
 
 unaryIterator: identifier type? ;
+
+// iteratorMap: key=nestedIterator ':' value=nestedIterator ;
+
+iteratorProductFields
+	: nestedIterator (',' nestedIterator)* ','?             # iteratorProductPositional
+	| '.' nestedIterator (',' '.' nestedIterator)* ','?       # iteratorProductNamed
+	;
 
 returnStatement: (RETURN | RETURN_SYM) expression? ';'?;
 
