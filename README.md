@@ -5054,6 +5054,16 @@ foo -> <.a, .c>
 "$a $c" -> _out
 ```
 
+## @candidate Multiple aliases
+
+Like for the imports
+
+```ruby
+alias [
+	giovi.util.Random::integer as randInt
+	giovi.util.Random::real as randReal
+]
+```
 <!-- 
 vim: noet
 -->
