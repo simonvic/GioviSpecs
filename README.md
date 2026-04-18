@@ -4783,13 +4783,15 @@ module SomeModule {
 	struct SomeStruct <x Int, y Int>
 
 	struct SomeOtherStruct <
-		x Int
-		y Int
+		var x Int
+		var y Int
 
 		const TAU <- PI * 2
 
-		self function sum() => Int {
-			=> x + y
+		self function swap() {
+			var temp Int <- x
+			x <- y
+			y <- x
 		}
 	>
 }
