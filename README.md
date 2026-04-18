@@ -5064,6 +5064,23 @@ alias [
 	giovi.util.Random::real as randReal
 ]
 ```
+
+## @candidate Import/alias "glob" pattern
+
+```ruby
+import giovi.util.[
+	Random
+	Math
+	Color
+]
+
+alias giovi.util.Ansi::[
+	moveTo as ansiMoveTo
+	fg as ansiFG
+	bg as ansiBG
+]
+```
+
 <!-- 
 vim: noet
 -->
