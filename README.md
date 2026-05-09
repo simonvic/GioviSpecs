@@ -2762,7 +2762,7 @@ performed but without deconstruction
 for _ in [0 1 2 3] do something()
 ```
 
-### List iterator
+#### List iterator
 
 The list iterator is used to iterate over a list
 
