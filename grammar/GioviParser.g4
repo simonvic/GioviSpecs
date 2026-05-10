@@ -221,8 +221,8 @@ expression
     | listCreation                                                       # expressionListCreation
     | mapCreation                                                        # expressionMapCreation
     | tupleCreation                                                      # expressionTupleCreation
-    | structCreation                                                     # expressionStructCreation
     | recordCreation                                                     # expressionRecordCreation
+    | structCreation                                                     # expressionStructCreation
     | expression actualParameters                                        # expressionInvocation
     | invocation                                                         # expressionInvocationSimple
     | BIT_NOT expression                                                 # expressionBitwiseNot
