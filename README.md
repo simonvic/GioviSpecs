@@ -249,18 +249,6 @@ operator
 if "someValue" not in someList do "Not contained" -> _out
 ```
 
-### @candidate Range containment
-
-```ruby
-69 ~= 0..420
--5..5 =~ 0
-6.9 ~= 6.0 .. 8.0
-
-"b" ~= "a".."d"
-
-3 ~= 0..10..2 # false
-```
-
 ## Access operator
 
 The access operator `@` is used to access special properties of variable/type.<br>
@@ -1980,9 +1968,9 @@ if enterClub(69) {
 
 ```
 
-## @candidate Other types
+## Other types
 
-### Type type
+### @candidate Type type
 
 The type `type` models types themeselves and holds any known information about
 the type it models.
@@ -2015,16 +2003,81 @@ someType -> _out # [Text:Int]
 TODO: expand on this. Should it behaves specially and be allowed to hold any
 type? Or use generics?
 
-### @candidate Range
+### Range
 
 A Range models an "interval", that goes from a `start` to an `end`, with an
 optional `step`.
 
-```giovi
-0..10 -> _out
+```
+<start> .. <end>
+<start> .. <end> .. <step>
+```
 
-foo range <- 0..10..2
-for i in range do i -> _out
+A range can be iterated by the for loop
+
+```ruby
+for i in 0..10..2 do i -> _out # 0 2 4 6 8 10
+```
+
+A range can also be put in a list, where its values will be expanded.
+
+```ruby
+[0..5] -> fromZeroToFive [Int]         # [0 1 2 3 4 5]
+[3..5] -> fromThreeToFiveReal [Real]   # [3.0 4.0 5.0]
+["a".."d"] -> fromAtoZ [Text]          # [a b c d]
+```
+
+Descending ranges can be defined
+
+```ruby
+[5..0] -> fromZeroToFive [Int]         # [5 4 3 2 1]
+[5..3] -> fromThreeToFiveReal [Real]   # [5.0 4.0 3.0]
+["d".."a"] -> fromAtoZ [Text]          # [d c b a]
+```
+
+A step value can also be used
+
+```ruby
+[0..10..2] -> evenNumbers [Int]        # [0 2 4 6 8 10]
+[0..1..0.1] -> fromZeroToOne [Real]    # [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+["a".."g"..2] -> listOfLetters [Text]  # [a c e g]
+```
+
+Variables can be used
+
+```ruby
+start Int <- 0
+end Int <- 10
+step Int <- 2
+list [Int] <- [start..end..step]  # [0 2 4 6 8 10]
+```
+
+#### @candidate Range return
+
+```ruby
+probability() => 0r..1r {
+	=> 0.69 # OK
+	=> 2.69 # ERROR: not in range
+}
+```
+
+#### @candidate Range containment
+
+```ruby
+69 ~= 0..420
+-5..5 =~ 0
+6.9 ~= 6.0 .. 8.0
+
+"b" ~= "a".."d"
+
+3 ~= 0..10..2 # false
+```
+
+#### @candidate The range type
+
+```giovi
+someRange range <- 0..10
+for i in someRange do i -> _out
 ```
 
 # Data widening, narrowing and explicit casting
@@ -2661,51 +2714,6 @@ if color {
 	= <_ _ 69> do "any red, any green, blue of 69" -> _out
 	= <_ _ _ _> do "It has at least 4 fields" -> _out
 }
-```
-
-# Range
-
-You can quickly define a range by specifying a `start`, a `end` and optionally
-a `step`<br>
-A range can be used in for loops or put in a list, where its values will be
-expanded.
-
-## Syntax
-
-```
-<start> .. <end>
-<start> .. <end> .. <step>
-```
-
-```ruby
-[0..5] -> fromZeroToFive [Int]         # [0 1 2 3 4 5]
-[3..5] -> fromThreeToFiveReal [Real]   # [3.0 4.0 5.0]
-["a".."d"] -> fromAtoZ [Text]          # [a b c d]
-```
-
-Descending ranges can be defined
-
-```ruby
-[5..0] -> fromZeroToFive [Int]         # [5 4 3 2 1]
-[5..3] -> fromThreeToFiveReal [Real]   # [5.0 4.0 3.0]
-["d".."a"] -> fromAtoZ [Text]          # [d c b a]
-```
-
-A step value can also be used
-
-```ruby
-[0..10..2] -> evenNumbers [Int]        # [0 2 4 6 8 10]
-[0..1..0.1] -> fromZeroToOne [Real]    # [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-["a".."g"..2] -> listOfLetters [Text]  # [a c e g]
-```
-
-Variables can be used
-
-```ruby
-start Int <- 0
-end Int <- 10
-step Int <- 2
-list [Int] <- [start..end..step]  # [0 2 4 6 8 10]
 ```
 
 # Loops
@@ -4710,15 +4718,6 @@ a <- 69
 a <- "hello"
 a <- [1 2 3]
 a <- <"hello" 69 true>
-```
-
-## @candidate Range return
-
-```ruby
-probability() => 0r..1r {
-	=> 0.69 # OK
-	=> 2.69 # ERROR: not in range
-}
 ```
 
 ## @candidate self support in function refs
