@@ -5081,6 +5081,18 @@ alias giovi.util.Ansi::[
 ]
 ```
 
+## @candidate Default access operator
+
+Different meaning between access operators
+
+```giovi
+foo.default -> _out
+foo@default -> _out
+```
+
+For consistency, `@default` could be used on types for spawning, and `.default`
+to get its default
+
 <!-- 
 vim: noet
 -->
