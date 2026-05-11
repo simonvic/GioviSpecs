@@ -683,6 +683,980 @@ The type can be omitted as it will be inferred from the assigned value
 const PI <- 3.1415926535
 ```
 
+# Control structure
+
+## if
+
+```
+# Curly braces around condition are optional
+if <condition> do {
+	<true body>
+}
+
+if <condition> do {
+	<true body>
+} else {
+	<false body>
+}
+```
+
+```ruby
+x Int <- 1
+y Int <- 69
+
+if x > y do {
+	# x is greater than y
+} else {
+	# y is greater or equal to x
+}
+
+if x > y & x > 10 do {
+	# x is greater than y AND greater than 10
+}
+```
+
+Curly braces are used to optionally wrap conditions. The followings will evaluate the same conditions...
+
+```ruby
+if x < 0 & x > 10 do {}
+if {x < 0 & x > 10} do {}
+if {x < 0} & {x > 10} do {}
+if {{x < 0} & {x > 10}} do {}
+```
+
+... but these will be different
+
+```ruby
+if true & true | false do {}
+if true & {true | false} do {}
+```
+
+## @candidate if-chain
+
+```
+if {
+	<condition> do {}
+	<condition2> do {}
+} else {
+	<else body>
+}
+```
+
+```ruby
+name Text
+if {
+
+	name = "Simone" do "hey it's Simone!" -> _out
+
+	name = "Mario" do {
+		"heyo Mario" -> _out
+		"where is Luigi?" -> _out
+	}
+
+	name = "Luigi" do -> "heyo green Mario!" -> _out
+
+} else {
+	"greetings $name" -> _out
+}
+```
+
+## if-chain with subject
+
+```
+if <subject> {
+	<condition> do {
+		<condition body>
+	}
+
+	<condition 2> do {
+		<condition 2 body>
+	}
+
+} else {
+	# no conditions have been met
+	<else body>
+}
+```
+
+Example:
+
+```ruby
+name Text
+if name {
+
+	= "Simone" do "hey it's Simone!" -> _out
+
+	= "Mario" do {
+		"heyo Mario" -> _out
+		"where is Luigi?" -> _out
+	}
+
+	= "Luigi" do -> "heyo green Mario!" -> _out
+
+} else {
+	"greetings $name" -> _out
+}
+```
+
+You can also use common boolean operators to check for multiple conditions.<br>
+(Line breaks and whitespaces don't matter)
+
+```ruby
+number Int
+if number {
+
+	# if equal to 69 or 420
+	= 69
+	| = 420
+	do "Nice!" -> _out
+
+	# if greater than 100 and less than 999
+	> 100
+	& < 999
+	do "big boi" -> _out
+
+}
+```
+
+Textual boolean operators are allowed
+
+```ruby
+number Int
+if number {
+
+	= 69 or = 420 do "Nice!" -> _out
+
+	> 100 and < 999 do "big boi" -> _out
+
+}
+```
+
+Exhaustivenes and branch precedence are not considered, so be mindful of the
+branch order, since they're evaluated in the same order as they're declared and
+some branch may become unreachable if it's dominated by a previous one
+
+```ruby
+someNumber Int <- 69
+if someNumber {
+	< 50 do {}
+
+	# NOTE: unreachable branch
+	= 69 do {}
+}
+```
+
+You can also "guard" a branch with a boolean expression.
+
+```ruby
+list [Int] <- [ 1 2 3 4 ]
+
+if list {
+
+	# if contains 69 but only when elements count is less than 100
+	=~ 69 when list@% < 100 do {}
+
+	# if contains 69 but only when someFunction() returns 420
+	=~ 69 when someFunction() = 420 do {}
+
+	# if contains 69
+	=~ 69 do {}
+
+}
+```
+
+Let's see some more complex examples of the if statement
+
+```ruby
+list [Int] <- [ 1 2 3 4 ]
+
+if list {
+
+	# if equal to numbers' default (empty list)
+	= default do {}
+
+	# if equal to [1 2 3]
+	= [1 2 3] do {}
+
+	# if equal to [1 2 3 4]
+	# or equal to [4 5 6 7]
+	= [1 2 3 4]
+	| = [4 5 6 7]
+	do {}
+
+	# if equal to [1 2 3 4]
+	# or if contains 69
+	# or if contains 420
+	# but only when someOtherVariable = 69
+	= [1 2 3 4]
+	| =~ 69
+	| =~ 420
+	when someOtherVariable = 69
+	do {}
+
+	# if equal to [1 2 3 4]
+	# or if contains 69
+	# or if contains 420
+	= [1 2 3 4]
+	| =~ 69
+	| =~ 420
+	do {}
+
+	# if equal to [1 2 3 4] or if contains both 69 and 420
+	= [1 2 3 4] or { =~ 69 and =~ 420 } do {}
+
+	# if contains 69 and contains either 6 or 9
+	=~ 69 and { =~ 6 or =~ 9} do {}
+
+}
+```
+
+Comparing struct
+
+```ruby
+ColorRGB <r Natural, g Natural, b Natural>
+ColorARGB <a Natural, r Natural, g Natural, b Natural>
+
+color ColorRGB <- <42 0 69>
+white ColorRGB <- <255 255 255>
+red ColorRGB <- <255 0 0>
+transparent ColorARGB <- <0 0 0 0>
+
+if color {
+	= default do "it's black" -> _out
+	= red do "it's red" -> _out
+	= <240 10 10> do "it's redish" -> _out
+	= <255 default 69> do "255, default green, 69" -> _out
+	= white | = <200 200 200> do "it's white or grey" -> _out
+	= <_ _ 69> do "any red, any green, blue of 69" -> _out
+	= <_ _ _ _> do "It has at least 4 fields" -> _out
+}
+```
+
+# Loops
+
+A loop is block of code that will be repeated (looped)
+
+## Loop control
+
+### break
+
+The break keyword will break the loop
+
+### skip
+
+The skip keyword will skip the current iteration, and continue with the next
+
+## repeat keyword
+
+```
+repeat {
+	<body> # the body will be repeated for an undefined amount of time
+}
+
+repeat if <condition> {
+	<body>  # the body will be repeated if the condition is true
+}
+```
+
+A do-while loop can be achieved like so
+
+```
+repeat {
+	<body>  # body will be executed once and repeated if the condition is false
+	if <condition> do break
+}
+```
+
+## for loop
+
+In its simplest form, the for loop is used to iterate over lists, maps or
+ranges
+
+```
+for <iterator> in <list|map|range> do <statement>
+for <iterator> in <list|map|range> do {
+	<statements>
+}
+```
+
+```ruby
+for i in 0..10 do something()
+for number in [1 2 3 4] do something()
+for key in ["Simone":69 "Luca":420 "Paolo":10] do something()
+```
+
+If you don't need the iterator, you can use the underscore `_`
+
+```ruby
+for _ in 0..10 do something()
+```
+
+@candidate If you need the index when iterating, you can specify a counter
+which will hold the iteration count
+
+```ruby
+for name @ index in ["Simone" "Mario" "Luigi"] do {
+	"The name $name is at index @index" -> _out
+}
+
+for _ @ index in ["Simone" "Mario" "Luigi"] do {
+	index -> _out
+}
+```
+
+### Deconstruction
+
+The for statement is like an usual for-each loop, but on steroids; when
+iterating, it can deconstruct complex data types, like maps, product types or
+any combination of them.
+
+There are four kind of iterators
+
+#### Placeholder iterator
+
+The simplest iterator is the "placeholder iterator": the iteration will be
+performed but without deconstruction
+
+```ruby
+for _ in [0 1 2 3] do something()
+```
+
+#### List iterator
+
+The list iterator is used to iterate over a list
+
+```ruby
+for [i] in [0 1 2 3] do something()
+```
+
+NOTE: the brackets are optional for "top level" iterator, but are required when
+nesting iterators
+
+#### Map iterator
+
+You can provide two identifiers (one for the key and one for the value) to
+iterate over map key-value pair entries and deconstruct them accordingly
+
+```ruby
+for [key : value] in ["Simone":69 "Luca":420 "Paolo":10] do something()
+```
+
+NOTE: the brackets are optional for "top level" iterator, but are required when
+nesting iterators
+
+A placeholder (underscore `_`) can be used in case an iterator is not needed
+
+```ruby
+for _ : value in someMap do {}
+for key : _ in someMap do {}
+for _ : _ in someMap do {} # possible but useless
+```
+
+#### Product types deconstruction
+
+The for-statement can also deconstruct product types (tuples, records, structs)
+
+There are two deconstruction approach you can use: positional and named
+
+##### Positional
+
+With the positional approach, the fields will be iteratively deconstructed
+based on the position
+
+```ruby
+Color <red Int, green Int, blue Int>
+colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]
+
+for <r, g, b> in colors do {
+	"The color is made of $r $g $b" -> _out
+}
+```
+
+NOTE: the parenthesis are optional for "top level" iterator, but are required when
+nesting iterators
+
+If you don't need a specific field, you can use a placeholder iterator (`_`)
+
+```ruby
+for <r, _, b> in colors do {
+	"I only care about $r and $b" -> _out
+}
+```
+
+An iterator for the whole entry can optionally be specified
+
+```ruby
+for color <red, green, blue> in colors do {
+	"The color $color is made of $red $green $blue" -> _out
+}
+```
+
+##### Named
+
+With the named approach, deconstruction is done via field names: the iterator
+names must match the field names, also, a subset of the fields can be used and
+therefore the order doesn't matter.
+
+```ruby
+for <.blue, .red> in colors do {
+	"I only care about $blue and $red" -> _out
+}
+```
+
+NOTE: the parenthesis are optional for "top level" iterator, but are required
+when nesting iterators
+
+An iterator for the whole entry can optionally be specified
+
+```ruby
+for color <.red, .green, .blue> in colors do {
+	"The color $color is made of $red $green $blue" -> _out
+}
+```
+
+#### Nested iterators
+
+Iterators can be "nested" in order to deconstruct more complex data structures.
+
+For example, a list of lists can be iterated with a single for statement
+
+```ruby
+identityMatrix [[Real]] <- [
+	[1 0 0]
+	[0 1 0]
+	[0 0 1]
+]
+
+for [[i]] in identityMatrix do {
+	i -> _out
+}
+# equivalent to
+for row in identityMatrix do {
+	for i in row do {
+		i -> _out
+	}
+}
+```
+
+Same applies to maps
+
+```ruby
+graph [Text : [Text : Int]] <- [
+	"a" : ["b":5 "e":3]
+	"b" : ["a":5 "c":1 "d":9 "f":2]
+	"c" : ["b":1 "e":6]
+	"d" : ["b":9 "e":7]
+	"e" : ["a":3 "c":6 "d":7 "f":8]
+	"f" : ["b":2 "e":8]
+]
+
+for nodeA : [nodeB : edgeCost] in graph do {
+	"$nodeA ---$edgeCost---> $nodeB" -> _out
+}
+# equivalent to
+for nodeA : edges in graph do {
+	for nodeB : edgeCost in edges do {
+		"$nodeA ---$edgeCost---> $nodeB" -> _out
+	}
+}
+```
+
+Same applies to nested product types
+
+```ruby
+Foo<a Int, b Int, c Int>
+Bar<x Int, y Int, z Foo>
+listOfNestedStruct [Bar] <- [
+	Bar.<1, 1, Foo.<1, 1, 1>>,
+	Bar.<2, 2, Foo.<2, 2, 2>>,
+	Bar.<3, 3, Foo.<3, 3, 3>>
+]
+for <x, y, z <a, b, c>> in listOfNestedStruct do {
+	"{
+	Bar is made of:
+		- $x
+		- $y
+		- $z which is made of:
+			- $a
+			- $b
+			- $c
+	}" -> _out
+}
+```
+
+This enables you to deconstruct any combination of list, maps or product types
+
+```ruby
+# An extreme example of iterating over a map whose values are maps whose values
+# are list of struct
+Color<r Int, g Int, b Int>
+crazyMap [Text : [Text : [Color]]] <- [
+	"gradients" : [
+		"reds" : [
+			<255, 0, 0>
+			<250, 10, 10>
+		]
+		"blues" : [
+			<0, 0, 255>
+			<10, 10, 250>
+		]
+	]
+	"gradients 2" : [
+		"reds" : [
+			<255, 0, 0>
+			<250, 10, 10>
+		]
+		"blues" : [
+			<0, 0, 255>
+			<10, 10, 250>
+		]
+	]
+]
+for category : [colorCategory : [color <r, g, b>]] in crazyMap do {
+	"{
+	$category:
+		$colorCategory:
+			$color: $r $g $b
+	}" -> _out
+}
+```
+
+TODO: mention nested iterators limitations
+TODO: mention optional iterator type
+
+# Functions
+
+Functions are special types of code block
+
+<!-- TODO: rework functions to be more like structs and anonymous struct -->
+
+```
+<function name>(<param name> <Param type> <default value>, <other params>) => <Return type> {
+	<body>
+	=> <return value>
+}
+```
+
+Functions names must start with a letter and can contain letters, digits and
+underscores.
+
+By convention, they're written in camelCase
+
+```ruby
+printHelloWorld() {
+	"Hello World" -> _out
+}
+
+greetPerson(name Text, surname Text) {
+	"Greetings $name, $surname" -> _out
+}
+
+getBestLanguage() => Text {
+	=> "Giovi"
+}
+
+sum(x Int, y Int) => Int {
+	=> x + y
+}
+
+division(x Real, y Real) => Real {
+	=> x / y
+}
+```
+
+```ruby
+printHelloWorld()
+greetPerson()
+sum(2, 2) -> sumResult Int
+division(10, 3) -> divisionResult Real
+```
+
+To return a value, you can alternatively use the return keyword
+
+```ruby
+intToBool(i Int) => Bool {
+	return i > 0
+}
+```
+
+When invoking a function, you can use named parameters; the order won't matter
+
+```ruby
+greet(name Text, age Natural) {
+	"My name is $name" -> _out
+	"My age is $age" -> _out
+}
+
+# positional parameters
+greet("Simone", 22)
+
+# named parameters
+greet(name:"Simone", age:22)
+greet(age:22, name:"Simone")
+```
+
+Function parameters can also have default values.<br>
+We'll refer to them as "optional parameters", while we'll call "required
+parameters" those which do not have a default value.
+
+```ruby
+count(num Natural default 10) { }
+# if num is not specified when calling the
+# function, num will be 10
+
+count()
+count(69)
+
+greet(name Text default _ ) { }
+# if name is not specified when calling the function
+# its type default value will be used
+# it's equivalent of writing "name Text default Text.default"
+
+greet()
+greet("Simone")
+```
+
+Required parameters have to be specified.<br>
+It's possible to mix optional and required parameters in the signature
+
+```ruby
+processPizzaOrder(
+  type Text default "Margherita",
+  tableNumber Int,
+  withPineapple Bool default false,
+  ) {
+  	if withPineapple do return
+	makePizza(type) -> pizza Pizza
+	serve(pizza, tableNumber)
+}
+```
+
+but when invoking the function with positional parameters, only terminal
+optional parameters can be omitted.<br>
+Using the placeholder symbol `_` (underscore) will pass the default value of
+parameter type, or eventually the default parameter value if specified
+
+```ruby
+processPizzaOrder("Diavola", 69) # "Diavola" to table 69
+processPizzaOrder(_, 69) # "Margherita" to table 69
+processPizzaOrder(_, _) # "Margherita" to table 0
+processPizzaOrder(_, 69, true) # "Margherita" with pineapple to table 69
+processPizzaOrder(69) # ERROR: expecting pizza type, but got 69
+```
+
+When invoking the function with named parameters, all required parameters value
+have to be specified.<br>
+Also, as long as all required parameters have been specified, remaining
+optional parameters can be omitted, even if they are not terminal
+
+```ruby
+processPizzaOrder(type:"Diavola", tableNumber: 69)
+processPizzaOrder(type:_, tableNumber: 69)
+processPizzaOrder(tableNumber: 69)
+```
+
+## Function invocation labels
+
+Sometimes you have to decide whether to name a parameter to either favor
+readability in the function body...
+
+```ruby
+processPizzaOrder(
+	type Text,
+	table Int,
+	hasPineapple Bool,
+) {
+	if hasPineapple do return
+	makePizza(type) -> pizza Pizza
+	serve(pizza, table)
+}
+
+processPizzaOrder(
+	type: "Diavola",
+	tableNumber: 69,
+	hasPineapple: false
+)
+```
+
+... or at invocation
+
+```ruby
+processPizzaOrder(
+	ofType Text
+	atTableNumber Int,
+	withPineapple Bool,
+) {
+	if withPineapple do return
+	makePizza(ofType) -> pizza Pizza
+	serve(pizza, atTableNumber)
+}
+
+processPizzaOrder(
+	ofType: "Diavola",
+	atTableNumber: 69,
+	withPineapple: false
+)
+```
+
+To improve readability, function formal parameters can "override" the label, so
+that a nicer signature is exposed at invocation, while still being readable in
+the implementation body
+
+```ruby
+processPizzaOrder(
+	ofType: type Text,
+	atTable: tableNumber Int,
+	withPineapple: hasPineapple Bool,
+) {
+	if hasPineapple do return
+	makePizza(type) -> pizza Pizza
+	serve(pizza, tableNumber)
+}
+
+processPizzaOrder(
+	ofType: "Diavola",
+	atTable: 69,
+	withPineapple: false
+)
+```
+
+## @candidate Overloading
+
+Function overloading is possible, as long as all required parameters are
+different (different name and different type)
+
+```ruby
+makePizza(type Text) { }
+makePizza(type Text, withPineapple Bool) { }
+makePizza(ingredients [Text]) { }
+
+# ERROR makePizza(type Text) already defined
+makePizza(type Text, withPineapple Bool default false) { }
+```
+
+## @candidate Statement functions
+
+Functions can have a single statement instead of a body; in case the function
+returns a value, its return type can be omitted as it will be inferred
+
+```ruby
+getName() => "Simone"
+sum(x Int, y Int) => x + y
+isEven(x Int) => x % 2 = 0
+greet(name Text) name -> _out
+```
+
+## Function type
+
+Functions are first-class citizens. This means they behave like any other
+value: they have a type, can be assigned to variables, can be passed as
+arguments to other functions and returned, etcetera.
+
+You can refer to a function simply by its name
+
+```ruby
+sum(x Int, y Int) => Int {
+	=> x + y
+}
+
+sum -> _out # function sum(x Int, y Int) => Int {}
+```
+
+If a variable with the same name is shadowing the function, you can use the
+`::` (double colon) syntax to explicitly refer to the function
+
+```ruby
+sum(x Int, y Int) => Int { => x + y }
+sum Int default 69
+
+sum -> _out   # 69
+::sum -> _out # function sum(x Int, y Int) => Int {}
+```
+
+The same applies when accessing a function within a struct or module
+
+```ruby
+Color <
+	rgb Int default 0xff0000
+	rgb(r Int, g Int, b Int) => Color { => Color.<> } # pretend this function works
+>
+Color.rgb -> _out # 0xff0000
+Color::rgb -> _out # function rgb(r Int, g Int, b Int) => Color {}
+
+giovi.util.Color.rgb -> _out
+giovi.util.Color::rgb -> _out
+```
+
+The double colon notation is recommended anyway for improved readability in
+case of ambiguously or poorly named functions.
+
+You can declare a variable with a function type like so:
+
+```
+<name> ::( <formal_parameters> )
+<name> ::( <formal_parameters> ) => <return_type>
+```
+
+```ruby
+sum(x Int, y Int) => Int { => x + y }
+sub(x Int, y Int) => Int { => x + y }
+mul(x Int, y Int) => Int { => x * y }
+div(x Int, y Int) => Int { => x / y }
+
+someOperation ::(x Int, y Int) => Int
+
+::sum -> someOperation
+someOperation(5, 2) -> _out # 5 + 2
+
+::sub -> someOperation
+someOperation(5, 2) -> _out # 5 - 2
+
+::mul -> someOperation
+someOperation(5, 2) -> _out # 5 * 2
+
+::div -> someOperation
+someOperation(5, 2) -> _out # 5 / 2
+```
+
+To ensure type safety, the function signatures must be compatible (i.e. equal
+or narrower)
+
+```ruby
+# a ref of a function that takes two Real parameters and returns a Real
+someFunctionRef ::(x Real, y Real) => Real
+
+div(x Real, y Real) => Real { => x + y }
+::div -> someFunctionRef
+someFunctionRef(690.0, 10.0) -> _out # 690 / 10
+
+sum(x Int, y Int) => Int { => x + y }
+::sum -> someFunctionRef
+# OK: sum signature can be widened to someFunctionRef signature
+someFunctionRef(49, 10) -> _out # 49 + 10
+
+greet(someone Text) { "hello $someone" -> _out }
+::greet -> someFunctionRef
+# ERROR: incompatible function signatures
+```
+
+Anonymous function references can also be defined
+
+```
+::{<statements>}
+::() {<statements>}
+::(<parameters>) {<statements>}
+::(<parameters>) => <return type> {<statements>}
+```
+
+```ruby
+someFunctionRef ::()
+
+# Assign an anonymous function reference to someFunctionRef
+someFunctionRef <- ::{
+	"hello world" -> _out
+}
+
+# I can now invoke someFunctionRef
+someFunctionRef()
+```
+
+Like other data types, a function reference can have a default value (a default
+implementation in this case)
+
+```ruby
+someFunctionRef ::(txt Text) default ::(txt Text) {
+	txt -> _out
+}
+```
+
+### Signature conversion
+
+Like any other type, a function reference type can be widened/narrowed/casted
+where possible; they behave very similarly to [product types](#product-types):
+a function reference can be converted if its parameters and return type can be
+converted
+
+```ruby
+someFunctionRef    ::(x Real,    y [Real]) => Real
+someFunctionRef <- ::(x Natural, y [Int])  => Int { => 69 }
+```
+
+In this example, `x` will be widened from `Natural` to `Real`, `y` from `[Int]`
+to `[Real]` and the return type from `Int` to `Real`.
+
+Some more examples
+
+```ruby
+someFunctionRef    ::(x Real,    y [Real]) => Real
+
+someFunctionRef <- ::(x Natural, y [Int])  => Int { => 69 }
+someFunctionRef <- ::(x Natural) => Int { => 69 }
+someFunctionRef <- ::(y [Natural]) => Natural { => 69n }
+someFunctionRef <- ::(x Real) { => 69n }
+someFunctionRef <- ::{ => 69 }
+```
+
+TODO: clarify about parameters optionality and labels
+
+Note that an optional parameter cannot be widened to a non-optional parameter;
+the opposite is possible.
+
+```ruby
+greet ::(someone Text) => Text
+goodMorning(someone Text) => Text {
+	=> "Good morning $someone"
+}
+goodNight(someone Text default "") => Text {
+	if someone = default do => "Good night everybody!"
+	=> "Good night $someone"
+}
+greet <- ::goodMorning # OK!
+greet <- ::goodNight # ERROR!
+```
+
+```ruby
+greet ::(someone Text default "")
+greet <- ::goodMorning # OK!
+greet <- ::goodNight # OK!
+```
+
+A function reference with many parameters, a return type and a default
+implementation could be very verbose and cluttered
+
+```ruby
+# A verbose definition of a function reference which takes a Int, return an Int,
+# with a default implementation which returns the sum of the parameters
+
+# identifier    ::(params)       => return         ::(params)       => return
+someFunctionRef ::(x Int, y Int) => Int    default ::(x Int, y Int) => Int {
+	=> x + y
+}
+```
+
+so leveraging type widening, the declaration can be much more concise
+
+```ruby
+someFunctionRef ::(x Int, y Int) => Int default ::{
+	=> x + y
+}
+```
+
+### Default value of a function ref
+
+The default value of a function ref will be an "empty" function with no body.
+
+If the signatures has a return value, its default will be returned.
+
+```ruby
+Color <
+	r Int default 69
+	g Int
+	b Int
+>
+someFunctionRef ::() => Color
+someFunctionRef() -> _out # Color.<69 0 0>
+```
+
 # Data types
 
 ## Primitive Types
@@ -2463,982 +3437,6 @@ A default value of a specific attribute can be accessed via the struct type
 ```ruby
 Person.name -> defaultPersonName Text # "No name"
 Person.favoriteColor -> defaultFavoriteColor Color # <255 0 0>
-```
-
-# Control structure
-
-## if
-
-```
-# Curly braces around condition are optional
-if <condition> do {
-	<true body>
-}
-
-if <condition> do {
-	<true body>
-} else {
-	<false body>
-}
-```
-
-Example:
-
-```ruby
-x Int <- 1  
-y Int <- 69  
-
-if x > y do {
-	# x is greater than y
-} else {
-	# y is greater or equal to x
-}
-
-if x > y & x > 10 do {
-	# x is greater than y AND greater than 10
-}
-```
-
-Curly braces are used to optionally wrap conditions. The followings will evaluate the same conditions...
-
-```ruby
-if x < 0 & x > 10 do {}
-if {x < 0 & x > 10} do {}
-if {x < 0} & {x > 10} do {}
-if {{x < 0} & {x > 10}} do {}
-```
-
-... but these will be different
-
-```ruby
-if true & true | false do {}
-if true & {true | false} do {}
-```
-
-## @candidate if-chain
-
-```
-if {
-	<condition> do {}
-	<condition2> do {}
-} else {
-	<else body>
-}
-```
-
-```ruby
-name Text
-if {
-
-	name = "Simone" do "hey it's Simone!" -> _out
-
-	name = "Mario" do {
-		"heyo Mario" -> _out
-		"where is Luigi?" -> _out
-	}
-
-	name = "Luigi" do -> "heyo green Mario!" -> _out
-
-} else {
-	"greetings $name" -> _out
-}
-```
-
-## if-chain with subject
-
-```
-if <subject> {
-	<condition> do {
-		<condition body>
-	}
-
-	<condition 2> do {
-		<condition 2 body>
-	}
-
-} else {
-	# no conditions have been met
-	<else body>
-}
-```
-
-Example:
-
-```ruby
-name Text
-if name {
-
-	= "Simone" do "hey it's Simone!" -> _out
-
-	= "Mario" do {
-		"heyo Mario" -> _out
-		"where is Luigi?" -> _out
-	}
-
-	= "Luigi" do -> "heyo green Mario!" -> _out
-
-} else {
-	"greetings $name" -> _out
-}
-```
-
-You can also use common boolean operators to check for multiple conditions.<br>
-(Line breaks and whitespaces don't matter)
-
-```ruby
-number Int
-if number {
-
-	# if equal to 69 or 420
-	= 69
-	| = 420
-	do "Nice!" -> _out
-
-	# if greater than 100 and less than 999
-	> 100
-	& < 999
-	do "big boi" -> _out
-
-}
-```
-
-Textual boolean operators are allowed
-
-```ruby
-number Int
-if number {
-
-	= 69 or = 420 do "Nice!" -> _out
-
-	> 100 and < 999 do "big boi" -> _out
-
-}
-```
-
-Exhaustivenes and branch precedence are not considered, so be mindful of the
-branch order, since they're evaluated in the same order as they're declared and
-some branch may become unreachable if it's dominated by a previous one
-
-```ruby
-someNumber Int <- 69
-if someNumber {
-	< 50 do {}
-
-	# NOTE: unreachable branch
-	= 69 do {}
-}
-```
-
-You can also "guard" a branch with a boolean expression.
-
-```ruby
-list [Int] <- [ 1 2 3 4 ]
-
-if list {
-
-	# if contains 69 but only when elements count is less than 100
-	=~ 69 when list@% < 100 do {}
-
-	# if contains 69 but only when someFunction() returns 420
-	=~ 69 when someFunction() = 420 do {}
-
-	# if contains 69
-	=~ 69 do {}
-
-}
-```
-
-Let's see some more complex examples of the if statement
-
-```ruby
-list [Int] <- [ 1 2 3 4 ]
-
-if list {
-
-	# if equal to numbers' default (empty list)
-	= default do {}
-
-	# if equal to [1 2 3]
-	= [1 2 3] do {}
-
-	# if equal to [1 2 3 4]
-	# or equal to [4 5 6 7]
-	= [1 2 3 4]
-	| = [4 5 6 7]
-	do {}
-
-	# if equal to [1 2 3 4]
-	# or if contains 69
-	# or if contains 420
-	# but only when someOtherVariable = 69
-	= [1 2 3 4]
-	| =~ 69
-	| =~ 420
-	when someOtherVariable = 69
-	do {}
-
-	# if equal to [1 2 3 4]
-	# or if contains 69
-	# or if contains 420
-	= [1 2 3 4]
-	| =~ 69
-	| =~ 420
-	do {}
-
-	# if equal to [1 2 3 4] or if contains both 69 and 420
-	= [1 2 3 4] or { =~ 69 and =~ 420 } do {}
-	
-	# if contains 69 and contains either 6 or 9
-	=~ 69 and { =~ 6 or =~ 9} do {}
-
-}
-```
-
-Comparing struct
-
-```ruby
-ColorRGB <r Natural, g Natural, b Natural>
-ColorARGB <a Natural, r Natural, g Natural, b Natural>
-
-color ColorRGB <- <42 0 69>
-white ColorRGB <- <255 255 255>
-red ColorRGB <- <255 0 0>
-transparent ColorARGB <- <0 0 0 0>
-
-if color {
-	= default do "it's black" -> _out
-	= red do "it's red" -> _out
-	= <240 10 10> do "it's redish" -> _out
-	= <255 default 69> do "255, default green, 69" -> _out
-	= white | = <200 200 200> do "it's white or grey" -> _out
-	= <_ _ 69> do "any red, any green, blue of 69" -> _out
-	= <_ _ _ _> do "It has at least 4 fields" -> _out
-}
-```
-
-# Loops
-
-A loop is block of code that will be repeated (looped)
-
-## Loop control
-
-### break
-
-The break keyword will break the loop
-
-### skip
-
-The skip keyword will skip the current iteration, and continue with the next
-
-## repeat keyword
-
-```
-repeat {
-	<body> # the body will be repeated for an undefined amount of time
-}
-
-repeat if <condition> {
-	<body>  # the body will be repeated if the condition is true
-}
-```
-
-A do-while loop can be achieved like so
-
-```
-repeat {
-	<body>  # body will be executed once and repeated if the condition is false
-	if <condition> do break
-}
-```
-
-## for loop
-
-In its simplest form, the for loop is used to iterate over lists, maps or
-ranges
-
-```
-for <iterator> in <list|map|range> do <statement>
-for <iterator> in <list|map|range> do {
-	<statements>
-}
-```
-
-```ruby
-for i in 0..10 do something()
-for number in [1 2 3 4] do something()
-for key in ["Simone":69 "Luca":420 "Paolo":10] do something()
-```
-
-If you don't need the iterator, you can use the underscore `_`
-
-```ruby
-for _ in 0..10 do something()
-```
-
-@candidate If you need the index when iterating, you can specify a counter
-which will hold the iteration count
-
-```ruby
-for name @ index in ["Simone" "Mario" "Luigi"] do {
-	"The name $name is at index @index" -> _out
-}
-
-for _ @ index in ["Simone" "Mario" "Luigi"] do {
-	index -> _out
-}
-```
-
-### Deconstruction
-
-The for statement is like an usual for-each loop, but on steroids; when
-iterating, it can deconstruct complex data types, like maps, product types or
-any combination of them.
-
-There are four kind of iterators
-
-#### Placeholder iterator
-
-The simplest iterator is the "placeholder iterator": the iteration will be
-performed but without deconstruction
-
-```ruby
-for _ in [0 1 2 3] do something()
-```
-
-#### List iterator
-
-The list iterator is used to iterate over a list
-
-```ruby
-for [i] in [0 1 2 3] do something()
-```
-
-NOTE: the brackets are optional for "top level" iterator, but are required when
-nesting iterators
-
-#### Map iterator
-
-You can provide two identifiers (one for the key and one for the value) to
-iterate over map key-value pair entries and deconstruct them accordingly
-
-```ruby
-for [key : value] in ["Simone":69 "Luca":420 "Paolo":10] do something()
-```
-
-NOTE: the brackets are optional for "top level" iterator, but are required when
-nesting iterators
-
-A placeholder (underscore `_`) can be used in case an iterator is not needed
-
-```ruby
-for _ : value in someMap do {}
-for key : _ in someMap do {}
-for _ : _ in someMap do {} # possible but useless
-```
-
-#### Product types deconstruction
-
-The for-statement can also deconstruct product types (tuples, records, structs)
-
-There are two deconstruction approach you can use: positional and named
-
-##### Positional
-
-With the positional approach, the fields will be iteratively deconstructed
-based on the position
-
-```ruby
-Color <red Int, green Int, blue Int>
-colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]  
-
-for <r, g, b> in colors do {
-	"The color is made of $r $g $b" -> _out
-}
-```
-
-NOTE: the parenthesis are optional for "top level" iterator, but are required when
-nesting iterators
-
-If you don't need a specific field, you can use a placeholder iterator (`_`)
-
-```ruby
-for <r, _, b> in colors do {
-	"I only care about $r and $b" -> _out
-}
-```
-
-An iterator for the whole entry can optionally be specified
-
-```ruby
-for color <red, green, blue> in colors do {
-	"The color $color is made of $red $green $blue" -> _out
-}
-```
-
-##### Named
-
-With the named approach, deconstruction is done via field names: the iterator
-names must match the field names, also, a subset of the fields can be used and
-therefore the order doesn't matter.
-
-```ruby
-for <.blue, .red> in colors do {
-	"I only care about $blue and $red" -> _out
-}
-```
-
-NOTE: the parenthesis are optional for "top level" iterator, but are required
-when nesting iterators
-
-An iterator for the whole entry can optionally be specified
-
-```ruby
-for color <.red, .green, .blue> in colors do {
-	"The color $color is made of $red $green $blue" -> _out
-}
-```
-
-#### Nested iterators
-
-Iterators can be "nested" in order to deconstruct more complex data structures.
-
-For example, a list of lists can be iterated with a single for statement
-
-```ruby
-identityMatrix [[Real]] <- [
-	[1 0 0]
-	[0 1 0]
-	[0 0 1]
-]
-
-for [[i]] in identityMatrix do {
-	i -> _out
-}
-# equivalent to
-for row in identityMatrix do {
-	for i in row do {
-		i -> _out
-	}
-}
-```
-
-Same applies to maps
-
-```ruby
-graph [Text : [Text : Int]] <- [
-	"a" : ["b":5 "e":3]
-	"b" : ["a":5 "c":1 "d":9 "f":2]
-	"c" : ["b":1 "e":6]
-	"d" : ["b":9 "e":7]
-	"e" : ["a":3 "c":6 "d":7 "f":8]
-	"f" : ["b":2 "e":8]
-]
-
-for nodeA : [nodeB : edgeCost] in graph do {
-	"$nodeA ---$edgeCost---> $nodeB" -> _out
-}
-# equivalent to
-for nodeA : edges in graph do {
-	for nodeB : edgeCost in edges do {
-		"$nodeA ---$edgeCost---> $nodeB" -> _out
-	}
-}
-```
-
-Same applies to nested product types
-
-```ruby
-Foo<a Int, b Int, c Int>
-Bar<x Int, y Int, z Foo>
-listOfNestedStruct [Bar] <- [
-	Bar.<1, 1, Foo.<1, 1, 1>>,
-	Bar.<2, 2, Foo.<2, 2, 2>>,
-	Bar.<3, 3, Foo.<3, 3, 3>>
-]
-for <x, y, z <a, b, c>> in listOfNestedStruct do {
-	"{
-	Bar is made of:
-		- $x
-		- $y
-		- $z which is made of:
-			- $a
-			- $b
-			- $c
-	}" -> _out
-}
-```
-
-This enables you to deconstruct any combination of list, maps or product types
-
-```ruby
-# An extreme example of iterating over a map whose values are maps whose values
-# are list of struct
-Color<r Int, g Int, b Int>
-crazyMap [Text : [Text : [Color]]] <- [
-	"gradients" : [
-		"reds" : [
-			<255, 0, 0>
-			<250, 10, 10>
-		]
-		"blues" : [
-			<0, 0, 255>
-			<10, 10, 250>
-		]
-	]
-	"gradients 2" : [
-		"reds" : [
-			<255, 0, 0>
-			<250, 10, 10>
-		]
-		"blues" : [
-			<0, 0, 255>
-			<10, 10, 250>
-		]
-	]
-]
-for category : [colorCategory : [color <r, g, b>]] in crazyMap do {
-	"{
-	$category:
-		$colorCategory:
-			$color: $r $g $b
-	}" -> _out
-}
-```
-
-TODO: mention nested iterators limitations
-TODO: mention optional iterator type
-
-# Functions
-
-Functions are special types of code block
-
-<!-- TODO: rework functions to be more like structs and anonymous struct -->
-
-```
-<function name>(<param name> <Param type> <default value>, <other params>) => <Return type> {
-	<body>
-	=> <return value>
-}
-```
-
-Functions names must start with a letter and can contain letters, digits and
-underscores.
-
-By convention, they're written in camelCase
-
-```ruby
-printHelloWorld() {
-	"Hello World" -> _out
-}
-
-greetPerson(name Text, surname Text) {
-	"Greetings $name, $surname" -> _out
-}
-
-getBestLanguage() => Text {
-	=> "Giovi"
-}
-
-sum(x Int, y Int) => Int {
-	=> x + y
-}
-
-division(x Real, y Real) => Real {
-	=> x / y
-}
-```
-
-```ruby
-printHelloWorld()
-greetPerson()
-sum(2, 2) -> sumResult Int
-division(10, 3) -> divisionResult Real
-```
-
-To return a value, you can alternatively use the return keyword
-
-```ruby
-intToBool(i Int) => Bool {
-	return i > 0
-}
-```
-
-When invoking a function, you can use named parameters; the order won't matter
-
-```ruby
-greet(name Text, age Natural) {
-	"My name is $name" -> _out
-	"My age is $age" -> _out
-}
-
-# positional parameters
-greet("Simone", 22)
-
-# named parameters
-greet(name:"Simone", age:22)
-greet(age:22, name:"Simone")
-```
-
-Function parameters can also have default values.<br>
-We'll refer to them as "optional parameters", while we'll call "required
-parameters" those which do not have a default value.
-
-```ruby
-count(num Natural default 10) { }
-# if num is not specified when calling the
-# function, num will be 10
-
-count()
-count(69)
-
-greet(name Text default _ ) { }
-# if name is not specified when calling the function
-# its type default value will be used
-# it's equivalent of writing "name Text default Text.default"
-
-greet()
-greet("Simone")
-```
-
-Required parameters have to be specified.<br>
-It's possible to mix optional and required parameters in the signature
-
-```ruby
-processPizzaOrder(
-  type Text default "Margherita",
-  tableNumber Int,
-  withPineapple Bool default false,
-  ) {
-  	if withPineapple do return
-	makePizza(type) -> pizza Pizza
-	serve(pizza, tableNumber)
-}
-```
-
-but when invoking the function with positional parameters, only terminal
-optional parameters can be omitted.<br>
-Using the placeholder symbol `_` (underscore) will pass the default value of
-parameter type, or eventually the default parameter value if specified
-
-```ruby
-processPizzaOrder("Diavola", 69) # "Diavola" to table 69
-processPizzaOrder(_, 69) # "Margherita" to table 69
-processPizzaOrder(_, _) # "Margherita" to table 0
-processPizzaOrder(_, 69, true) # "Margherita" with pineapple to table 69
-processPizzaOrder(69) # ERROR: expecting pizza type, but got 69
-```
-
-When invoking the function with named parameters, all required parameters value
-have to be specified.<br>
-Also, as long as all required parameters have been specified, remaining
-optional parameters can be omitted, even if they are not terminal
-
-```ruby
-processPizzaOrder(type:"Diavola", tableNumber: 69)
-processPizzaOrder(type:_, tableNumber: 69)
-processPizzaOrder(tableNumber: 69)
-```
-
-## Function invocation labels
-
-Sometimes you have to decide whether to name a parameter to either favor
-readability in the function body...
-
-```ruby
-processPizzaOrder(
-	type Text,
-	table Int,
-	hasPineapple Bool,
-) {
-	if hasPineapple do return
-	makePizza(type) -> pizza Pizza
-	serve(pizza, table)
-}
-
-processPizzaOrder(
-	type: "Diavola",
-	tableNumber: 69,
-	hasPineapple: false
-)
-```
-
-... or at invocation
-
-```ruby
-processPizzaOrder(
-	ofType Text
-	atTableNumber Int,
-	withPineapple Bool,
-) {
-	if withPineapple do return
-	makePizza(ofType) -> pizza Pizza
-	serve(pizza, atTableNumber)
-}
-
-processPizzaOrder(
-	ofType: "Diavola",
-	atTableNumber: 69,
-	withPineapple: false
-)
-```
-
-To improve readability, function formal parameters can "override" the label, so
-that a nicer signature is exposed at invocation, while still being readable in
-the implementation body
-
-```ruby
-processPizzaOrder(
-	ofType: type Text,
-	atTable: tableNumber Int,
-	withPineapple: hasPineapple Bool,
-) {
-	if hasPineapple do return
-	makePizza(type) -> pizza Pizza
-	serve(pizza, tableNumber)
-}
-
-processPizzaOrder(
-	ofType: "Diavola",
-	atTable: 69,
-	withPineapple: false
-)
-```
-
-## @candidate Overloading
-
-Function overloading is possible, as long as all required parameters are
-different (different name and different type)
-
-```ruby
-makePizza(type Text) { }
-makePizza(type Text, withPineapple Bool) { }
-makePizza(ingredients [Text]) { }
-
-# ERROR makePizza(type Text) already defined
-makePizza(type Text, withPineapple Bool default false) { }
-```
-
-## @candidate Statement functions
-
-Functions can have a single statement instead of a body; in case the function
-returns a value, its return type can be omitted as it will be inferred
-
-```ruby
-getName() => "Simone"
-sum(x Int, y Int) => x + y
-isEven(x Int) => x % 2 = 0
-greet(name Text) name -> _out
-```
-
-## Function type
-
-Functions are first-class citizens. This means they behave like any other
-value: they have a type, can be assigned to variables, can be passed as
-arguments to other functions and returned, etcetera.
-
-You can refer to a function simply by its name
-
-```ruby
-sum(x Int, y Int) => Int {
-	=> x + y
-}
-
-sum -> _out # function sum(x Int, y Int) => Int {}
-```
-
-If a variable with the same name is shadowing the function, you can use the
-`::` (double colon) syntax to explicitly refer to the function
-
-```ruby
-sum(x Int, y Int) => Int { => x + y }
-sum Int default 69
-
-sum -> _out   # 69
-::sum -> _out # function sum(x Int, y Int) => Int {}
-```
-
-The same applies when accessing a function within a struct or module
-
-```ruby
-Color <
-	rgb Int default 0xff0000
-	rgb(r Int, g Int, b Int) => Color { => Color.<> } # pretend this function works
->
-Color.rgb -> _out # 0xff0000
-Color::rgb -> _out # function rgb(r Int, g Int, b Int) => Color {}
-
-giovi.util.Color.rgb -> _out
-giovi.util.Color::rgb -> _out
-```
-
-The double colon notation is recommended anyway for improved readability in
-case of ambiguously or poorly named functions.
-
-You can declare a variable with a function type like so:
-
-```
-<name> ::( <formal_parameters> )
-<name> ::( <formal_parameters> ) => <return_type>
-```
-
-```ruby
-sum(x Int, y Int) => Int { => x + y }
-sub(x Int, y Int) => Int { => x + y }
-mul(x Int, y Int) => Int { => x * y }
-div(x Int, y Int) => Int { => x / y }
-
-someOperation ::(x Int, y Int) => Int
-
-::sum -> someOperation
-someOperation(5, 2) -> _out # 5 + 2
-
-::sub -> someOperation
-someOperation(5, 2) -> _out # 5 - 2
-
-::mul -> someOperation
-someOperation(5, 2) -> _out # 5 * 2
-
-::div -> someOperation
-someOperation(5, 2) -> _out # 5 / 2
-```
-
-To ensure type safety, the function signatures must be compatible (i.e. equal
-or narrower)
-
-```ruby
-# a ref of a function that takes two Real parameters and returns a Real
-someFunctionRef ::(x Real, y Real) => Real
-
-div(x Real, y Real) => Real { => x + y }
-::div -> someFunctionRef
-someFunctionRef(690.0, 10.0) -> _out # 690 / 10
-
-sum(x Int, y Int) => Int { => x + y }
-::sum -> someFunctionRef
-# OK: sum signature can be widened to someFunctionRef signature
-someFunctionRef(49, 10) -> _out # 49 + 10
-
-greet(someone Text) { "hello $someone" -> _out }
-::greet -> someFunctionRef
-# ERROR: incompatible function signatures
-```
-
-Anonymous function references can also be defined
-
-```
-::{<statements>}
-::() {<statements>} 
-::(<parameters>) {<statements>} 
-::(<parameters>) => <return type> {<statements>}
-```
-
-```ruby
-someFunctionRef ::()
-
-# Assign an anonymous function reference to someFunctionRef
-someFunctionRef <- ::{
-	"hello world" -> _out
-}
-
-# I can now invoke someFunctionRef
-someFunctionRef()
-```
-
-Like other data types, a function reference can have a default value (a default
-implementation in this case)
-
-```ruby
-someFunctionRef ::(txt Text) default ::(txt Text) {
-	txt -> _out
-}
-```
-
-### Signature conversion
-
-Like any other type, a function reference type can be widened/narrowed/casted
-where possible; they behave very similarly to [product types](#product-types):
-a function reference can be converted if its parameters and return type can be
-converted
-
-```ruby
-someFunctionRef    ::(x Real,    y [Real]) => Real
-someFunctionRef <- ::(x Natural, y [Int])  => Int { => 69 }
-```
-
-In this example, `x` will be widened from `Natural` to `Real`, `y` from `[Int]`
-to `[Real]` and the return type from `Int` to `Real`.
-
-Some more examples
-
-```ruby
-someFunctionRef    ::(x Real,    y [Real]) => Real
-
-someFunctionRef <- ::(x Natural, y [Int])  => Int { => 69 }
-someFunctionRef <- ::(x Natural) => Int { => 69 }
-someFunctionRef <- ::(y [Natural]) => Natural { => 69n }
-someFunctionRef <- ::(x Real) { => 69n }
-someFunctionRef <- ::{ => 69 }
-```
-
-TODO: clarify about parameters optionality and labels
-
-Note that an optional parameter cannot be widened to a non-optional parameter;
-the opposite is possible.
-
-```ruby
-greet ::(someone Text) => Text
-goodMorning(someone Text) => Text {
-	=> "Good morning $someone"
-}
-goodNight(someone Text default "") => Text {
-	if someone = default do => "Good night everybody!"
-	=> "Good night $someone"
-}
-greet <- ::goodMorning # OK!
-greet <- ::goodNight # ERROR!
-```
-
-```ruby
-greet ::(someone Text default "")
-greet <- ::goodMorning # OK!
-greet <- ::goodNight # OK!
-```
-
-A function reference with many parameters, a return type and a default
-implementation could be very verbose and cluttered
-
-```ruby
-# A verbose definition of a function reference which takes a Int, return an Int,
-# with a default implementation which returns the sum of the parameters
-
-# identifier    ::(params)       => return         ::(params)       => return
-someFunctionRef ::(x Int, y Int) => Int    default ::(x Int, y Int) => Int {
-	=> x + y
-}
-```
-
-so leveraging type widening, the declaration can be much more concise
-
-```ruby
-someFunctionRef ::(x Int, y Int) => Int default ::{
-	=> x + y
-}
-```
-
-### Default value of a function ref
-
-The default value of a function ref will be an "empty" function with no body.
-
-If the signatures has a return value, its default will be returned.
-
-```ruby
-Color <
-	r Int default 69
-	g Int
-	b Int
->
-someFunctionRef ::() => Color
-someFunctionRef() -> _out # Color.<69 0 0>
 ```
 
 # Aliasing
