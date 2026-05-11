@@ -1226,7 +1226,7 @@ TODO: mention optional iterator type
 
 # Functions
 
-Functions are special types of code block
+Functions are code blocks that can be re-invoked at a later time.
 
 <!-- TODO: rework functions to be more like structs and anonymous struct -->
 
@@ -1446,216 +1446,23 @@ isEven(x Int) => x % 2 = 0
 greet(name Text) name -> _out
 ```
 
-## Function type
+## Functions as first-class citizens
 
 Functions are first-class citizens. This means they behave like any other
 value: they have a type, can be assigned to variables, can be passed as
 arguments to other functions and returned, etcetera.
 
-You can refer to a function simply by its name
-
 ```ruby
-sum(x Int, y Int) => Int {
-	=> x + y
-}
+calculator ::(lhs Int, rhs Int) => Int
 
-sum -> _out # function sum(x Int, y Int) => Int {}
+calculator <- giovi.util.Math::sum
+calculator(10, 59) -> _out # 69
+
+calculator <- ::{ => lhs * rhs }
+calculator(10, 59) -> _out # 590
 ```
 
-If a variable with the same name is shadowing the function, you can use the
-`::` (double colon) syntax to explicitly refer to the function
-
-```ruby
-sum(x Int, y Int) => Int { => x + y }
-sum Int default 69
-
-sum -> _out   # 69
-::sum -> _out # function sum(x Int, y Int) => Int {}
-```
-
-The same applies when accessing a function within a struct or module
-
-```ruby
-Color <
-	rgb Int default 0xff0000
-	rgb(r Int, g Int, b Int) => Color { => Color.<> } # pretend this function works
->
-Color.rgb -> _out # 0xff0000
-Color::rgb -> _out # function rgb(r Int, g Int, b Int) => Color {}
-
-giovi.util.Color.rgb -> _out
-giovi.util.Color::rgb -> _out
-```
-
-The double colon notation is recommended anyway for improved readability in
-case of ambiguously or poorly named functions.
-
-You can declare a variable with a function type like so:
-
-```
-<name> ::( <formal_parameters> )
-<name> ::( <formal_parameters> ) => <return_type>
-```
-
-```ruby
-sum(x Int, y Int) => Int { => x + y }
-sub(x Int, y Int) => Int { => x + y }
-mul(x Int, y Int) => Int { => x * y }
-div(x Int, y Int) => Int { => x / y }
-
-someOperation ::(x Int, y Int) => Int
-
-::sum -> someOperation
-someOperation(5, 2) -> _out # 5 + 2
-
-::sub -> someOperation
-someOperation(5, 2) -> _out # 5 - 2
-
-::mul -> someOperation
-someOperation(5, 2) -> _out # 5 * 2
-
-::div -> someOperation
-someOperation(5, 2) -> _out # 5 / 2
-```
-
-To ensure type safety, the function signatures must be compatible (i.e. equal
-or narrower)
-
-```ruby
-# a ref of a function that takes two Real parameters and returns a Real
-someFunctionRef ::(x Real, y Real) => Real
-
-div(x Real, y Real) => Real { => x + y }
-::div -> someFunctionRef
-someFunctionRef(690.0, 10.0) -> _out # 690 / 10
-
-sum(x Int, y Int) => Int { => x + y }
-::sum -> someFunctionRef
-# OK: sum signature can be widened to someFunctionRef signature
-someFunctionRef(49, 10) -> _out # 49 + 10
-
-greet(someone Text) { "hello $someone" -> _out }
-::greet -> someFunctionRef
-# ERROR: incompatible function signatures
-```
-
-Anonymous function references can also be defined
-
-```
-::{<statements>}
-::() {<statements>}
-::(<parameters>) {<statements>}
-::(<parameters>) => <return type> {<statements>}
-```
-
-```ruby
-someFunctionRef ::()
-
-# Assign an anonymous function reference to someFunctionRef
-someFunctionRef <- ::{
-	"hello world" -> _out
-}
-
-# I can now invoke someFunctionRef
-someFunctionRef()
-```
-
-Like other data types, a function reference can have a default value (a default
-implementation in this case)
-
-```ruby
-someFunctionRef ::(txt Text) default ::(txt Text) {
-	txt -> _out
-}
-```
-
-### Signature conversion
-
-Like any other type, a function reference type can be widened/narrowed/casted
-where possible; they behave very similarly to [product types](#product-types):
-a function reference can be converted if its parameters and return type can be
-converted
-
-```ruby
-someFunctionRef    ::(x Real,    y [Real]) => Real
-someFunctionRef <- ::(x Natural, y [Int])  => Int { => 69 }
-```
-
-In this example, `x` will be widened from `Natural` to `Real`, `y` from `[Int]`
-to `[Real]` and the return type from `Int` to `Real`.
-
-Some more examples
-
-```ruby
-someFunctionRef    ::(x Real,    y [Real]) => Real
-
-someFunctionRef <- ::(x Natural, y [Int])  => Int { => 69 }
-someFunctionRef <- ::(x Natural) => Int { => 69 }
-someFunctionRef <- ::(y [Natural]) => Natural { => 69n }
-someFunctionRef <- ::(x Real) { => 69n }
-someFunctionRef <- ::{ => 69 }
-```
-
-TODO: clarify about parameters optionality and labels
-
-Note that an optional parameter cannot be widened to a non-optional parameter;
-the opposite is possible.
-
-```ruby
-greet ::(someone Text) => Text
-goodMorning(someone Text) => Text {
-	=> "Good morning $someone"
-}
-goodNight(someone Text default "") => Text {
-	if someone = default do => "Good night everybody!"
-	=> "Good night $someone"
-}
-greet <- ::goodMorning # OK!
-greet <- ::goodNight # ERROR!
-```
-
-```ruby
-greet ::(someone Text default "")
-greet <- ::goodMorning # OK!
-greet <- ::goodNight # OK!
-```
-
-A function reference with many parameters, a return type and a default
-implementation could be very verbose and cluttered
-
-```ruby
-# A verbose definition of a function reference which takes a Int, return an Int,
-# with a default implementation which returns the sum of the parameters
-
-# identifier    ::(params)       => return         ::(params)       => return
-someFunctionRef ::(x Int, y Int) => Int    default ::(x Int, y Int) => Int {
-	=> x + y
-}
-```
-
-so leveraging type widening, the declaration can be much more concise
-
-```ruby
-someFunctionRef ::(x Int, y Int) => Int default ::{
-	=> x + y
-}
-```
-
-### Default value of a function ref
-
-The default value of a function ref will be an "empty" function with no body.
-
-If the signatures has a return value, its default will be returned.
-
-```ruby
-Color <
-	r Int default 69
-	g Int
-	b Int
->
-someFunctionRef ::() => Color
-someFunctionRef() -> _out # Color.<69 0 0>
-```
+See [function type](#function-type).
 
 # Data types
 
@@ -3054,6 +2861,127 @@ someRange range <- 0..10
 for i in someRange do i -> _out
 ```
 
+### Function type
+
+Functions are first-class citizens. This means they behave like any other
+value: they have a type, can be assigned to variables, can be passed as
+arguments to other functions and returned, etcetera.
+
+You can refer to a function simply by its name
+
+```ruby
+sum(x Int, y Int) => Int {
+	=> x + y
+}
+
+sum -> _out # function sum(x Int, y Int) => Int {}
+```
+
+If a variable with the same name is shadowing the function, you can use the
+`::` (double colon) syntax to explicitly refer to the function
+
+```ruby
+sum(x Int, y Int) => Int { => x + y }
+sum Int default 69
+
+sum -> _out   # 69
+::sum -> _out # function sum(x Int, y Int) => Int {}
+```
+
+The same applies when accessing a function within a struct or module
+
+```ruby
+Color <
+	rgb Int default 0xff0000
+	rgb(r Int, g Int, b Int) => Color { => Color.<> } # pretend this function works
+>
+Color.rgb -> _out # 0xff0000
+Color::rgb -> _out # function rgb(r Int, g Int, b Int) => Color {}
+
+giovi.util.Color.rgb -> _out
+giovi.util.Color::rgb -> _out
+```
+
+The double colon notation is recommended anyway for improved readability in
+case of ambiguously or poorly named functions.
+
+You can declare a variable with a function type like so:
+
+```
+<name> ::()
+<name> ::( <formal_parameters> )
+<name> ::( <formal_parameters> ) => <return_type>
+```
+
+```ruby
+sum(x Int, y Int) => Int { => x + y }
+sub(x Int, y Int) => Int { => x + y }
+mul(x Int, y Int) => Int { => x * y }
+div(x Int, y Int) => Int { => x / y }
+
+someOperation ::(x Int, y Int) => Int
+
+::sum -> someOperation
+someOperation(5, 2) -> _out # 5 + 2
+
+::sub -> someOperation
+someOperation(5, 2) -> _out # 5 - 2
+
+::mul -> someOperation
+someOperation(5, 2) -> _out # 5 * 2
+
+::div -> someOperation
+someOperation(5, 2) -> _out # 5 / 2
+```
+
+Anonymous function references can also be defined
+
+```
+::{<statements>}
+::() {<statements>}
+::(<parameters>) {<statements>}
+::(<parameters>) => <return type> {<statements>}
+```
+
+```ruby
+someFunctionRef ::()
+
+# Assign an anonymous function reference to someFunctionRef
+someFunctionRef <- ::{
+	"hello world" -> _out
+}
+
+# I can now invoke someFunctionRef
+someFunctionRef()
+```
+
+#### Default value of a function ref
+
+Like other data types, a function reference can have a default value (a default
+implementation in this case)
+
+```ruby
+someFunctionRef ::(txt Text) default ::(txt Text) {
+	txt -> _out
+}
+```
+
+Unless specified, the default value of a function ref will be an "empty"
+function with no body.
+
+If the signatures has a return value, its default will be returned.
+
+```ruby
+Color <
+	r Int default 69
+	g Int
+	b Int
+>
+someFunctionRef ::() => Color
+someFunctionRef() -> _out # Color.<69 0 0>
+```
+
+
 # Data widening, narrowing and explicit casting
 
 Often we need to work with different data types toghether and we may need
@@ -3250,6 +3178,78 @@ Rgb<r Int, g Int, b Int>
 
 Color.<> as Rgb -> _out
 Rgb.<> as Color -> _out
+```
+
+## Functions
+
+Like any other type, a function reference type can be widened/narrowed/casted
+where possible; they behave very similarly to [product types](#product-types):
+a function reference can be converted if its parameters and return type can be
+converted
+
+```ruby
+someFunctionRef    ::(x Real,    y [Real]) => Real
+someFunctionRef <- ::(x Natural, y [Int])  => Int { => 69 }
+```
+
+In this example, `x` will be widened from `Natural` to `Real`, `y` from `[Int]`
+to `[Real]` and the return type from `Int` to `Real`.
+
+Some more examples
+
+```ruby
+someFunctionRef    ::(x Real,    y [Real]) => Real
+
+someFunctionRef <- ::(x Natural, y [Int])  => Int { => 69 }
+someFunctionRef <- ::(x Natural) => Int { => 69 }
+someFunctionRef <- ::(y [Natural]) => Natural { => 69n }
+someFunctionRef <- ::(x Real) { => 69n }
+someFunctionRef <- ::{ => 69 }
+```
+
+TODO: clarify about parameters optionality and labels
+
+Note that an optional parameter cannot be widened to a non-optional parameter;
+the opposite is possible.
+
+```ruby
+greet ::(someone Text) => Text
+goodMorning(someone Text) => Text {
+	=> "Good morning $someone"
+}
+goodNight(someone Text default "") => Text {
+	if someone = default do => "Good night everybody!"
+	=> "Good night $someone"
+}
+greet <- ::goodMorning # OK!
+greet <- ::goodNight # ERROR!
+```
+
+```ruby
+greet ::(someone Text default "")
+greet <- ::goodMorning # OK!
+greet <- ::goodNight # OK!
+```
+
+A function reference with many parameters, a return type and a default
+implementation could be very verbose and cluttered
+
+```ruby
+# A verbose definition of a function reference which takes a Int, return an Int,
+# with a default implementation which returns the sum of the parameters
+
+# identifier    ::(params)       => return         ::(params)       => return
+someFunctionRef ::(x Int, y Int) => Int    default ::(x Int, y Int) => Int {
+	=> x + y
+}
+```
+
+so leveraging type widening, the declaration can be much more concise
+
+```ruby
+someFunctionRef ::(x Int, y Int) => Int default ::{
+	=> x + y
+}
 ```
 
 # Type inference
