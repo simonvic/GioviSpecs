@@ -2396,10 +2396,10 @@ if someNumber.default != Int.default do {
 if someVariable.default != someVariable.type.default do {}
 -->
 
-## Struct default value
+## Product types default value
 
-Struct default value is a struct with all its fields set to their respective
-default value
+The default value of a product type (tuple, record, struct) is a value with all
+the type's fields set to their respective default value
 
 ```ruby
 someColor Color
