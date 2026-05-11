@@ -315,6 +315,95 @@ if color.r {
 }
 ```
 
+## Type check operator
+
+It's possible to check the type of a value
+
+```
+<value> is <Type>
+```
+
+```ruby
+if someVariable is Int do {
+	"someVariable is an integer with value ${someVariable}" -> _out
+}
+if someVariable {
+	is Int do "It's integer" -> _out
+	is Real do "It's real" -> _out
+	is [Int] do "It's a list of integer" -> _out
+}
+```
+
+The operator can be negated with the `not` keyword
+
+```ruby
+if someVariable is not Int do {
+	"It's not an integer" -> _out
+}
+```
+
+which is the same but should be preferred to this
+
+```ruby
+if not {someVariable is Int} do {
+	"It's not an integer" -> _out
+}
+```
+
+#### @candidate Check type and cast
+
+When checking variable type, it's often needed to cast it
+
+```ruby
+if color {
+	is RGB do {
+		color as RGB -> c RGB
+		"${c.r} ${c.g} ${c.b}" -> _out
+	}
+	is ARGB do {
+		color as ARGB -> c ARGB
+		"${c.r} ${c.g} ${c.b} ${c.a}" -> _out
+	}
+}
+```
+
+It's possible to use variable declaration syntax to improve readability
+
+```ruby
+if color {
+	is c RGB do "${c.r} ${c.g} ${c.b}" -> _out
+	is c RGBA do "${c.r} ${c.g} ${c.b} ${c.a}" -> _out
+}
+```
+
+Note that it's not possible when the `is` operator is negated
+
+@candidate The lifetime of the variable is limited to the true branch scope
+
+```ruby
+color RGB
+if color is c RGB {
+	c.r -> _out
+} else {
+	# variable c not defined here
+}
+
+if ! color is c RGB {
+	# variable c not defined here
+} else {
+	c.r -> _out
+}
+```
+
+@candidate The `is` operator can also be used for deconstruction of a struct
+
+```ruby
+if color {
+	is <r Int, g Int, b Int> do "Do something with $r $g and $b" -> _out
+	is <r Int, b Int> do "I only need $r and $b" -> _out
+}
+```
+
 # Redirection
 
 Giovi "moves" data (content) to destinations; this is done through
@@ -2180,97 +2269,6 @@ listOfColor [] <- [ # [Color]
 	Color.<1 1 1>
 	<r:3 g:3 b:3>
 ]
-```
-
-# Type checking
-
-It's possible to check the type of a value
-
-## Syntax
-
-```
-<value> is <Type>
-```
-
-```ruby
-if someVariable is Int do {
-	"someVariable is an integer with value ${someVariable}" -> _out
-}
-if someVariable {
-	is Int do "It's integer" -> _out
-	is Real do "It's real" -> _out
-	is [Int] do "It's a list of integer" -> _out
-}
-```
-
-The operator can be negated with the `not` keyword
-
-```ruby
-if someVariable is not Int do {
-	"It's not an integer" -> _out
-}
-```
-
-which is the same but should be preferred to this
-
-```ruby
-if not {someVariable is Int} do {
-	"It's not an integer" -> _out
-}
-```
-
-### @candidate Check type and cast
-
-When checking variable type, it's often needed to cast it
-
-```ruby
-if color {
-	is RGB do {
-		color as RGB -> c RGB
-		"${c.r} ${c.g} ${c.b}" -> _out
-	}
-	is ARGB do {
-		color as ARGB -> c ARGB
-		"${c.r} ${c.g} ${c.b} ${c.a}" -> _out
-	}
-}
-```
-
-It's possible to use variable declaration syntax to improve readability
-
-```ruby
-if color {
-	is c RGB do "${c.r} ${c.g} ${c.b}" -> _out
-	is c RGBA do "${c.r} ${c.g} ${c.b} ${c.a}" -> _out
-}
-```
-
-Note that it's not possible when the `is` operator is negated
-
-@candidate The lifetime of the variable is limited to the true branch scope
-
-```ruby
-color RGB
-if color is c RGB {
-	c.r -> _out
-} else {
-	# variable c not defined here
-}
-
-if ! color is c RGB {
-	# variable c not defined here
-} else {
-	c.r -> _out
-}
-```
-
-@candidate The `is` operator can also be used for deconstruction of a struct
-
-```ruby
-if color {
-	is <r Int, g Int, b Int> do "Do something with $r $g and $b" -> _out
-	is <r Int, b Int> do "I only need $r and $b" -> _out
-}
 ```
 
 # Default value
