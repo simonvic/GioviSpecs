@@ -3571,7 +3571,7 @@ But with great power comes greate responasibilty; use this carefully
 import '$Foo' # dollar sign followed by Foo
 
 moduleToImport Text <- "Foo"
-import "$Foo" # "Foo"
+import "$moduleToImport" # "Foo"
 ```
 
 ### File modules
