@@ -618,16 +618,6 @@ const PI <- 3.1415926535
 | Bool      | false / true                     | false         |
 | Text      |                                  | (empty text)  |
 
-@candidate
-
-| Type name | Possible values  | Default value |
-| --------- | ---------------- | ------------- |
-| Type      | Any type         | Void          |
-| Range     | Any range        | 0..0..1       |
-| Tuple     | Any tuple        | <>            |
-| Record    | Any record       | <>            |
-| Struct    | Any struct       | <>            |
-
 ### Numbers
 
 Numbers type (i.e. Natural, Int, Real) can be defined in more advanced ways.<br>
@@ -1899,6 +1889,53 @@ if enterClub(69) {
 	= <> do "Welcome" -> _out
 }
 
+```
+
+## @candidate Other types
+
+### Type type
+
+The type `type` models types themeselves and holds any known information about
+the type it models.
+
+You can get a type by prefixing it with the `type.` syntax
+
+```giovi
+type.Int -> _out # Int
+type.[Real] -> _out # [Real] list of Real
+type.tuple.<Text, Bool> -> _out # tuple.<Text,Bool>
+```
+
+You can "spawn" a value of a type by accessing its default
+
+```giovi
+type.Int.default -> _out # 0 (zero, the Int default)
+type.record.<x Text, y Bool>.default -> _out # <"", false>
+```
+
+You can declare a variable of type `type` using the `type` keyword
+
+```giovi
+someType type
+someType -> _out # Void
+
+someType <- type.[Text:Int]
+someType -> _out # [Text:Int]
+```
+
+TODO: expand on this. Should it behaves specially and be allowed to hold any
+type? Or use generics?
+
+### @candidate Range
+
+A Range models an "interval", that goes from a `start` to an `end`, with an
+optional `step`.
+
+```giovi
+0..10 -> _out
+
+foo range <- 0..10..2
+for i in range do i -> _out
 ```
 
 # Data widening, narrowing and explicit casting
@@ -4847,6 +4884,7 @@ calculator <- function.(x Int, y Int) => Int {
 }
 calculator <- function.{ => x - y }
 # allow old :: syntax?
+# function.someIdentifier looks bad
 
 someType type
 someType <- type.Int
