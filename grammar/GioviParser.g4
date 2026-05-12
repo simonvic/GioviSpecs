@@ -223,6 +223,7 @@ expression
     | tupleCreation                                                      # expressionTupleCreation
     | recordCreation                                                     # expressionRecordCreation
     | structCreation                                                     # expressionStructCreation
+    | TYPE '.' type                                                      # expressionTypeCreation
     | expression actualParameters                                        # expressionInvocation
     | invocation                                                         # expressionInvocationSimple
     | BIT_NOT expression                                                 # expressionBitwiseNot
