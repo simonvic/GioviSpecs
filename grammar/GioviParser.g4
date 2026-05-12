@@ -128,7 +128,7 @@ moduleDeclaration: MODULE identifier body=block ;
 /////////////////////////////////////////////////////////////////////////////// STRUCTS
 
 structDefinition
-	: (parentType=typeQualified ':')? typename=identifier body=structBodyDefinition ';'?
+	: (parentType=typeQualified ':')? STRUCT? typename=identifier body=structBodyDefinition ';'?
 	;
 
 structBodyDefinition
@@ -149,7 +149,7 @@ selfFunctionDeclaration: selfFunctionSignature body=block ;
 
 selfFunctionSignature: self=SELF? name=identifier formalParameters (RETURN_SYM (returnType=type | returnSelf=SELF))? ;
 
-structCreation: typeQualified '.' (recordCreationBody | tupleCreationBody) ;
+structCreation: (STRUCT '.')? typeQualified '.' (recordCreationBody | tupleCreationBody) ;
 
 tupleCreation: (TUPLE '.')? tupleCreationBody ;
 
