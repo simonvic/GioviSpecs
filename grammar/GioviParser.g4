@@ -246,7 +246,9 @@ primary: literal | identifier | reservedIdentifier ;
 
 range: start=expression '..' end=expression ('..' step=expression)?;
 
-type: typeProduct | typeComposite | typeFunctionRef | typeQualified ;
+type: typeType | typeProduct | typeComposite | typeFunctionRef | typeQualified ;
+
+typeType: TYPE ;
 
 typeProduct: typeTuple | typeRecord ;
 
