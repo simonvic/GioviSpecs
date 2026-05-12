@@ -217,7 +217,7 @@ expression
     | expression IS (NOT | identifier)? type                             # expressionTypeCheck
     | expression '.' (invocation | identifier | 'default')               # expressionDot
     | expression '::' identifier                                         # expressionDotRef
-    | '::' referenceable                                                 # expressionRef
+    | ('::' | FUNCTION '.') referenceable                                # expressionRef
     | listCreation                                                       # expressionListCreation
     | mapCreation                                                        # expressionMapCreation
     | tupleCreation                                                      # expressionTupleCreation
@@ -292,7 +292,7 @@ referenceable
 
 anonFunction: anonFunctionSignature? body=block ;
 
-typeFunctionRef: '::' anonFunctionSignature ;
+typeFunctionRef: ('::' | FUNCTION) anonFunctionSignature ;
 
 //////////////////////////////////////////////////////////////////////////////// LITERALS
 literal
