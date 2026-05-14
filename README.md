@@ -1357,7 +1357,26 @@ processPizzaOrder(tableNumber: 69)
 
 ## Function invocation labels
 
-Sometimes you have to decide whether to name a parameter to either favor
+When invoking a function, parameters names can specified. The name to be used
+at invokation can optionally be changed by providing a label
+
+```giovi
+someFunction(
+	label1: arg1 Int,
+	label2: arg2 Int,
+	label3: arg3 Int,
+) {
+	arg1 + arg2 + arg3 -> _out
+}
+
+someFunction(
+	label1: 1,
+	label2: 2,
+	label3: 3,
+)
+```
+
+Why? Sometimes you have to decide whether to name a parameter to either favor
 readability in the function body...
 
 ```ruby
@@ -1398,9 +1417,8 @@ processPizzaOrder(
 )
 ```
 
-To improve readability, function formal parameters can "override" the label, so
-that a nicer signature is exposed at invocation, while still being readable in
-the implementation body
+Using invokation labels may improve readability, so that a nicer signature is
+exposed at invocation, while still being readable in the implementation body
 
 ```ruby
 processPizzaOrder(
