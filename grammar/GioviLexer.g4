@@ -81,6 +81,12 @@ STRUCT:                         'struct';
 TYPE:                           'type';
 // reserved
 DEF:                            'def';
+VAR:                            'var';
+LET:                            'let';
+REF_:                           'ref';
+AT_:                            'at';
+WITH:                           'with';
+INTERFACE:                      'interface';
 
 WS:            [ \t\r\n]+ -> skip;
 COMMENT_BLOCK: '#{' .*? ('}#' | EOF) -> channel(HIDDEN);
