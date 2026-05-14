@@ -4020,6 +4020,15 @@ It can be used as an identifier for variables, functions, and types
 >
 ```
 
+## @candidate Lazily evaluated text
+
+```ruby
+i Int <- 69
+t Text <- ''hello $i world''
+i <- 420
+t -> _out # hello 420 world
+```
+
 ## @candidate Condensed nested fields label
 
 ```ruby
@@ -4753,15 +4762,6 @@ Foo <
 ```ruby
 i Int <- someTuple?someField?someOtherField
 # if any of the access fails, short circuit and return void, default or something
-```
-
-## @candidate lazily evaluated strings
-
-```ruby
-i Int <- 69
-t Text <- ''hello $i world''
-i <- 420
-t -> _out # hello 420 world
 ```
 
 ## @candidate Docs part of the code
