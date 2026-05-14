@@ -1114,6 +1114,22 @@ for color <.red, .green, .blue> in colors do {
 }
 ```
 
+###### @candidate different syntax
+
+Similar to labels and removes the need for mandatory comma
+
+```giovi
+for <blue:b red:r> in colors do {
+	"I only care about $b and $r" -> _out
+}
+```
+
+```giovi
+for <:b :r> in colors do {
+	"I only care about $b and $r" -> _out
+}
+```
+
 #### Nested iterators
 
 Iterators can be "nested" in order to deconstruct more complex data structures.
