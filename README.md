@@ -1363,12 +1363,12 @@ readability in the function body...
 ```ruby
 processPizzaOrder(
 	type Text,
-	table Int,
+	tableNumber Int,
 	hasPineapple Bool,
 ) {
 	if hasPineapple do return
 	makePizza(type) -> pizza Pizza
-	serve(pizza, table)
+	serve(pizza, tableNumber)
 }
 
 processPizzaOrder(
