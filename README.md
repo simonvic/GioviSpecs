@@ -683,6 +683,18 @@ The type can be omitted as it will be inferred from the assigned value
 const PI <- 3.1415926535
 ```
 
+@candidate mention shallow vs deep immutability
+
+```ruby
+const LIST <- [1 2 3]
+LIST <- [69 420] # shallow immutability
+LIST@0 <- 69 # deep immutability
+
+const FOO <- <bar:"hello", baz:69>
+FOO <- <"world" 420> # shallow immutability
+FOO.bar <- "world" # deep immutability
+```
+
 # Control structure
 
 ## if
