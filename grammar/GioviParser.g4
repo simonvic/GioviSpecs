@@ -187,13 +187,13 @@ actualParameter: (label=identifier ':')? value=expression;
 
 //////////////////////////////////////////////////////////////////////////////// FLOW CONTROL
 
-ifStatement: IF expression DO ifBody=statementOrBlock (ELSE elseBody=statementOrBlock)?;
+ifStatement: IF condition=expression DO consequence=statementOrBlock (ELSE alternative=statementOrBlock)?;
 
-switchStatement: IF expression switchBlock (ELSE elseBody=statementOrBlock)?;
+switchStatement: IF condition=expression switchBlock (ELSE alternative=statementOrBlock)?;
 
 switchBlock: '{' switchLabel+ '}';
 
-switchLabel: caseMatch (WHEN guard=expression)? DO body=statementOrBlock;
+switchLabel: caseMatch (WHEN guard=expression)? DO consequence=statementOrBlock;
 
 caseMatch
     : '{' caseMatch '}'                                     # caseMatchParenthesized
