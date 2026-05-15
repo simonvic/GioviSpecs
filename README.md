@@ -5179,6 +5179,15 @@ someList [Int] <- [ for i in 0..10 do => i * 2 ]
 
 Extend the behaviour to maps as well?
 
+## @candidate Empty record syntax
+
+Like for empty maps, it can be used to disambiguate with empty tuple (but is it
+necessary? probably not, but it is consistent)
+
+```ruby
+<:> -> _out
+```
+
 <!-- 
 vim: noet
 -->
