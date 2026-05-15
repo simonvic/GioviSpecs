@@ -16,7 +16,7 @@ statement
     : importStatement
     | aliasStatement
     | ifStatement
-    | switchStatement
+    | multiIfStatement
     | repeatStatement
     | forStatement
     | breakStatement
@@ -189,11 +189,11 @@ actualParameter: (label=identifier ':')? value=expression;
 
 ifStatement: IF condition=expression DO consequence=statementOrBlock (ELSE alternative=statementOrBlock)?;
 
-switchStatement: IF condition=expression switchBlock (ELSE alternative=statementOrBlock)?;
+multiIfStatement: IF condition=expression multiIfBody (ELSE alternative=statementOrBlock)?;
 
-switchBlock: '{' switchLabel+ '}';
+multiIfBody: '{' multiIfCondition+ '}';
 
-switchLabel: caseMatch (WHEN guard=expression)? DO consequence=statementOrBlock;
+multiIfCondition: caseMatch (WHEN guard=expression)? DO consequence=statementOrBlock;
 
 caseMatch
     : '{' caseMatch '}'                                     # caseMatchParenthesized
