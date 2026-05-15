@@ -5162,6 +5162,23 @@ foo@default -> _out
 For consistency, `@default` could be used on types for spawning, and `.default`
 to get its default
 
+## @candidate List initialization
+
+with functions (like lamdas in jep)
+
+```ruby
+someList [Int] <- [ ::(i Int) => Int do {=> i * 2} ]
+someOtherList  <- [ ::{=> i * 2} ]
+```
+
+with `for` (like in python)
+
+```ruby
+someList [Int] <- [ for i in 0..10 do => i * 2 ]
+```
+
+Extend the behaviour to maps as well?
+
 <!-- 
 vim: noet
 -->
