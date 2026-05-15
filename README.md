@@ -1116,7 +1116,8 @@ for color <.red, .green, .blue> in colors do {
 
 ###### @candidate different syntax
 
-Similar to labels and removes the need for mandatory comma
+Similar to labels, allows to define custom variable names and removes the need
+for mandatory comma
 
 ```giovi
 for <blue:b red:r> in colors do {
@@ -1125,8 +1126,9 @@ for <blue:b red:r> in colors do {
 ```
 
 ```giovi
-for <:b :r> in colors do {
-	"I only care about $b and $r" -> _out
+# field name = variable name
+for <:blue :red> in colors do {
+	"I only care about $blue and $red" -> _out
 }
 ```
 
