@@ -4986,7 +4986,7 @@ someMap map[Text:Int]
 someMap <- map.["a":1 "b":2 "c:"3]
 ```
 
-## @candidate Optional keyword for non primitive types
+### @candidate Optional keyword for non primitive types
 
 ```giovi
 # composite types
@@ -4994,7 +4994,7 @@ someList [Int]
 someMap [Text:Int]
 ```
 
-### @candidate(needs:explicit_decl_keyword) Product types
+### @candidate(requires:explicit_decl_keyword) Product types
 
 This conflicts with product iterators. Eventually product types won't be
 allowed in iterators
@@ -5030,7 +5030,7 @@ Point + Point3D<z Int>
 Coordinate,Point + Point3D<z Int>
 ```
 
-## @candidate(needs:inheritance_symbol) Use semicolon for instantiation
+## @candidate(requires:inheritance_symbol) Use semicolon for instantiation
 
 ```ruby
 Point<x Int, y Int>
