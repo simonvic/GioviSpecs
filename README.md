@@ -5282,6 +5282,16 @@ struct Person <
 = 
 ```
 
+## @candidate Map syntax
+
+Since a map can be seen as a function in math
+
+```giovi
+someMap [Text=>Int] <- ["a"=>1 "b"=>2 "c"=>3]
+someMap."foo" -> _out
+[=>] -> _out
+```
+
 <!-- 
 vim: noet
 -->
