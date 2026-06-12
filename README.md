@@ -5260,6 +5260,28 @@ struct Person <
 >
 ```
 
+## @candidate Drop @ operator
+
+```giovi
+=> someList.69
+=> someList.{someIndex} # only drawback
+=> someMap."hello"
+=> someMap.69.9
+=> someMap.%
+=> someMap.count()
+=> someMap.@
+=> someMap.keys()
+=> someMap.*
+=> someMap.values()
+=> someList.1..2
+
+=> someStruct.foo
+=> someStruct.foo()
+=> someStruct.0() # minor precedence incosistency
+=> someStruct.{0}() # minor precedence incosistency
+= 
+```
+
 <!-- 
 vim: noet
 -->
