@@ -5233,6 +5233,33 @@ necessary? probably not, but it is consistent)
 <:> -> _out
 ```
 
+## @candidate Alternative Struct default override syntax
+
+```giovi
+# with tuple
+struct Person <
+	name Text
+	surname Text
+	age Int
+> default <
+	"Nobody"
+	Text.default
+	18
+>
+```
+
+```giovi
+# with record
+struct Person <
+	name Text
+	surname Text
+	age Int
+> default <
+	name: "Nobody"
+	age: 18
+>
+```
+
 <!-- 
 vim: noet
 -->
