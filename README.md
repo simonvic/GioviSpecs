@@ -4337,6 +4337,22 @@ interface Textifiable <
 >
 ```
 
+### @candidate(requires:generics?) Iterable
+
+```ruby
+interface Iterable{T} {
+	self iterator() => Iterator{T}
+	self forEach(consumer ::(entry T))
+}
+```
+
+```ruby
+interface Iterator{T} {
+	self hasNext() => Bool
+	self next() => T
+}
+```
+
 ### Interface type check
 
 ```ruby
