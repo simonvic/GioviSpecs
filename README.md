@@ -2909,6 +2909,21 @@ someRange range <- 0..10
 for i in someRange do i -> _out
 ```
 
+#### @candidate Range as a struct
+
+"Generic" struct
+
+```giovi
+someRange Range <- <start:0, end:0>
+for i in someRange do i -> _out
+someRange.start -> _out
+someRange.end -> _out
+someRange.step -> _out
+```
+
+Eventually to be intergrated with "interfaces/traits", allowing the `for` to
+iterato on any struct that implements the `Iterable` interface
+
 ### Function type
 
 Functions are first-class citizens. This means they behave like any other
