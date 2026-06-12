@@ -4843,8 +4843,10 @@ module SomeModule {
 
 		const TAU <- PI * 2
 
-		self sum() => Int {
-			=> x + y
+		self swap() {
+			temp Int <- self.x
+			self.x <- self.y
+			self.y <- self.x
 		}
 	>
 }
@@ -4869,9 +4871,9 @@ module SomeModule {
 		const TAU <- PI * 2
 
 		self function swap() {
-			var temp Int <- x
-			x <- y
-			y <- x
+			var temp Int <- self.x
+			self.x <- self.y
+			self.y <- self.x
 		}
 	>
 }
