@@ -5292,6 +5292,73 @@ someMap."foo" -> _out
 [=>] -> _out
 ```
 
+## @candidate Visibility modifiers
+
+Instead of having a small set of predefined modifiers (e.g. public, private,
+protected), the visibility can be controlled with much more granularity
+
+```giovi
+module SomeModule {
+
+ 	# defaults to everyone (public)
+	visible struct Color <
+
+		# only visible to this struct
+		visible(struct) red Int
+		visible(struct) green Int
+		visible(struct) blue Int
+
+		# visible only to this module (SomeModule)
+		# strawman syntax
+		visible(module) self toRGB() => Int { => 69 }
+	>
+
+	# visible only to SomeModule and SomeOtherModule
+	visible(SomeModule,SomeOtherModule) newColor(r Int, g Int, b Int) => Color {
+		=> <r g b>
+	}
+}
+
+# only visible to this module (file module)
+visible(module) module SomeOtherModule {
+	SomeModule.newColor(1,2,3) -> someColor Color
+	someColor.toRgb() -> _out # ERROR: toRgb is only visible to module SomeModule
+}
+```
+
+With symbol
+
+```giovi
+module SomeModule {
+
+ 	# defaults to everyone (public)
+	struct Color <
+
+		# only visible to this struct
+		@(struct) red Int
+		@(struct) green Int
+		@(struct) blue Int
+
+		# visible only to this module (SomeModule)
+		# strawman syntax
+		@(module) self toRGB() => Int { => 69 }
+	>
+
+	# visible only to SomeModule and SomeOtherModule
+	@(SomeModule,SomeOtherModule) newColor(r Int, g Int, b Int) => Color {
+		=> <r g b>
+	}
+}
+
+# only visible to this module (file module)
+@(module) module SomeOtherModule {
+	SomeModule.newColor(1,2,3) -> someColor Color
+	someColor.toRgb() -> _out # ERROR: toRgb is only visible to module SomeModule
+}
+```
+
+Or with some kind of "preprocessor directive" / annotation system
+
 <!-- 
 vim: noet
 -->
