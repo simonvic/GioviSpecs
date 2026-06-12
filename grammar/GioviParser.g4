@@ -326,5 +326,3 @@ literalExactText:      (identifier '.')? EXACT_TEXT_LITERAL;
 literalDefault:        DEFAULT;
 literalSelf:           SELF;
 literalPlaceholder:    UNDERSCORE;
-
-// vim: ft=antlr

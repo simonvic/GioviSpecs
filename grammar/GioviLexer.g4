@@ -180,5 +180,3 @@ fragment BinaryExponent:                  BinaryExponentIndicator SignedInteger;
 fragment BinaryExponentIndicator:         'p';
 
 // TODO: do variable interpolation here
-
-// vim: ft=antlr
