@@ -2523,6 +2523,16 @@ Node <
 >
 ```
 
+@candidate An alias `Self` (with capital S) is available for consistency with
+types naming conventions
+
+```ruby
+Node <
+	data Text
+	nextNode Self
+>
+```
+
 In Giovi all values are initialized at declaration, but in these case a lazy
 approach is used and the `nextNode` is initialized when accessed for the first
 time
