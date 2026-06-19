@@ -5274,7 +5274,7 @@ struct Person <
 
 ```giovi
 => someList.69
-=> someList.{someIndex} # only drawback
+=> someList.{someIndex} # a drawback: requiring braces
 => someMap."hello"
 => someMap.69.9
 => someMap.%

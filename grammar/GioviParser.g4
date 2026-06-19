@@ -49,6 +49,7 @@ importURI
 
 aliasStatement: ALIAS expression AS alias=identifier ;
 
+// TODO: simplify. Remove if expression (already included in statementOrBlock)
 repeatStatement: REPEAT (IF expression)? statementOrBlock;
 
 iterable: range | expression;
