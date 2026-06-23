@@ -5377,6 +5377,11 @@ module SomeModule {
 
 Or with some kind of "preprocessor directive" / annotation system
 
+## @candidate Immutable tuples and records
+
+if feat/redir_rework is done, and list and maps are made "immutable", tuples
+and records could be made immutable as well, with the exception of structs
+
 <!-- 
 vim: noet
 -->
