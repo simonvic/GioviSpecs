@@ -5382,6 +5382,146 @@ Or with some kind of "preprocessor directive" / annotation system
 if feat/redir_rework is done, and list and maps are made "immutable", tuples
 and records could be made immutable as well, with the exception of structs
 
+## @candidate(patterns) Deconstruction patterns
+
+For loop deconstructions pattern unified and permitted in redirections.
+
+A redirection, in practice, is done onto a "pattern".
+
+### Placeholder pattern
+
+The simplest pattern is the `_` (placeholder). It basically acts as a sinkhole;
+redirecting to it does nothing. It can be useful to explicitly discard a
+function return value
+
+```ruby
+foo() => Int { => 69 }
+foo() -> _
+```
+
+### Unary pattern
+
+The most common pattern is the "unary pattern", where the whole value is
+assigned to the destination
+
+```ruby
+foo() -> someVariable
+```
+
+### Product pattern
+
+Another pattern is the product pattern, meant to be used with product type
+values (tuples, records, structs).
+
+Given the following:
+
+```ruby
+struct Color<r Int, g Int, b Int>
+struct Person<name Text, age Int, favoriteColor Color>
+simon Person.<"Simone", 26, <255, 0, 0>>
+```
+
+You could use this pattern:
+
+```ruby
+simon -> <name, age, favoriteColor>
+"$name is $age years old and he likes $favoriteColor" -> _out
+# NOTE: you're effectively declaring variables, and as such, it follows the
+# same rules of a normal variable declaration
+```
+
+In the previous example, `name`, `age` and `favoriteColor` are actually "unary
+patterns"; patterns (of different type as well) can be nested.
+
+```ruby
+simon -> <name, _, favoriteColor<r, g, b>>
+"$name likes <$r $g $b>" -> _out
+```
+
+Product patterns can be used to easily return multiple values from a function
+(even though you're technically still returning a single value)
+
+```ruby
+getPoint() => <Int, Int> {
+	=> <69, 420>
+}
+getPoint() -> <x, y>
+```
+
+A product value can be deconstructed into a product pattern if it's "equal or
+wider" than the pattern, the rules are similar to type's widening rule, and as
+such, they depend on the deconstruction approach.
+
+You are given the choice of two deconstruction approaches: positional and
+named.
+
+#### Positional
+
+With a positional product pattern, you deconstruct the members of a value in
+the same order they're defined in the pattern 
+
+```ruby
+simon -> <arg1, arg2, arg3>
+# arg1 is the name
+# arg2 is the age
+# arg3 is the favoriteColor
+```
+
+A narrower pattern can be used
+
+```ruby
+simon -> <arg1, arg2>
+# arg1 is the name
+# arg2 is the age
+# favoriteColor is ignored
+```
+
+Although, it's good practice to be explicit when discarding members
+
+```ruby
+simon -> <arg1, arg2, _>
+```
+
+The positional product pattern can be used with all product types (tuples,
+records, structs)
+
+#### Named
+
+Named product patterns can only be used on product types with named members
+(records, structs)
+
+With this approach you're deconstructing the value based on the member's names
+(the order won't matter) therefore the pattern labels must be the same of the
+member's names
+
+```ruby
+simon -> <name:arg1, favoriteColor:arg2, age:arg3>
+"$arg1 is $arg3 years old and he likes $arg2" -> _out
+# NOTE: how arg2 and arg3 are swapped
+```
+
+Like for the positional approach, the pattern can be narrower...
+
+```ruby
+simon -> <name:arg1, favoriteColor:arg2>
+"$arg1 likes $arg2" -> _out
+```
+
+...and can be nested
+
+```ruby
+simon -> <name:arg1, age:_, favoriteColor:<r, g, b>>
+"$arg1 likes <$r, $g, $b>" -> _out
+# age is explicitly ignored
+```
+
+Most of the time, you want the pattern names and member names to be the same;
+the names in the pattern can be omitted
+
+```ruby
+simon -> <:name, :favoriteColor>
+```
+
 <!-- 
 vim: noet
 -->
