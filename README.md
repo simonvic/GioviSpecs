@@ -1126,7 +1126,7 @@ for color <.red, .green, .blue> in colors do {
 }
 ```
 
-###### @candidate different syntax
+###### @candidate(named_deconstruction) different syntax
 
 Similar to labels, allows to define custom variable names and removes the need
 for mandatory comma
@@ -3733,6 +3733,10 @@ import A
 import A # ERROR: cycle detected
 ```
 
+## @candidate Prelude
+
+Like in rust
+
 # @candidate Other
 
 ## @candidate Infinity and NaN
@@ -4373,6 +4377,10 @@ if a {
 	is t Text do t -> _out
 }
 ```
+
+## @candidate(conflicts:interfaces) Traits
+
+like in rust
 
 ## @candidate Multiple inheritance
 
