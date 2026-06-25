@@ -3641,6 +3641,18 @@ import foo.bar # import module in current scope
 FOO -> _out
 ```
 
+## @candidate Module return value
+
+```giovi
+# foo.bar
+return 69
+```
+
+```giovi
+# main
+import foo.bar -> _out
+```
+
 ### Module URI
 
 The URI of a module can be a simple identifier...
