@@ -3631,6 +3631,15 @@ immport some.very.deep.Module
 alias some.very.deep.Module as Module
 ```
 
+### @candidate Import behaviour
+
+```giovi
+import foo.bar # import whole module
+foo.bar.FOO -> _out
+
+import foo.bar # import module in current scope
+FOO -> _out
+```
 
 ### Module URI
 
