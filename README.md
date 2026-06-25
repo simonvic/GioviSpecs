@@ -539,6 +539,13 @@ let x Int <- 69
 let y <- 69
 ```
 
+or use the `:=` operator (or both)
+
+```ruby
+x Int := 69
+x := 69
+```
+
 ## @candidate type prefix
 
 `::` for function, `$` for modules, maybe `~` for types?
