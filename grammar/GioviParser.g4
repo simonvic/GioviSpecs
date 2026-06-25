@@ -54,29 +54,47 @@ repeatStatement: REPEAT (IF expression)? statementOrBlock;
 
 iterable: range | expression;
 
-forStatement: FOR pattern IN iterable DO statementOrBlock;
+forStatement: FOR iteratorPattern IN iterable DO statementOrBlock;
 
-pattern
-	: patternMap                                          # patternTopLevelMap
-	| patternNested                                       # patternTopLevelNested
+iteratorPattern
+	: patternMapNaked
+	| pattern
 	;
 
-patternNested
-	: '[' patternNested ']'                               # patternNestedList
-	| '[' patternMap ']'                                  # patternNestedMap
-	| whole=patternUnary? '<' patternProductMembers '>'   # patternNestedProduct
-	| patternUnary                                        # patternNestedUnary
-	| literalPlaceholder                                  # patternNestedPlaceholder
+pattern
+	: patternList
+	| patternMap
+	| patternProduct
+	| patternUnary
+	| literalPlaceholder
+	;
+
+patternList: '[' pattern ']' ;
+
+patternMap: '[' patternMapNaked ']' ;
+
+patternMapNaked: key=patternMapKey ':' value=pattern ;
+
+patternMapKey
+	: patternProduct
+	| patternUnary
+	| literalPlaceholder
+	;
+
+patternProduct: whole=patternUnary? '<' patternProductMembers '>' ;
+
+patternProductMembers
+	: patternMember (',' patternMember)* ','?             # patternProductPositional
+	| '.' patternMember (',' '.' patternMember)* ','?     # patternProductNamed
+	;
+
+patternMember
+	: patternProduct
+	| patternUnary
+	| literalPlaceholder
 	;
 
 patternUnary: identifier type? ;
-
-patternMap: key=patternNested ':' value=patternNested ;
-
-patternProductMembers
-	: patternNested (',' patternNested)* ','?             # patternProductPositional
-	| '.' patternNested (',' '.' patternNested)* ','?     # patternProductNamed
-	;
 
 returnStatement: (RETURN | RETURN_SYM) expression? ';'?;
 
