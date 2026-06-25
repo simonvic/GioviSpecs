@@ -54,29 +54,29 @@ repeatStatement: REPEAT (IF expression)? statementOrBlock;
 
 iterable: range | expression;
 
-forStatement: FOR iterator IN iterable DO statementOrBlock;
+forStatement: FOR pattern IN iterable DO statementOrBlock;
 
-iterator
-	: iteratorMap                                                            # iteratorTopLevelMap
-	| nestedIterator                                                         # iteratorTopLevelNested
-	| iteratorProductFields                                                  # iteratorTopLevelProduct
+pattern
+	: patternMap                                          # patternTopLevelMap
+	| patternNested                                       # patternTopLevelNested
+	| patternProductMembers                               # patternTopLevelProduct
 	;
 
-nestedIterator
-	: '[' nestedIterator ']'                                                 # iteratorNestedList
-	| '[' iteratorMap ']'                                                    # iteratorNestedMap
-	| whole=unaryIterator? '<' iteratorProductFields '>'                     # iteratorNestedProduct
-	| unaryIterator                                                          # iteratorNestedUnary
-	| literalPlaceholder                                                     # iteratorNestedPlaceholder
+patternNested
+	: '[' patternNested ']'                               # patternNestedList
+	| '[' patternMap ']'                                  # patternNestedMap
+	| whole=patternUnary? '<' patternProductMembers '>'   # patternNestedProduct
+	| patternUnary                                        # patternNestedUnary
+	| literalPlaceholder                                  # patternNestedPlaceholder
 	;
 
-unaryIterator: identifier type? ;
+patternUnary: identifier type? ;
 
-iteratorMap: key=nestedIterator ':' value=nestedIterator ;
+patternMap: key=patternNested ':' value=patternNested ;
 
-iteratorProductFields
-	: nestedIterator (',' nestedIterator)* ','?             # iteratorProductPositional
-	| '.' nestedIterator (',' '.' nestedIterator)* ','?     # iteratorProductNamed
+patternProductMembers
+	: patternNested (',' patternNested)* ','?             # patternProductPositional
+	| '.' patternNested (',' '.' patternNested)* ','?     # patternProductNamed
 	;
 
 returnStatement: (RETURN | RETURN_SYM) expression? ';'?;
