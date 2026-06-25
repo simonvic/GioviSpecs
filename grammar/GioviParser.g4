@@ -59,7 +59,6 @@ forStatement: FOR pattern IN iterable DO statementOrBlock;
 pattern
 	: patternMap                                          # patternTopLevelMap
 	| patternNested                                       # patternTopLevelNested
-	| patternProductMembers                               # patternTopLevelProduct
 	;
 
 patternNested
