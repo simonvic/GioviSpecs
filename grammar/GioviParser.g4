@@ -61,41 +61,6 @@ iteratorPattern
 	| pattern
 	;
 
-pattern
-	: patternList
-	| patternMap
-	| patternProduct
-	| patternUnary
-	| literalPlaceholder
-	;
-
-patternList: '[' pattern ']' ;
-
-patternMap: '[' patternMapNaked ']' ;
-
-patternMapNaked: key=patternMapKey ':' value=pattern ;
-
-patternMapKey
-	: patternProduct
-	| patternUnary
-	| literalPlaceholder
-	;
-
-patternProduct: whole=patternUnary? '<' patternProductMembers '>' ;
-
-patternProductMembers
-	: patternMember (',' patternMember)* ','?             # patternProductPositional
-	| '.' patternMember (',' '.' patternMember)* ','?     # patternProductNamed
-	;
-
-patternMember
-	: patternProduct
-	| patternUnary
-	| literalPlaceholder
-	;
-
-patternUnary: identifier type? ;
-
 returnStatement: (RETURN | RETURN_SYM) expression? ';'?;
 
 breakStatement: BREAK ';'?;
@@ -151,6 +116,43 @@ varDeclaration: name=identifier type defaultDefinition? ';'?;
 defaultDefinition: literalDefault expression;
 
 moduleDeclaration: MODULE identifier body=block ;
+
+/////////////////////////////////////////////////////////////////////////////// PATTERNS
+
+pattern
+	: patternList
+	| patternMap
+	| patternProduct
+	| patternUnary
+	| literalPlaceholder
+	;
+
+patternList: '[' pattern ']' ;
+
+patternMap: '[' patternMapNaked ']' ;
+
+patternMapNaked: key=patternMapKey ':' value=pattern ;
+
+patternMapKey
+	: patternProduct
+	| patternUnary
+	| literalPlaceholder
+	;
+
+patternProduct: whole=patternUnary? '<' patternProductMembers '>' ;
+
+patternProductMembers
+	: patternMember (',' patternMember)* ','?             # patternProductPositional
+	| '.' patternMember (',' '.' patternMember)* ','?     # patternProductNamed
+	;
+
+patternMember
+	: patternProduct
+	| patternUnary
+	| literalPlaceholder
+	;
+
+patternUnary: identifier type? ;
 
 /////////////////////////////////////////////////////////////////////////////// STRUCTS
 
