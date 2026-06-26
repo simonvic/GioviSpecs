@@ -1004,12 +1004,6 @@ for number in [1 2 3 4] do something()
 for key in ["Simone":69 "Luca":420 "Paolo":10] do something()
 ```
 
-If you don't need the iterator, you can use the underscore `_`
-
-```ruby
-for _ in 0..10 do something()
-```
-
 @candidate If you need the index when iterating, you can specify a counter
 which will hold the iteration count
 
@@ -1023,64 +1017,59 @@ for _ @ index in ["Simone" "Mario" "Luigi"] do {
 }
 ```
 
-### Deconstruction
+### Iterator patterns
 
-The for statement is like an usual for-each loop, but on steroids; when
-iterating, it can deconstruct complex data types, like maps, product types or
-any combination of them.
+The for statement is like an usual for-each loop, but on steroids; the iterator
+is actually a ["pattern"](#patterns).
 
-There are four kind of iterators
+For each iteration, the for loop can deconstruct complex data types, like maps,
+product types (or any combination of them) based on the pattern.
 
-#### Placeholder iterator
-
-The simplest iterator is the "placeholder iterator": the iteration will be
+The simplest pattern is the "placeholder pattern": the iteration will be
 performed but without deconstruction
 
 ```ruby
-for _ in [0 1 2 3] do something()
+for _ in [0 1 2 3] do something() # do something 4 times
 ```
 
-#### List iterator
+#### List pattern
 
-The list iterator is used to iterate over a list
+The list pattern is used to iterate over a list; it's basically a ["unary
+pattern"](#unary-pattern), but can be nested
 
 ```ruby
-for [i] in [0 1 2 3] do something()
+for [i] in [0 1 2 3] do somethingWith(i)
 ```
 
-NOTE: the brackets are optional for "top level" iterator, but are required when
-nesting iterators
+NOTE: the brackets are optional for "top level" patterns, but are required when
+nesting patterns
 
-#### Map iterator
+Any other pattern can be nested.
+
+#### Map pattern
 
 You can provide two identifiers (one for the key and one for the value) to
 iterate over map key-value pair entries and deconstruct them accordingly
 
 ```ruby
-for [key : value] in ["Simone":69 "Luca":420 "Paolo":10] do something()
+for [key : value] in ["Simone":69 "Luca":420 "Paolo":10] do somethingWith(key, value)
 ```
 
-NOTE: the brackets are optional for "top level" iterator, but are required when
-nesting iterators
+NOTE: the brackets are optional for "top level" patterns, but are required when
+nesting patterns
 
-A placeholder (underscore `_`) can be used in case an iterator is not needed
+Other pattern can be nested (see [limitations](#limitations)); for example a
+placeholder pattern (underscore `_`) can be used if either a key or value is
+not needed
 
 ```ruby
-for _ : value in someMap do {}
-for key : _ in someMap do {}
-for _ : _ in someMap do {} # possible but useless
+for _ : value in someMap do somethingWith(value)
+for key : _ in someMap do somethingWith(key)
+for _ : _ in someMap do something() # possible but useless
 ```
 
-#### Product types deconstruction
-
 The for-statement can also deconstruct product types (tuples, records, structs)
-
-There are two deconstruction approach you can use: positional and named
-
-##### Positional
-
-With the positional approach, the fields will be iteratively deconstructed
-based on the position
+using [product patterns](#product-pattern)
 
 ```ruby
 Color <red Int, green Int, blue Int>
@@ -1091,69 +1080,10 @@ for <r, g, b> in colors do {
 }
 ```
 
-NOTE: the parenthesis are optional for "top level" iterator, but are required when
-nesting iterators
+#### Nested patterns
 
-If you don't need a specific field, you can use a placeholder iterator (`_`)
-
-```ruby
-for <r, _, b> in colors do {
-	"I only care about $r and $b" -> _out
-}
-```
-
-An iterator for the whole entry can optionally be specified
-
-```ruby
-for color <red, green, blue> in colors do {
-	"The color $color is made of $red $green $blue" -> _out
-}
-```
-
-##### Named
-
-With the named approach, deconstruction is done via field names: the iterator
-names must match the field names, also, a subset of the fields can be used and
-therefore the order doesn't matter.
-
-```ruby
-for <.blue, .red> in colors do {
-	"I only care about $blue and $red" -> _out
-}
-```
-
-NOTE: the parenthesis are optional for "top level" iterator, but are required
-when nesting iterators
-
-An iterator for the whole entry can optionally be specified
-
-```ruby
-for color <.red, .green, .blue> in colors do {
-	"The color $color is made of $red $green $blue" -> _out
-}
-```
-
-###### @candidate(named_deconstruction) different syntax
-
-Similar to labels, allows to define custom variable names and removes the need
-for mandatory comma
-
-```giovi
-for <blue:b red:r> in colors do {
-	"I only care about $b and $r" -> _out
-}
-```
-
-```giovi
-# field name = variable name
-for <:blue :red> in colors do {
-	"I only care about $blue and $red" -> _out
-}
-```
-
-#### Nested iterators
-
-Iterators can be "nested" in order to deconstruct more complex data structures.
+Like for redirections, patterns can be "nested" in order to deconstruct more
+complex data structures.
 
 For example, a list of lists can be iterated with a single for statement
 
@@ -1258,8 +1188,208 @@ for category : [colorCategory : [color <r, g, b>]] in crazyMap do {
 }
 ```
 
-TODO: mention nested iterators limitations
-TODO: mention optional iterator type
+##### Limitations
+
+There are however some limitations when nesting patterns.
+
+- Product patterns can only have other product patterns nested; the following
+code would be invalid
+  ```ruby
+  # ERROR
+  for <foo, [bar]> in something do {}
+  ```
+
+- In map patterns, only the pattern for the value can be nested with other
+iterator patterns (map and list patterns); the following code would be invalid
+  ```ruby
+  # ERROR
+  for [[foo] : [bar]] in something do {}
+  ```
+
+# Patterns
+
+A pattern is a special language construct that describe a structure of data.
+
+Its main use is to perform the "deconstruction" of a value into the structure
+that the pattern describes.
+
+A common use is in redirections.
+
+```ruby
+getPerson() -> <name, age, favoriteColor <r, g, b>>
+"$name is $age years old and his favorite color is <$r $g $b>" -> _out
+```
+
+## Placeholder pattern
+
+The simplest pattern is the `_` (placeholder). It basically acts as a sinkhole;
+redirecting to it does nothing. It can be useful to explicitly discard a
+function return value
+
+```ruby
+foo() => Int { => 69 }
+foo() -> _
+```
+
+## Unary pattern
+
+The most common pattern is the "unary pattern" (a single identifier), where the
+whole value is assigned to the destination
+
+```ruby
+foo() -> someVariable
+```
+
+## Product pattern
+
+Another pattern is the product pattern, meant to be used with product type
+values (tuples, records, structs).
+
+Given the following:
+
+```ruby
+struct Color<r Int, g Int, b Int>
+struct Person<name Text, age Int, favoriteColor Color>
+simon Person.<"Simone", 26, <255, 0, 0>>
+```
+
+You could use this pattern:
+
+```ruby
+simon -> <name, age, favoriteColor>
+"$name is $age years old and he likes $favoriteColor" -> _out
+# NOTE: you're effectively declaring variables, and as such, it follows the
+# same rules of a normal variable declaration
+```
+
+In the previous example, `name`, `age` and `favoriteColor` are actually "unary
+patterns"; patterns (of different type as well) can be nested.
+
+```ruby
+simon -> <name, _, favoriteColor<r, g, b>>
+"$name likes <$r $g $b>" -> _out
+```
+
+It is often needed to deconstruct a value and at the same time access the
+"whole" value. A pattern for the "whole" value can be used
+
+```ruby
+findSomePerson() -> simon<name, _, favoriteColor<r, g, b>>
+"$name likes <$r $g $b>" -> _out
+simon.greet()
+```
+
+Product patterns can be used to "emulate" multiple return values from a
+function (even though you're technically still returning a single value)
+
+```ruby
+getPoint() => <Int, Int> {
+	=> <69, 420>
+}
+getPoint() -> <x, y>
+```
+
+A unary pattern can also specify the type
+
+```ruby
+getPoint() -> <x Int, y Int>
+```
+
+When redirecting to a pattern with wider types, automatic widening will be
+performed
+
+```ruby
+getPoint() -> <x Real, y Int>
+x is Real -> _out
+y is Int -> _out
+```
+
+A product value can be deconstructed into a product pattern if it's "equal or
+wider" than the pattern, the rules are similar to type's widening rule, and as
+such, they depend on the deconstruction approach.
+
+You are given the choice of two deconstruction approaches: positional and
+named.
+
+### Positional
+
+With a positional product pattern, the members of a product value are
+destructured in the same order they're defined in the pattern 
+
+```ruby
+simon Person.<name:"Simone", age:26, favoriteColor:<255, 0, 0>>
+simon -> <arg1, arg2, arg3>
+# arg1 is the name
+# arg2 is the age
+# arg3 is the favoriteColor
+```
+
+A narrower pattern can be used
+
+```ruby
+simon -> <arg1, arg2>
+# arg1 is the name
+# arg2 is the age
+# favoriteColor is ignored
+```
+
+Although, it's good practice to be explicit when discarding members using the
+placeholder pattern
+
+```ruby
+simon -> <arg1, arg2, _>
+```
+
+The placeholder pattern can also be used for "skipping" a member
+
+```ruby
+simon -> <arg1, _, arg3>
+# arg1 is the name
+# age is ignored
+# arg3 is the favoriteColor
+```
+
+The positional product pattern can be used with all product types (tuples,
+records, structs)
+
+### Named
+
+Named product patterns can only be used on product types with named members
+(records, structs)
+
+With this approach you're deconstructing the value based on the member's names
+(the order won't matter), therefore the pattern labels must be the same of the
+member's names
+
+```ruby
+simon Person.<name:"Simone", age:26, favoriteColor:<255, 0, 0>>
+simon -> <name:arg1, favoriteColor:arg2, age:arg3>
+"$arg1 is $arg3 years old and he likes $arg2" -> _out
+# NOTE: how arg2 and arg3 are swapped
+```
+
+Like for the positional approach, the pattern can be narrower...
+
+```ruby
+simon -> <name:arg1, favoriteColor:arg2>
+"$arg1 likes $arg2" -> _out
+```
+
+...and can be nested
+
+```ruby
+simon -> <name:arg1, age:_, favoriteColor:<r, g, b>>
+"$arg1 likes <$r, $g, $b>" -> _out
+# age is explicitly ignored
+```
+
+Most of the time, you want the pattern names and member names to be the same;
+the names in the pattern can be omitted
+
+```ruby
+simon -> <:name, :favoriteColor>
+```
+
 
 # Functions
 
@@ -5409,146 +5539,6 @@ Or with some kind of "preprocessor directive" / annotation system
 
 if feat/redir_rework is done, and list and maps are made "immutable", tuples
 and records could be made immutable as well, with the exception of structs
-
-## @candidate(patterns) Deconstruction patterns
-
-For loop deconstructions pattern unified and permitted in redirections.
-
-A redirection, in practice, is done onto a "pattern".
-
-### Placeholder pattern
-
-The simplest pattern is the `_` (placeholder). It basically acts as a sinkhole;
-redirecting to it does nothing. It can be useful to explicitly discard a
-function return value
-
-```ruby
-foo() => Int { => 69 }
-foo() -> _
-```
-
-### Unary pattern
-
-The most common pattern is the "unary pattern", where the whole value is
-assigned to the destination
-
-```ruby
-foo() -> someVariable
-```
-
-### Product pattern
-
-Another pattern is the product pattern, meant to be used with product type
-values (tuples, records, structs).
-
-Given the following:
-
-```ruby
-struct Color<r Int, g Int, b Int>
-struct Person<name Text, age Int, favoriteColor Color>
-simon Person.<"Simone", 26, <255, 0, 0>>
-```
-
-You could use this pattern:
-
-```ruby
-simon -> <name, age, favoriteColor>
-"$name is $age years old and he likes $favoriteColor" -> _out
-# NOTE: you're effectively declaring variables, and as such, it follows the
-# same rules of a normal variable declaration
-```
-
-In the previous example, `name`, `age` and `favoriteColor` are actually "unary
-patterns"; patterns (of different type as well) can be nested.
-
-```ruby
-simon -> <name, _, favoriteColor<r, g, b>>
-"$name likes <$r $g $b>" -> _out
-```
-
-Product patterns can be used to easily return multiple values from a function
-(even though you're technically still returning a single value)
-
-```ruby
-getPoint() => <Int, Int> {
-	=> <69, 420>
-}
-getPoint() -> <x, y>
-```
-
-A product value can be deconstructed into a product pattern if it's "equal or
-wider" than the pattern, the rules are similar to type's widening rule, and as
-such, they depend on the deconstruction approach.
-
-You are given the choice of two deconstruction approaches: positional and
-named.
-
-#### Positional
-
-With a positional product pattern, you deconstruct the members of a value in
-the same order they're defined in the pattern 
-
-```ruby
-simon -> <arg1, arg2, arg3>
-# arg1 is the name
-# arg2 is the age
-# arg3 is the favoriteColor
-```
-
-A narrower pattern can be used
-
-```ruby
-simon -> <arg1, arg2>
-# arg1 is the name
-# arg2 is the age
-# favoriteColor is ignored
-```
-
-Although, it's good practice to be explicit when discarding members
-
-```ruby
-simon -> <arg1, arg2, _>
-```
-
-The positional product pattern can be used with all product types (tuples,
-records, structs)
-
-#### Named
-
-Named product patterns can only be used on product types with named members
-(records, structs)
-
-With this approach you're deconstructing the value based on the member's names
-(the order won't matter) therefore the pattern labels must be the same of the
-member's names
-
-```ruby
-simon -> <name:arg1, favoriteColor:arg2, age:arg3>
-"$arg1 is $arg3 years old and he likes $arg2" -> _out
-# NOTE: how arg2 and arg3 are swapped
-```
-
-Like for the positional approach, the pattern can be narrower...
-
-```ruby
-simon -> <name:arg1, favoriteColor:arg2>
-"$arg1 likes $arg2" -> _out
-```
-
-...and can be nested
-
-```ruby
-simon -> <name:arg1, age:_, favoriteColor:<r, g, b>>
-"$arg1 likes <$r, $g, $b>" -> _out
-# age is explicitly ignored
-```
-
-Most of the time, you want the pattern names and member names to be the same;
-the names in the pattern can be omitted
-
-```ruby
-simon -> <:name, :favoriteColor>
-```
 
 <!-- 
 vim: noet
