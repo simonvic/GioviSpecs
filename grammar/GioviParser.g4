@@ -105,8 +105,11 @@ skipStatement: CONTINUE ';'?;
 // TODO: remove redirection to identifier/constantIdentifier (already present in primary expression)
 // actually no, probably is needed to avoid ambiguity with expression
 
+// TODO: eventually unify patterns and variable declaration
+
 redirection
     : content=expression bop=REDIRECTION dest=varDeclaration                    # redirectionToVarDeclaration
+    | content=expression bop=redirectionOperator dest=redirectionPattern ';'?   # redirectionToPattern
     | content=expression bop=redirectionOperator dest=reservedIdentifier ';'?   # redirectionToReservedIdentifier
     | content=expression bop=redirectionOperator dest=identifier ';'?           # redirectionToIdentifier
     | content=expression bop=redirectionOperator dest=expression ';'?           # redirectionToExpression
@@ -114,6 +117,7 @@ redirection
 
 redirectionRTL
     : dest=varDeclaration bop=REDIRECTION_RTL content=expression                   # redirectionToVarDeclarationRTL
+    | dest=redirectionPattern bop=redirectionOperatorRTL content=expression ';'?   # redirectionToPatternRTL
     | dest=reservedIdentifier bop=redirectionOperatorRTL content=expression ';'?   # redirectionToReservedIdentifierRTL
     | dest=identifier bop=redirectionOperatorRTL content=expression ';'?           # redirectionToIdentifierRTL
     | dest=expression bop=redirectionOperatorRTL content=expression ';'?           # redirectionToExpressionRTL
@@ -134,6 +138,11 @@ redirectionOperatorRTL
     | REDIRECTION_PLUS_RTL
     | REDIRECTION_MINUS_RTL
     ;
+
+redirectionPattern
+	: patternProduct
+	| literalPlaceholder
+	;
 
 constantDeclaration: CONST name=identifier type? REDIRECTION_RTL value=expression ';'?;
 
