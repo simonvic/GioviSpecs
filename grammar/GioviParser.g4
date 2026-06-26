@@ -143,13 +143,18 @@ patternProduct: whole=patternUnary? '<' patternProductMembers '>' ;
 
 patternProductMembers
 	: patternMember (',' patternMember)* ','?             # patternProductPositional
-	| '.' patternMember (',' '.' patternMember)* ','?     # patternProductNamed
+	| patternMemberNamed (',' patternMemberNamed)* ','?   # patternProductNamed
 	;
 
 patternMember
 	: patternProduct
 	| patternUnary
 	| literalPlaceholder
+	;
+
+patternMemberNamed
+	: name=identifier ':' patternMember # patternMemberNamedExplicit
+	| ':' patternUnary                  # patternMemberNamedImplicit
 	;
 
 patternUnary: identifier type? ;
