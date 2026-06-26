@@ -74,7 +74,7 @@ skipStatement: CONTINUE ';'?;
 
 redirection
     : content=expression bop=REDIRECTION dest=varDeclaration                    # redirectionToVarDeclaration
-    | content=expression bop=redirectionOperator dest=redirectionPattern ';'?   # redirectionToPattern
+    | content=expression bop=REDIRECTION dest=redirectionPattern ';'?           # redirectionToPattern
     | content=expression bop=redirectionOperator dest=reservedIdentifier ';'?   # redirectionToReservedIdentifier
     | content=expression bop=redirectionOperator dest=identifier ';'?           # redirectionToIdentifier
     | content=expression bop=redirectionOperator dest=expression ';'?           # redirectionToExpression
@@ -82,7 +82,7 @@ redirection
 
 redirectionRTL
     : dest=varDeclaration bop=REDIRECTION_RTL content=expression                   # redirectionToVarDeclarationRTL
-    | dest=redirectionPattern bop=redirectionOperatorRTL content=expression ';'?   # redirectionToPatternRTL
+    | dest=redirectionPattern bop=REDIRECTION_RTL content=expression ';'?          # redirectionToPatternRTL
     | dest=reservedIdentifier bop=redirectionOperatorRTL content=expression ';'?   # redirectionToReservedIdentifierRTL
     | dest=identifier bop=redirectionOperatorRTL content=expression ';'?           # redirectionToIdentifierRTL
     | dest=expression bop=redirectionOperatorRTL content=expression ';'?           # redirectionToExpressionRTL
