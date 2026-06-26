@@ -1004,19 +1004,6 @@ for number in [1 2 3 4] do something()
 for key in ["Simone":69 "Luca":420 "Paolo":10] do something()
 ```
 
-@candidate If you need the index when iterating, you can specify a counter
-which will hold the iteration count
-
-```ruby
-for name @ index in ["Simone" "Mario" "Luigi"] do {
-	"The name $name is at index @index" -> _out
-}
-
-for _ @ index in ["Simone" "Mario" "Luigi"] do {
-	index -> _out
-}
-```
-
 ### Iterator patterns
 
 The for statement is like an usual for-each loop, but on steroids; the iterator
@@ -1205,6 +1192,35 @@ iterator patterns (map and list patterns); the following code would be invalid
   # ERROR
   for [[foo] : [bar]] in something do {}
   ```
+
+## @candidate Iteration counters
+
+It is often needed to keep the count of iterations, which you could achieve by
+manually incrementing a variable.
+
+Giovi however offers an automatic counter, which will start at 0 and increment
+at each iteration of the loop.
+
+```ruby
+for name @ index in ["Simone" "Mario" "Luigi"] do {
+	"The name $name is at index @index" -> _out
+}
+
+for _ @ index in ["Simone" "Mario" "Luigi"] do {
+	index -> _out
+}
+```
+
+The power of automatic counters is that they also work in nested patterns. A
+counter an be specified for each pattern.
+
+```ruby
+for [[column @ columnCounter] @ rowCounter] in matrix do {
+	"$column is at coordinate $rowCounter : $columnCounter" -> _out
+}
+```
+
+NOTE: nested counters reset when the iteration is done
 
 # Patterns
 
