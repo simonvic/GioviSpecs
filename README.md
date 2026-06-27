@@ -999,9 +999,9 @@ for <iterator> in <list|map|range> do {
 ```
 
 ```ruby
-for i in 0..10 do something()
-for number in [1 2 3 4] do something()
-for key in ["Simone":69 "Luca":420 "Paolo":10] do something()
+for i in 0..10 do somethingWith(i)
+for number in [1 2 3 4] do somethingWith(number)
+for key in ["Simone":69 "Luca":420 "Paolo":10] do somethingWith(key)
 ```
 
 ### Iterator patterns
