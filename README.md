@@ -991,20 +991,11 @@ repeat {
 In its simplest form, the for loop is used to iterate over lists, maps or
 ranges
 
-```
-for <iterator> in <list|map|range> do <statement>
-for <iterator> in <list|map|range> do {
-	<statements>
-}
-```
-
 ```ruby
 for i in 0..10 do somethingWith(i)
 for number in [1 2 3 4] do somethingWith(number)
 for key in ["Simone":69 "Luca":420 "Paolo":10] do somethingWith(key)
 ```
-
-### Iterator patterns
 
 The for statement is like an usual for-each loop, but on steroids; the iterator
 is actually a ["pattern"](#patterns).
@@ -1012,67 +1003,21 @@ is actually a ["pattern"](#patterns).
 For each iteration, the for loop can deconstruct complex data types, like maps,
 product types (or any combination of them) based on the pattern.
 
-The simplest pattern is the "placeholder pattern": the iteration will be
-performed but without deconstruction
-
 ```ruby
-for _ in [0 1 2 3] do something() # do something 4 times
-```
+for _ in 0..9 do something() # do something 10 times
 
-#### List pattern
-
-The list pattern is used to iterate over a list; it's basically a ["unary
-pattern"](#unary-pattern), but can be nested
-
-```ruby
 for [i] in [0 1 2 3] do somethingWith(i)
-```
 
-NOTE: the brackets are optional for "top level" patterns, but are required when
-nesting patterns
+for [key : value] in ["Simone":69 "Luca":420 "Paolo":10] do {
+	somethingWith(key, value)
+}
 
-Any other pattern can be nested.
-
-#### Map pattern
-
-You can provide two identifiers (one for the key and one for the value) to
-iterate over map key-value pair entries and deconstruct them accordingly
-
-```ruby
-for [key : value] in ["Simone":69 "Luca":420 "Paolo":10] do somethingWith(key, value)
-```
-
-NOTE: the brackets are optional for "top level" patterns, but are required when
-nesting patterns
-
-Other pattern can be nested (see [limitations](#limitations)); for example a
-placeholder pattern (underscore `_`) can be used if either a key or value is
-not needed
-
-```ruby
-for _ : value in someMap do somethingWith(value)
-for key : _ in someMap do somethingWith(key)
-for _ : _ in someMap do something() # possible but useless
-```
-
-The for-statement can also deconstruct product types (tuples, records, structs)
-using [product patterns](#product-pattern)
-
-```ruby
-Color <red Int, green Int, blue Int>
-colors [Color] <- [<0 255 0> <55 0 255> <255 255 255>]
-
-for <r, g, b> in colors do {
+for <r, g, b> in [<0 255 0> <55 0 255> <255 255 255>] do {
 	"The color is made of $r $g $b" -> _out
 }
 ```
 
-#### Nested patterns
-
-Like for redirections, patterns can be "nested" in order to deconstruct more
-complex data structures.
-
-For example, a list of lists can be iterated with a single for statement
+The for loop supports nested patterns
 
 ```ruby
 identityMatrix [[Real]] <- [
@@ -1080,118 +1025,16 @@ identityMatrix [[Real]] <- [
 	[0 1 0]
 	[0 0 1]
 ]
-
-for [[i]] in identityMatrix do {
-	i -> _out
-}
-# equivalent to
-for row in identityMatrix do {
-	for i in row do {
-		i -> _out
-	}
-}
+for [[i]] in identityMatrix do somethingWith(i)
 ```
 
-Same applies to maps
+**NOTE**: Nesting iterator patterns effectively means nesting iterations.
 
-```ruby
-graph [Text : [Text : Int]] <- [
-	"a" : ["b":5 "e":3]
-	"b" : ["a":5 "c":1 "d":9 "f":2]
-	"c" : ["b":1 "e":6]
-	"d" : ["b":9 "e":7]
-	"e" : ["a":3 "c":6 "d":7 "f":8]
-	"f" : ["b":2 "e":8]
-]
+For example `for [[[i]]] in some3DMatrix do` would be equivalent of writing
+three nested for loops
 
-for nodeA : [nodeB : edgeCost] in graph do {
-	"$nodeA ---$edgeCost---> $nodeB" -> _out
-}
-# equivalent to
-for nodeA : edges in graph do {
-	for nodeB : edgeCost in edges do {
-		"$nodeA ---$edgeCost---> $nodeB" -> _out
-	}
-}
-```
 
-Same applies to nested product types
-
-```ruby
-Foo<a Int, b Int, c Int>
-Bar<x Int, y Int, z Foo>
-listOfNestedStruct [Bar] <- [
-	Bar.<1, 1, Foo.<1, 1, 1>>,
-	Bar.<2, 2, Foo.<2, 2, 2>>,
-	Bar.<3, 3, Foo.<3, 3, 3>>
-]
-for <x, y, z <a, b, c>> in listOfNestedStruct do {
-	"{
-	Bar is made of:
-		- $x
-		- $y
-		- $z which is made of:
-			- $a
-			- $b
-			- $c
-	}" -> _out
-}
-```
-
-This enables you to deconstruct any combination of list, maps or product types
-
-```ruby
-# An extreme example of iterating over a map whose values are maps whose values
-# are list of struct
-Color<r Int, g Int, b Int>
-crazyMap [Text : [Text : [Color]]] <- [
-	"gradients" : [
-		"reds" : [
-			<255, 0, 0>
-			<250, 10, 10>
-		]
-		"blues" : [
-			<0, 0, 255>
-			<10, 10, 250>
-		]
-	]
-	"gradients 2" : [
-		"reds" : [
-			<255, 0, 0>
-			<250, 10, 10>
-		]
-		"blues" : [
-			<0, 0, 255>
-			<10, 10, 250>
-		]
-	]
-]
-for category : [colorCategory : [color <r, g, b>]] in crazyMap do {
-	"{
-	$category:
-		$colorCategory:
-			$color: $r $g $b
-	}" -> _out
-}
-```
-
-##### Limitations
-
-There are however some limitations when nesting patterns.
-
-- Product patterns can only have other product patterns nested; the following
-code would be invalid
-  ```ruby
-  # ERROR
-  for <foo, [bar]> in something do {}
-  ```
-
-- In map patterns, only the pattern for the value can be nested with other
-iterator patterns (map and list patterns); the following code would be invalid
-  ```ruby
-  # ERROR
-  for [[foo] : [bar]] in something do {}
-  ```
+Read more about [patterns](#patterns)
 
 ## @candidate Iteration counters
 
@@ -1226,28 +1069,74 @@ NOTE: nested counters reset when the iteration is done
 
 A pattern is a special language construct that describe a structure of data.
 
-Its main use is to perform the "deconstruction" of a value into the structure
-that the pattern describes.
-
-A common use is in redirections.
+A pattern is used in redirections (assignments) and for loops to perform the
+"deconstruction" of a value into the structure that the pattern describes.
 
 ```ruby
 getPerson() -> <name, age, favoriteColor <r, g, b>>
 "$name is $age years old and his favorite color is <$r $g $b>" -> _out
 ```
 
-## Placeholder pattern
+There are five kinds of pattern that allow you to deconstruct any type of data:
 
-The simplest pattern is the `_` (placeholder). It basically acts as a sinkhole;
-redirecting to it does nothing. It can be useful to explicitly discard a
-function return value
+- Terminal patterns
+  - **Placeholder pattern**: `_`
+  - **Unary pattern**: `someIdentifier`
+- Product patterns:
+  - **Positional**: `<a, b, c>`
+  - **Named**: `<x:a, y:b, z:c>`
+- Iterator patterns:
+  - **List pattern**: `[someIdentifier]`
+  - **Map pattern**: `[key : value]`
+
+A value can be deconstructed with a pattern only when the pattern is "equal or
+narrower" than the value; the rules are similar to types widening rules.
+
+For example a record `<name:"simone", age:26, favoriteColor:<255,0,0>>` could
+be deconstructed as such
+
+```ruby
+<name,age> <- <name:"simone", age:26, favoriteColor:<255,0,0>>
+```
+
+## Nesting patterns
+
+Non-terminal patterns can have other patterns nested.
+
+An extreme example: a value of type `[Text:[tuple<Int,Int,Int>]]` (map with
+`Text` keys and a list of tuples as value) could be iterated with a pattern
+`[colorName:[<r,_,b>]]` is a map pattern with a unary pattern as key and a list
+pattern as value which itself has a positional product pattern nested, where
+the second member pattern is a placeholder
+
+### Limitations
+
+- Product patterns can only have terminal patterns (placeholder, unary) or
+other product patterns nested
+- In map patterns, the pattern for the key can only be a terminal or a product
+pattern; the pattern for the value can be of any kind (other iterator patterns
+as well)
+
+## Terminal patterns
+
+A terminal pattern is called as such because it cannot have nested patterns,
+therefore it is not deconstructed further.
+
+### Placeholder pattern
+
+The simplest kind of pattern is the placeholder pattern (denoted by an
+underscore `_`).
+
+It basically acts as a sinkhole; redirecting to it does nothing. It can be
+useful to explicitly discard a function return value, or when nested in other
+patterns.
 
 ```ruby
 foo() => Int { => 69 }
 foo() -> _
 ```
 
-## Unary pattern
+### Unary pattern
 
 The most common pattern is the "unary pattern" (a single identifier), where the
 whole value is assigned to the destination
@@ -1256,10 +1145,20 @@ whole value is assigned to the destination
 foo() -> someVariable
 ```
 
+A unary pattern can also have a type; in that case, upon deconstruction, the
+value is also widened to the specified type
+
+```ruby
+69 -> someRealNumber Real
+```
+
+If this feels familiar, it's because variable declarations and redirections
+are patterns in disguise!
+
 ## Product pattern
 
-Another pattern is the product pattern, meant to be used with product type
-values (tuples, records, structs).
+A product pattern describes the data structure of a product type, hence it is
+meant to be used with product values (tuples, records, structs).
 
 Given the following:
 
@@ -1305,32 +1204,22 @@ getPoint() => <Int, Int> {
 getPoint() -> <x, y>
 ```
 
-A unary pattern can also specify the type
+Since unary patterns can also specify the type, you could also do this
 
 ```ruby
-getPoint() -> <x Int, y Int>
+getPoint() -> <x Real, y Real>
 ```
 
-When redirecting to a pattern with wider types, automatic widening will be
-performed
-
-```ruby
-getPoint() -> <x Real, y Int>
-x is Real -> _out
-y is Int -> _out
-```
-
-A product value can be deconstructed into a product pattern if it's "equal or
-wider" than the pattern, the rules are similar to type's widening rule, and as
-such, they depend on the deconstruction approach.
-
-You are given the choice of two deconstruction approaches: positional and
-named.
+Like mentioned above, the patterns follow the same rules of types
+compatibility. In order to be able to deconstruct all product values, you are
+given the choice of two deconstruction approaches: positional and named.
 
 ### Positional
 
 With a positional product pattern, the members of a product value are
-destructured in the same order they're defined in the pattern 
+deconstructed in the same order they're defined in the pattern.
+
+The positional product pattern can be used to deconstruct all product types.
 
 ```ruby
 simon Person.<name:"Simone", age:26, favoriteColor:<255, 0, 0>>
@@ -1370,12 +1259,12 @@ records, structs)
 
 ### Named
 
-Named product patterns can only be used on product types with named members
-(records, structs)
+With the named approach you're deconstructing the value based on the member's
+names (the order won't matter), therefore the pattern labels must be the same
+of the member's names.
 
-With this approach you're deconstructing the value based on the member's names
-(the order won't matter), therefore the pattern labels must be the same of the
-member's names
+Obviously, named product patterns can only be used with product types with
+named members (i.e. records, structs)
 
 ```ruby
 simon Person.<name:"Simone", age:26, favoriteColor:<255, 0, 0>>
@@ -1406,6 +1295,62 @@ the names in the pattern can be omitted
 simon -> <:name, :favoriteColor>
 ```
 
+## Iterator patterns
+
+Iterator patters can only be used in a for loop statement (hence the name). For
+each iteration of the loop, the iterated value is deconstructed into the
+specified pattern.
+
+### List pattern
+
+The list pattern is used to iterate over a list; it's basically a unary
+pattern, but allows nested patterns.
+
+```ruby
+# iterate elements of a list
+for [i] in [0 1 2 3] do somethingWith(i)
+
+# iterate elements of a nested list
+identityMatrix [[Real]] <- [
+	[1 0 0]
+	[0 1 0]
+	[0 0 1]
+]
+for [[i]] in identityMatrix do somethingWith(i)
+```
+
+Since it is very common to iterate the elements of a list, the brackets can be
+omitted for non-nested patterns
+
+```ruby
+for i in [0 1 2 3] do somethingWith(i)
+```
+
+### Map pattern
+
+The map pattern is used to iterate over maps; it's a pair of two patterns, one
+for the key and one for the value respectively.
+
+```ruby
+# iterate over a map
+for [key : value] in ["Simone":69 "Luca":420 "Paolo":10] do {
+	somethingWith(key, value)
+}
+
+# iterate over a nested map
+graph [Text : [Text : Int]] <- [
+	"a" : ["b":5 "e":3]
+	"b" : ["a":5 "c":1 "d":9 "f":2]
+	"c" : ["b":1 "e":6]
+	"d" : ["b":9 "e":7]
+	"e" : ["a":3 "c":6 "d":7 "f":8]
+	"f" : ["b":2 "e":8]
+]
+
+for nodeA : [nodeB : edgeCost] in graph do {
+	"$nodeA ---$edgeCost---> $nodeB" -> _out
+}
+```
 
 # Functions
 
