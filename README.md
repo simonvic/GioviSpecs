@@ -330,7 +330,7 @@ if someVariable is not Int do {
 }
 ```
 
-which is the same but should be preferred to this
+which is the same but should be preferred over this
 
 ```ruby
 if not {someVariable is Int} do {
@@ -548,7 +548,7 @@ x := 69
 
 ## @candidate type prefix
 
-`::` for function, `$` for modules, maybe `~` for types?
+`::` for function, `//` for modules, maybe `~` for types?
 
 ```ruby
 someVar ~SomeType
@@ -756,6 +756,7 @@ if true & {true | false} do {}
 if {
 	<condition> do {}
 	<condition2> do {}
+	<conditionN> do {}
 } else {
 	<else body>
 }
@@ -783,16 +784,10 @@ if {
 
 ```
 if <subject> {
-	<condition> do {
-		<condition body>
-	}
-
-	<condition 2> do {
-		<condition 2 body>
-	}
-
+	<condition> do {}
+	<condition2> do {}
+	<conditionN> do {}
 } else {
-	# no conditions have been met
 	<else body>
 }
 ```
@@ -1349,6 +1344,14 @@ graph [Text : [Text : Int]] <- [
 
 for nodeA : [nodeB : edgeCost] in graph do {
 	"$nodeA ---$edgeCost---> $nodeB" -> _out
+}
+```
+
+Like for the list pattern, the brackets can be omitted for non-nested patterns
+
+```ruby
+for key : value in ["Simone":69 "Luca":420 "Paolo":10] do {
+	somethingWith(key, value)
 }
 ```
 
