@@ -4032,55 +4032,6 @@ for i in 0..7 do list.i
 
 Something like xpath or jq? Or maybe language syntax itself?
 
-## @candidate Product types destructuring
-
-Destructuring done via narrowing
-
-```ruby
-Color <red Int, green Int, blue Int>
-c Color
-if true do {
-	c -> <red blue>
-	"$red $blue" -> _out
-}
-if true do {
-	c -> <red Int, blue Int>
-	"$red $blue" -> _out
-}
-
-if c {
-	is <red blue> do "$red $blue" -> _out
-	is <red Int, blue Int> do "$red $blue" -> _out
-}
-```
-
-```ruby
-getRecord() => <x Int, y Int, z Int> {
-	=> <x: 69, y: 420, z: 42>
-}
-getRecord() -> <x y z>
-getRecord() -> <x Int, y Int, z Int>
-if getRecord() {
-	is <x y z> do "$x $y $z" -> _out
-	is <x z> do "$x $z" -> _out
-	is <x _ z> do "$x $z" -> _out
-	is <x Int, z Int> do "$x $z" -> _out
-}
-```
-
-```ruby
-getTuple() => <Int, Int, Int> {
-	=> <69, 420, 42>
-}
-getTuple() -> <x y z>
-getTuple() -> <x Int, y Int, z Int>
-if getTuple() {
-	is <x y z> do "$x $y $z" -> _out
-	is <x Int, y Int, z Int> do "$x $y $z" -> _out
-	is <x Int, _, z Int> do "$x $z" -> _out
-}
-```
-
 ## @candidate Emoji handling in Text
 
 ```ruby
@@ -5226,22 +5177,6 @@ p Point <- Point(y:2) # ERROR: x not specified
 ```ruby
 for name at index in someList do something()
 someList at 1 -> _out
-```
-
-## @candidate Product values deconstruction
-
-Positional
-
-```ruby
-foo -> <a, _, c>
-"$a _ $c" -> _out
-```
-
-Named
-
-```ruby
-foo -> <.a, .c>
-"$a $c" -> _out
 ```
 
 ## @candidate Multiple aliases
