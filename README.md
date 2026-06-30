@@ -2879,6 +2879,13 @@ someType -> _out # [Text:Int]
 TODO: expand on this. Should it behaves specially and be allowed to hold any
 type? Or use generics?
 
+#### @candidate(type_rel_op) Relational operators as widening/narrowing check
+
+```ruby
+type.Int < type.Real -> _out
+type.[Real] >= type.[Natural] -> _out
+```
+
 ### Range
 
 A Range models an "interval", that goes from a `start` to an `end`, with an
