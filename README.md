@@ -696,7 +696,26 @@ if true & true | false do {}
 if true & {true | false} do {}
 ```
 
-## @candidate if-chain
+### if-chain
+
+Very often you'll have to make multiple if statements
+
+```ruby
+name Text
+if name = "Simone" do {
+	"hey it's Simone!" -> _out
+} else if name = "Mario" do {
+	"heyo Mario" -> _out
+	"where is Luigi?" -> _out
+} else if name = "Luigi" do {
+	"heyo green Mario!" -> _out
+} else {
+	"greetings $name" -> _out
+}
+```
+
+The if statement allows you to do this in a more concise way with a single
+statement
 
 ```
 if {
@@ -709,7 +728,6 @@ if {
 ```
 
 ```ruby
-name Text
 if {
 
 	name = "Simone" do "hey it's Simone!" -> _out
@@ -726,7 +744,27 @@ if {
 }
 ```
 
-## if-chain with subject
+Exhaustiveness is not enforced, so be mindful of the branch order; since they're
+evaluated in the same order as they're declared, some branch may become
+unreachable if it's dominated by a previous one
+
+```ruby
+someNumber Int <- 69
+if {
+	someNumber < 50 do {}
+
+	# WARN: unreachable branch
+	someNumber = 69 do {}
+}
+```
+
+
+#### if-chain with subject
+
+It's very likely that all conditions are done on the same value.
+
+The if statement can be further simplified by omitting the subject from the
+left hand side of the conditions
 
 ```
 if <subject> {
@@ -788,20 +826,6 @@ if number {
 
 	> 100 and < 999 do "big boi" -> _out
 
-}
-```
-
-Exhaustivenes and branch precedence are not considered, so be mindful of the
-branch order, since they're evaluated in the same order as they're declared and
-some branch may become unreachable if it's dominated by a previous one
-
-```ruby
-someNumber Int <- 69
-if someNumber {
-	< 50 do {}
-
-	# NOTE: unreachable branch
-	= 69 do {}
 }
 ```
 
