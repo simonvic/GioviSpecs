@@ -338,6 +338,45 @@ if not {someVariable is Int} do {
 }
 ```
 
+### @candidate `is` operator for pattern matching
+
+```ruby
+i Int
+if i is _ do somethingWith(i)
+if i is r Real do somethingWith(r)
+
+color Color <- <255, 42, 69>
+if color {
+	is <r, _, b> do somethingWith(r, b)
+	is <red:r, green:_, blue:b> do somethingWith(r, b)
+	is <_, g, _> when g > 69 do somethingWith(g)
+	= <255, _, 69> do something()
+}
+```
+
+How to deal with "untyped unary patterns"? Should we treat the statement as s
+type check?
+
+```ruby
+if i {
+	is Int do something()
+	# but what about this?
+	is [Int] do something()
+
+	# enforce `type.` syntax?
+	is type.Int do something()
+	is type.[Int] do something()
+}
+```
+
+Or should we let @candidate(see:type_rel_op) to handle type checking?
+
+```ruby
+if i.type = Int do something()
+if i.type = [Int] do something()
+```
+
+
 # Redirection
 
 Giovi "moves" data (content) to destinations; this is done through
