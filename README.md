@@ -338,60 +338,6 @@ if not {someVariable is Int} do {
 }
 ```
 
-#### @candidate Check type and cast
-
-When checking variable type, it's often needed to cast it
-
-```ruby
-if color {
-	is RGB do {
-		color as RGB -> c RGB
-		"${c.r} ${c.g} ${c.b}" -> _out
-	}
-	is ARGB do {
-		color as ARGB -> c ARGB
-		"${c.r} ${c.g} ${c.b} ${c.a}" -> _out
-	}
-}
-```
-
-It's possible to use variable declaration syntax to improve readability
-
-```ruby
-if color {
-	is c RGB do "${c.r} ${c.g} ${c.b}" -> _out
-	is c RGBA do "${c.r} ${c.g} ${c.b} ${c.a}" -> _out
-}
-```
-
-Note that it's not possible when the `is` operator is negated
-
-@candidate The lifetime of the variable is limited to the true branch scope
-
-```ruby
-color RGB
-if color is c RGB {
-	c.r -> _out
-} else {
-	# variable c not defined here
-}
-
-if ! color is c RGB {
-	# variable c not defined here
-} else {
-	c.r -> _out
-}
-```
-
-@candidate The `is` operator can also be used for deconstruction of a struct
-
-```ruby
-if color {
-	is <r Int, g Int, b Int> do "Do something with $r $g and $b" -> _out
-	is <r Int, b Int> do "I only need $r and $b" -> _out
-}
-```
-
 # Redirection
 
 Giovi "moves" data (content) to destinations; this is done through
@@ -921,28 +867,6 @@ if list {
 	# if contains 69 and contains either 6 or 9
 	=~ 69 and { =~ 6 or =~ 9} do {}
 
-}
-```
-
-Comparing struct
-
-```ruby
-ColorRGB <r Natural, g Natural, b Natural>
-ColorARGB <a Natural, r Natural, g Natural, b Natural>
-
-color ColorRGB <- <42 0 69>
-white ColorRGB <- <255 255 255>
-red ColorRGB <- <255 0 0>
-transparent ColorARGB <- <0 0 0 0>
-
-if color {
-	= default do "it's black" -> _out
-	= red do "it's red" -> _out
-	= <240 10 10> do "it's redish" -> _out
-	= <255 default 69> do "255, default green, 69" -> _out
-	= white | = <200 200 200> do "it's white or grey" -> _out
-	= <_ _ 69> do "any red, any green, blue of 69" -> _out
-	= <_ _ _ _> do "It has at least 4 fields" -> _out
 }
 ```
 
@@ -2886,26 +2810,14 @@ enum Result <
 >
 
 enterClub(age Int) => Result {
-	if age < 18 do
-		=> Result.ERROR.<"user is underage">
+	if age < 18 do => Result.ERROR.<"user is underage">
 	=> Result.OK.<>
 }
 
 if enterClub(69) {
-	= Result.OK.<> do "Welcome" -> _out
-	= Result.ERROR.<reason:_> do "Can't enter because $reason" -> _out
+	is Result.OK do "Welcome" -> _out
+	is error <reason> do "Can't enter because $reason" -> _out
 }
-```
-
-You can omit struct types, but beware of the matching order
-
-```ruby
-if enterClub(69) {
-	= <reason: "underage"> do "Too young, boy!" -> _out
-	= <reason: _> do "Can't enter because $reason" -> _out
-	= <> do "Welcome" -> _out
-}
-
 ```
 
 ## Other types
