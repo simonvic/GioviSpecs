@@ -223,7 +223,14 @@ actualParameter: (label=identifier ':')? value=expression;
 
 ifStatement: IF condition=expression DO consequence=statementOrBlock (ELSE alternative=statementOrBlock)?;
 
-multiIfStatement: IF condition=expression multiIfBody (ELSE alternative=statementOrBlock)?;
+multiIfStatement
+	: IF subject=expression multiIfBody (ELSE alternative=statementOrBlock)?   # multiIfStatementSubjected
+	| IF subjectlessMultiIfBody (ELSE alternative=statementOrBlock)?           # multiIfStatementSubjectless
+	;
+
+subjectlessMultiIfBody: '{' subjectlessMultiIfCondition+ '}';
+
+subjectlessMultiIfCondition: condition=expression (WHEN guard=expression)? DO consequence=statementOrBlock ;
 
 multiIfBody: '{' multiIfCondition+ '}';
 
