@@ -5501,6 +5501,21 @@ Or with some kind of "preprocessor directive" / annotation system
 if feat/redir_rework is done, and list and maps are made "immutable", tuples
 and records could be made immutable as well, with the exception of structs
 
+## @candidate Named return
+
+Functions formal parameters have a name, why not the return as well? It better
+explains that is the meaning of the value that is being returned, in case the
+function name is ambiguous
+
+```ruby
+darken(color Color) => darkenedColor Color {
+	darkenedColor.r *<- 0.5
+	darkenedColor.g *<- 0.5
+	darkenedColor.b *<- 0.5
+	=> darkenedColor
+}
+```
+
 <!-- 
 vim: noet
 -->
