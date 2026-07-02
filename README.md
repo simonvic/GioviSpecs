@@ -338,7 +338,10 @@ if not {someVariable is Int} do {
 }
 ```
 
-### @candidate `is` operator for pattern matching
+### @candidate Pattern matching
+
+The `is` operator is actually more powerful as it can also do
+[pattern](#patterns) matching
 
 ```ruby
 i Int
@@ -354,14 +357,13 @@ if color {
 }
 ```
 
-How to deal with "untyped unary patterns"? Should we treat the statement as s
-type check?
+*Are we ok with overloading the `is` operator to do both type (exact) check and
+pattern matching?*
 
 ```ruby
 if i {
-	is Int do something()
-	# but what about this?
-	is [Int] do something()
+	is Int do "i is a Int" -> _out
+	is [Int] do "i is a list of Int"()
 
 	# enforce `type.` syntax?
 	is type.Int do something()
@@ -369,13 +371,54 @@ if i {
 }
 ```
 
-Or should we let @candidate(see:type_rel_op) to handle type checking?
+*Or should we let @candidate(see:type_rel_op) to handle type checking?*
 
 ```ruby
+# strawman syntax
 if i.type = Int do something()
 if i.type = [Int] do something()
 ```
 
+### @candidate Pattern scope
+
+When pattern matching in an *if* statement, the variables declared via the
+pattern are bound to the *true* branch scope.
+
+```ruby
+if x is i Int do {
+	i -> _out # Ok
+} else {
+	i -> _out # ERROR: i not declared
+}
+```
+
+This means that if the `is` operator is negated, the opposite would be true
+
+```ruby
+if x is not i Int do {
+	i -> _out # ERROR: i not declared
+} else {
+	i -> _out # Ok
+}
+```
+
+The same behavior applies to if-chain, except when the operator is negated
+
+```ruby
+if x {
+	is i Int do i -> _out # Ok
+	is i Real do i -> _out # Ok
+}
+```
+
+```ruby
+if x {
+	is not i Int do i -> _out # ERROR: i not declared
+	is not i Real do i -> _out # ERROR: i not declared
+} else {
+	i -> _out # ERROR: i not declared
+}
+```
 
 # Redirection
 
