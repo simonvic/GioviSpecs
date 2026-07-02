@@ -105,8 +105,8 @@ redirectionOperatorRTL
     ;
 
 redirectionPattern
-	: patternProduct
-	| literalPlaceholder
+	: productPattern     # redirectionPatternProduct
+	| literalPlaceholder # redirectionPatternPlaceholder
 	;
 
 constantDeclaration: CONST name=identifier type? REDIRECTION_RTL value=expression ';'?;
@@ -120,26 +120,26 @@ moduleDeclaration: MODULE identifier body=block ;
 /////////////////////////////////////////////////////////////////////////////// PATTERNS
 
 pattern
-	: patternList
-	| patternMap
-	| patternProduct
-	| patternUnary
-	| literalPlaceholder
+	: listPattern        # patternList
+	| mapPattern         # patternMap
+	| productPattern     # patternProduct
+	| unaryPattern       # patternUnary
+	| literalPlaceholder # patternPlaceholder
 	;
 
-patternList: '[' pattern ']' ;
+listPattern: '[' pattern ']' ;
 
-patternMap: '[' patternMapNaked ']' ;
+mapPattern: '[' patternMapNaked ']' ;
 
 patternMapNaked: key=patternMapKey ':' value=pattern ;
 
 patternMapKey
-	: patternProduct
-	| patternUnary
-	| literalPlaceholder
+	: productPattern     # patternMapKeyProduct
+	| unaryPattern       # patternMapKeyUnary
+	| literalPlaceholder # patternMapKeyPlaceholder
 	;
 
-patternProduct: whole=patternUnary? '<' patternProductMembers '>' ;
+productPattern: whole=unaryPattern? '<' patternProductMembers '>' ;
 
 patternProductMembers
 	: patternMember (',' patternMember)* ','?             # patternProductPositional
@@ -147,17 +147,17 @@ patternProductMembers
 	;
 
 patternMember
-	: patternProduct
-	| patternUnary
-	| literalPlaceholder
+	: productPattern     # patternMemberProduct
+	| unaryPattern       # patternMemberUnary
+	| literalPlaceholder # patternMemberPlaceholder
 	;
 
 patternMemberNamed
 	: name=identifier ':' patternMember # patternMemberNamedExplicit
-	| ':' patternUnary                  # patternMemberNamedImplicit
+	| ':' unaryPattern                  # patternMemberNamedImplicit
 	;
 
-patternUnary: identifier type? ;
+unaryPattern: identifier type? ;
 
 /////////////////////////////////////////////////////////////////////////////// STRUCTS
 
