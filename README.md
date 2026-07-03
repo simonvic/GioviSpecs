@@ -338,7 +338,7 @@ if not {someVariable is Int} do {
 }
 ```
 
-### @candidate Pattern matching
+### Pattern matching
 
 The `is` operator is actually more powerful as it can also do
 [pattern](#patterns) matching
@@ -355,6 +355,16 @@ if color {
 	is <_, g, _> when g > 69 do somethingWith(g)
 	= <255, _, 69> do something()
 }
+```
+
+It can be seen as a safer alternative than deconstructing directly via
+redirections
+
+```ruby
+if notAColor is <r, g, b> do {
+	# Ok
+}
+notAColor -> <r, g, b> # ERROR: fail!
 ```
 
 *Are we ok with overloading the `is` operator to do both type (exact) check and
@@ -379,10 +389,13 @@ if i.type = Int do something()
 if i.type = [Int] do something()
 ```
 
-### @candidate Pattern scope
+#### Pattern scope
 
-When pattern matching in an *if* statement, the variables declared via the
-pattern are bound to the *true* branch scope.
+When evaluating a pattern matching expression, the pattern variables are
+declared in the same scope of the expression.
+
+When it is instead done within an if statement, they will be bound to the
+*true* branch scope.
 
 ```ruby
 if x is i Int do {
@@ -392,7 +405,7 @@ if x is i Int do {
 }
 ```
 
-This means that if the `is` operator is negated, the opposite would be true
+@candidate This means that if the `is` operator is negated, the opposite would be true
 
 ```ruby
 if x is not i Int do {
@@ -400,6 +413,12 @@ if x is not i Int do {
 } else {
 	i -> _out # Ok
 }
+
+if x is not i Int do {
+	i -> _out # ERROR: i not declared
+}
+i -> _out # Ok
+# TODO: should it?
 ```
 
 The same behavior applies to if-chain, except when the operator is negated
@@ -416,6 +435,15 @@ if x {
 	is not i Int do i -> _out # ERROR: i not declared
 	is not i Real do i -> _out # ERROR: i not declared
 } else {
+	i -> _out # ERROR: i not declared
+}
+```
+
+NOTE: a pattern variable is not guaranteed to be declared; for instance, when a
+boolean expression is short-circuited
+
+```ruby
+if true or 69 is i Int do {
 	i -> _out # ERROR: i not declared
 }
 ```
