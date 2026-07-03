@@ -243,7 +243,8 @@ caseMatch
     | op=(AND | AND_SYM | OR | OR_SYM) expression           # caseMatchBoolean
     | op=('=' | '!=') expression                            # caseMatchEquality
     | NOT? op=(IN | '~=' | '=~') expression                 # caseMatchContainment
-    | op=IS (NOT | identifier)? type                        # caseMatchTypeCheck
+    | op=IS NOT? type                                       # caseMatchTypeCheck
+    | op=IS NOT? pattern                                    # caseMatchPattern
     ;
 
 //////////////////////////////////////////////////////////////////////////////// EXPRESSIONS
@@ -253,9 +254,8 @@ caseMatch
 expression
     : '{' expression '}'                                                 # expressionParenthesized
     | expression AS type                                                 # expressionCast
-
-    // TODO: add IS tupleDeconstruction
-    | expression IS (NOT | identifier)? type                             # expressionTypeCheck
+    | expression IS NOT? type                                            # expressionTypeCheck
+    | expression IS NOT? pattern                                         # expressionPatternMatching
     | expression '.' (invocation | identifier | 'default')               # expressionDot
     | expression '::' identifier                                         # expressionDotRef
     | ('::' | FUNCTION '.') referenceable                                # expressionRef
