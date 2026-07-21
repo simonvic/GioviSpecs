@@ -2054,6 +2054,12 @@ size Int <- 3
 y [Bool ** size] # [false false false]
 ```
 
+##### @candidate Fixed size lists
+
+```ruby
+x [Int ^ 3] # x has always 3 elements
+```
+
 #### List Access
 
 | key   | output                     |
