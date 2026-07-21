@@ -2966,14 +2966,14 @@ You can get a type by prefixing it with the `type.` syntax
 ```giovi
 type.Int -> _out # Int
 type.[Real] -> _out # [Real] list of Real
-type.tuple.<Text, Bool> -> _out # tuple.<Text,Bool>
+type.tuple<Text, Bool> -> _out # tuple.<Text,Bool>
 ```
 
 You can "spawn" a value of a type by accessing its default
 
 ```giovi
 type.Int.default -> _out # 0 (zero, the Int default)
-type.record.<x Text, y Bool>.default -> _out # <"", false>
+type.record<x Text, y Bool>.default -> _out # <"", false>
 ```
 
 You can declare a variable of type `type` using the `type` keyword
@@ -4116,6 +4116,14 @@ x Int <- if something {
 } else 69420
 ```
 
+otherwise an actual ternary operator
+
+```ruby
+x Int <- true ? 69 : 420
+x Int <- true ? 69 else 420
+```
+
+
 ## @candidate 1-based array indexing
 
 ### Accessing via index (1-based) vs accessing via offset (0-based)
@@ -4141,8 +4149,7 @@ list.{-1} # would cause confusion with index
 list.{-7} # makes no sense
 list.{list@%} # syntax 
 
-## what about a field called 'i'?
-for i in 0..7 do list.i
+for i in 0..7 do list.{i}
 ```
 
 ## @candidate Struct querying
@@ -5323,7 +5330,7 @@ alias giovi.util.Ansi::[
 ]
 ```
 
-## @candidate Default access operator
+## @candidate(conflicts:drop_at_operator) Default access operator
 
 Different meaning between access operators
 
@@ -5388,11 +5395,12 @@ struct Person <
 >
 ```
 
-## @candidate Drop @ operator
+## @candidate(drop_at_operator) Drop access (`@`) operator
 
 ```giovi
 => someList.69
 => someList.{someIndex} # a drawback: requiring braces
+=> someMatrix.{0}.{0}
 => someMap."hello"
 => someMap.69.9
 => someMap.%
