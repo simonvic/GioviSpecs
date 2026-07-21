@@ -2115,10 +2115,10 @@ A multidimensional list (matrix) can be defined as follows
 ```ruby
 # A list of list of real
 identityMatrix [[Real]] <- [
-		[1 0 0]
-		[0 1 0]
-		[0 0 1]
-	]
+	[1 0 0]
+	[0 1 0]
+	[0 0 1]
+]
 ```
 
 Values can be accessed as normal lists
@@ -2129,37 +2129,37 @@ Values can be accessed as normal lists
 # Example of a Rubik cube multidimensional list
 # for simplicity, we're storing color name instead of a Color struct
 rubikCube [[[Text]]] <- [
-		[
-			[ "Red" "Red" "Red" ]
-			[ "Red" "Red" "Red" ]
-			[ "Red" "Red" "Red" ]
-		]
-		[
-			[ "White" "White" "White" ]
-			[ "White" "White" "White" ]
-			[ "White" "White" "White" ]
-		]
-		[
-			[ "Green" "Green" "Green" ]
-			[ "Green" "Green" "Green" ]
-			[ "Green" "Green" "Green" ]
-		]
-		[
-			[ "Yellow" "Yellow" "Yellow" ]
-			[ "Yellow" "Yellow" "Yellow" ]
-			[ "Yellow" "Yellow" "Yellow" ]
-		]
-		[
-			[ "Blue" "Blue" "Blue" ]
-			[ "Blue" "Blue" "Blue" ]
-			[ "Blue" "Blue" "Blue" ]
-		]
-		[
-			[ "Orange" "Orange" "Orange" ]
-			[ "Orange" "Orange" "Orange" ]
-			[ "Orange" "Orange" "Orange" ]
-		]
+	[
+		[ "Red" "Red" "Red" ]
+		[ "Red" "Red" "Red" ]
+		[ "Red" "Red" "Red" ]
 	]
+	[
+		[ "White" "White" "White" ]
+		[ "White" "White" "White" ]
+		[ "White" "White" "White" ]
+	]
+	[
+		[ "Green" "Green" "Green" ]
+		[ "Green" "Green" "Green" ]
+		[ "Green" "Green" "Green" ]
+	]
+	[
+		[ "Yellow" "Yellow" "Yellow" ]
+		[ "Yellow" "Yellow" "Yellow" ]
+		[ "Yellow" "Yellow" "Yellow" ]
+	]
+	[
+		[ "Blue" "Blue" "Blue" ]
+		[ "Blue" "Blue" "Blue" ]
+		[ "Blue" "Blue" "Blue" ]
+	]
+	[
+		[ "Orange" "Orange" "Orange" ]
+		[ "Orange" "Orange" "Orange" ]
+		[ "Orange" "Orange" "Orange" ]
+	]
+]
 
 rubikCube@2@1@1   # will refer to the central tile of green face
 ```
@@ -2231,15 +2231,15 @@ A key and value pair may also be called a map entry.
 
 ```ruby
 carCount [Text : Int]
-[ "Audi" : 1 ] ->+ carCount  # Insert new key "Audi" with value 1
+[ "Audi" : 1 ] ->+ carCount  # Put new key "Audi" with value 1
 [ "Audi" : 5 ] ->+ carCount  # Set "Audi" key value to 5
 
-carCount +<- [ # Insert/Put key-value pairs
-		"Mercedes" : 10
-		"Audi" : 7
-		"BMW" : 15
-		"Ferrari" : 20
-	]
+carCount +<- [ # Put key-value pairs
+	"Mercedes" : 10
+	"Audi" : 7
+	"BMW" : 15
+	"Ferrari" : 20
+]
 
 carCount@{"Ferrari"} <- 26   # Set "Ferrari" value to 26
 ```
@@ -2293,11 +2293,11 @@ default -> carCount@"Ferrari"
 
 ```ruby
 carCount [Text : Int] <- [
-		"Mercedes" : 10
-		"Audi" : 7
-		"BMW" : 15
-		"Ferrari" : 20
-	]
+	"Mercedes" : 10
+	"Audi" : 7
+	"BMW" : 15
+	"Ferrari" : 20
+]
 
 carCount@"Audi"  # 7
 carCount@%       # 4
@@ -2327,10 +2327,10 @@ Examples
 
 ```ruby
 bank [Text : Real] <- [
-		"Simone" : 69.0
-		"Alessio" : 15.50
-		"Francesco" : 125.15
-	]
+	"Simone" : 69.0
+	"Alessio" : 15.50
+	"Francesco" : 125.15
+]
 
 for name : money in bank do {
 	"$name has $money € in his wallet" -> _out
@@ -2524,13 +2524,13 @@ followed by a dot, followed by a tuple with the fields
 ```ruby
 red Color <- Color.<255 0 0>
 me Person <- Person.<
-		"Simon"
-		"Vic"
-		22
-		red
-		Car.<"Ferrari" red>
-		Car.<"Fiat600" Color.<0 0 255>>
-	>
+	"Simon"
+	"Vic"
+	22
+	red
+	Car.<"Ferrari" red>
+	Car.<"Fiat600" Color.<0 0 255>>
+>
 ```
 
 @candidate For consistency, it can optionally be prefixed by the `struct`
@@ -2545,19 +2545,19 @@ matter when using record syntax)
 
 ```ruby
 me Person <- Person.<
-		age: 22
-		surname: "Vic"
-		name: "Simon"
-		favoriteColor: Color.<
-			red: 255
-			green: 69
-			blue: 42
-		>
-		favoriteCar: Car.<
-			model: "Ferrari"
-			paint: red
-		>
+	age: 22
+	surname: "Vic"
+	name: "Simon"
+	favoriteColor: Color.<
+		red: 255
+		green: 69
+		blue: 42
 	>
+	favoriteCar: Car.<
+		model: "Ferrari"
+		paint: red
+	>
+>
 ```
 
 You can also specify a subset of the fields; unspecified fields will be
@@ -2566,11 +2566,11 @@ Note that this is not possible when using the tuple syntax.
 
 ```ruby
 me Person <- Person.<
-		age: 23
-		favoriteCar: Car.<
-			model: "Ferrari"
-		>
+	age: 23
+	favoriteCar: Car.<
+		model: "Ferrari"
 	>
+>
 ```
 
 Creating a struct with a type but no fields, will create a default struct of
