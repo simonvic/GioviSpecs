@@ -158,68 +158,68 @@ someFunction(x Int,y Int)=>Int{=>x+y}
 
 ## Arithmetic operators
 
-| Operation      | Symbol | Example |
-| -------------- | ------ | ------- |
-| Addition       | +      | 10 + 5  |
-| Subtraction    | -      | 10 - 5  |
-| Multiplication | *      | 10 * 5  |
-| Division       | /      | 10 / 5  |
-| Modulo         | %      | 10 % 5  |
-| Exponential    | ^      | 2 ^ 64  |
+| Operation      | Symbol | Example   |
+| -------------- | ------ | --------- |
+| Addition       | `+`    | `10 + 5`  |
+| Subtraction    | `-`    | `10 - 5`  |
+| Multiplication | `*`    | `10 * 5`  |
+| Division       | `/`    | `10 / 5`  |
+| Modulo         | `%`    | `10 % 5`  |
+| Exponential    | `^`    | `2 ^ 64`  |
 
 ## Relational
 
-| Operation        | Symbol | Example |
-| ---------------- | ------ | ------- |
-| Greater than     | >      | 10 > 2  |
-| Less than        | <      | 2 < 10  |
-| Greater or equal | >=     | 10 >= 2 |
-| Less or equal    | <=     | 2 <= 10 |
-| Equal            | =      | 10 = 10 |
-| Not equal        | !=     | 10 != 2 |
+| Operation        | Symbol | Example   |
+| ---------------- | ------ | --------- |
+| Greater than     | `>`    | `10 > 2`  |
+| Less than        | `<`    | `2 < 10`  |
+| Greater or equal | `>=`   | `10 >= 2` |
+| Less or equal    | `<=`   | `2 <= 10` |
+| Equal            | `=`    | `10 = 10` |
+| Not equal        | `!=`   | `10 != 2` |
 
 ## Logical operators
 
-| Operation | Symbol | Example           |
-| --------- | ------ | ----------------- |
-| And       | &      | 10 > 2 & 10 > 5   |
-|           | and    | 10 > 2 and 10 > 5 |
-| Or        | \|     | 10 > 2 \| 5 > 2   |
-|           | or     | 10 > 2 or 5 > 2   |
-| Not       | !      | !{2 > 10}         |
-|           | not    | not {2 > 10}      |
+| Operation | Symbol | Example             |
+| --------- | ------ | ------------------- |
+| And       | `&`    | `10 > 2 & 10 > 5`   |
+|           | `and`  | `10 > 2 and 10 > 5` |
+| Or        | `\|`   | `10 > 2 \| 5 > 2`   |
+|           | `or`   | `10 > 2 or 5 > 2`   |
+| Not       | `!`    | `!{2 > 10}`         |
+|           | `not`  | `not {2 > 10}`      |
 
 ## Bitwise operators
 
-| Operation            | Symbol  | Example             |
-| -------------------- | ------- | ------------------- |
-| Not                  | !!      | !!0b001             |
-| And                  | &&      | 0b001 && 0b001      |
-| Or                   | \|\|    | 0b001 \|\| 0b010    |
-| Xor                  | \|\|\|  | 0b001 \|\|\| 0b010  |
-| Left shift           | {<}     | 1 {<} 5             |
-| Signed right shift   | {>}     | 1 {>} 5             |
-| Unsigned right shift | {>>}    | 32 {>>} 5           |
+| Operation            | Symbol   | Example              |
+| -------------------- | -------- | -------------------- |
+| Not                  | `!!`     | `!!0b001`            |
+| And                  | `&&`     | `0b001 && 0b001`     |
+| Or                   | `\|\|`   | `0b001 \|\| 0b010`   |
+| Xor                  | `\|\|\|` | `0b001 \|\|\| 0b010` |
+| Left shift           | `{<}`    | `1 {<} 5`            |
+| Signed right shift   | `{>}`    | `1 {>} 5`            |
+| Unsigned right shift | `{>>}`   | `32 {>>} 5`          |
 
 ## Redirection (assignment)
 
-| Operation             | Symbol | Example                  |
-| --------------------- | ------ | ------------------------ |
-| Content redirection   | ->     | "Hello world" -> message |
-| Add and redirect      | ->+    | 10 ->+ count             |
-| Subtract and redirect | ->-    | 10 ->- count             |
-| Multiply and redirect | ->*    | 10 ->* count             |
-| Divide and redirect   | ->/    | 10 ->/ count             |
+| Operation             | Symbol | Example                    |
+| --------------------- | ------ | ------------------------   |
+| Content redirection   | `->`   | `"Hello world" -> message` |
+| Add and redirect      | `->+`  | `10 ->+ count`             |
+| Subtract and redirect | `->-`  | `10 ->- count`             |
+| Multiply and redirect | `->*`  | `10 ->* count`             |
+| Divide and redirect   | `->/`  | `10 ->/ count`             |
 
 ### Inverse redirection
 
-| Operation           | Symbol | Example                  |
-| ------------------- | ------ | ------------------------ |
-| Content redirection | <-     | message <- "Hello world" |
-| Increment by value  | +<-    | count +<- 10             |
-| Decrement by value  | -<-    | count -<- 10             |
-| Multiply by value   | *<-    | count *<- 10             |
-| Divide by value     | /<-    | count /<- 10             |
+| Operation           | Symbol | Example                    |
+| ------------------- | ------ | ------------------------   |
+| Content redirection | `<-`   | `message <- "Hello world"` |
+| Increment by value  | `+<-`  | `count +<- 10`             |
+| Decrement by value  | `-<-`  | `count -<- 10`             |
+| Multiply by value   | `*<-`  | `count *<- 10`             |
+| Divide by value     | `/<-`  | `count /<- 10`             |
 
 Note that the `->+`,`+<-` and alike are only a shorthand for the relative
 operator; so doing `1 ->+ x` or `x +<- 1` is the same of doing `x + 1 -> x` or
@@ -229,11 +229,11 @@ Keep it in mind when using non-commutative operators.
 
 ## Containment operator
 
-| Operation     | Symbol | Example                    |
-| ------------- | ------ | -------------------------- |
-| Contains      | =~     | "Hello world" =~ "lo worl" |
-| Contained     | ~=     | "lo worl" ~= "Hello world" |
-|               | in     | "lo worl" in "Hello world" |
+| Operation     | Symbol | Example                      |
+| ------------- | ------ | --------------------------   |
+| Contains      | `=~`   | `"Hello world" =~ "lo worl"` |
+| Contained     | `~=`   | `"lo worl" ~= "Hello world"` |
+|               | `in`   | `"lo worl" in "Hello world"` |
 
 The containment operator is used to check if a value is contained in another.
 
@@ -493,8 +493,8 @@ acceleration ->+ velocity # Increasing velocity by "acceleration"
 
 | Destination     | Symbol |
 | --------------- | ------ |
-| Standard output | _out   |
-| Standard error  | _err   |
+| Standard output | `_out` |
+| Standard error  | `_err` |
 
 ### Standard output
 
@@ -546,7 +546,7 @@ division by zero.
 
 | Destination     | Symbol |
 | --------------- | ------ |
-| Standard input  | _in    |
+| Standard input  | `_in`  |
 
 Reading from standard content is a blocking operation that will read from stdin.<br>
 Can be used to read input from the user
@@ -1720,16 +1720,16 @@ You can use the exponent notation
 
 #### Operators
 
-| Operation                      | Symbol | Example                    | Output                     |
-| ------------------------------ | ------ | -------------------------- | -------------------------- |
-| Concatenation                  | +      | "hello" + " " + "world"    | "hello world"              |
-| Intersection                   | -      | "hello world" - "o"        | "hell wrld"                |
-| Split                          | /      | "hello:world" / ":"        | ["hello" "world"]          |
-| Repeat                         | ^      | "o" ^ 4                    | "oooo"                     |
-| Append to variable             | ->+    | "hello world" ->+ someText | "$someText hello world"    |
-| Remove substring from variable | ->-    | "substring" ->- someText   | someText without substring |
-| Contains                       | =~     | "hello world" =~ "lo worl" | true                       |
-| Is contained                   | ~=     | "lo worl" ~= "hello world" | true                       |
+| Operation                      | Symbol | Example                      | Output                       |
+| ------------------------------ | ------ | --------------------------   | --------------------------   |
+| Concatenation                  | `+`    | `"hello" + " " + "world"`    | `"hello world"`              |
+| Intersection                   | `-`    | `"hello world" - "o"`        | `"hell wrld"`                |
+| Split                          | `/`    | `"hello:world" / ":"`        | `["hello" "world"]`          |
+| Repeat                         | `^`    | `"o" ^ 4`                    | `"oooo"`                     |
+| Append to variable             | `->+`  | `"hello world" ->+ someText` | `"$someText hello world"`    |
+| Remove substring from variable | `->-`  | `"substring" ->- someText`   | `someText without substring` |
+| Contains                       | `=~`   | `"hello world" =~ "lo worl"` | `true`                       |
+| Is contained                   | `~=`   | `"lo worl" ~= "hello world"` | `true`                       |
 
 #### Text Access
 
@@ -1737,9 +1737,9 @@ You can use the exponent notation
 |-------|----------------------------|
 | Int   | char at that index         |
 | Range | substring                  |
-| %     | length                     |
-| *     | List of chars (Text)       |
-| @     | Range from 0 to length - 1 |
+| `%`   | length                     |
+| `*`   | List of chars (Text)       |
+| `@`   | Range from 0 to length - 1 |
 
 ```ruby
 "hello world" -> text Text
@@ -1966,25 +1966,26 @@ Yaml."{
 
 ### List
 
-A list is a collection of homogeneous values indexed by an integer value.<br>
+A list is a collection of homogeneous values indexed by an integer value.
+
 The indexes are 0-based
 
 #### Operators
 
 | Operation     | Symbol  | Example         |
 | ------------- | ------- | --------------- |
-| Redirection   | ->      | list <- [1 2 3] |
-| Concatenate   | ->+     | list +<- [4 5]  |
-|               |         | list +<- 4      |
-| Remove all    | ->-     | list -<- [2 3]  |
-| Remove        |         | list -<- 3      |
+| Redirection   | `->`    | `list <- [1 2 3]` |
+| Concatenate   | `->+`   | `list +<- [4 5]`  |
+|               |         | `list +<- 4`      |
+| Remove all    | `->-`   | `list -<- [2 3]`  |
+| Remove        |         | `list -<- 3`      |
 
 @candidate
 
-| Operation     | Symbol  | Example               | Output          |
-| ------------- | ------- | --------------------- | --------------- |
-| Split         | /       | [1 1 0 0 1 1] / [1 0] | [[1 1] [1 1]]   |
-|               |         | [1 1 1 0 1 1] / 0     | [[1 1 1] [1 1]] |
+| Operation     | Symbol  | Example                 | Output            |
+| ------------- | ------- | ---------------------   | ---------------   |
+| Split         | `/`     | `[1 1 0 0 1 1] / [1 0]` | `[[1 1] [1 1]]`   |
+|               |         | `[1 1 1 0 1 1] / 0`     | `[[1 1 1] [1 1]]` |
 
 <!-- TODO: what about a function!!!
 	list / ::(value) => value%2=0
@@ -1994,13 +1995,13 @@ The indexes are 0-based
 
 ##### Relational
 
-| Operation    | Symbol | Example           |
-| ------------ | ------ | ----------------- |
-| Equal        | =      | [1 2 3] = [1 2 3] |
-| Contains     | =~     | list =~ 2         |
-|              |        | list =~ [1 2]     |
-| Is contained | ~=     | 2 ~= list         |
-|              |        | [1 2] ~= list     |
+| Operation    | Symbol | Example             |
+| ------------ | ------ | ------------------- |
+| Equal        | `=`    | `[1 2 3] = [1 2 3]` |
+| Contains     | `=~`   | `list =~ 2`         |
+|              |        | `list =~ [1 2]`     |
+| Is contained | `~=`   | `2 ~= list`         |
+|              |        | `[1 2] ~= list`     |
 
 #### Syntax
 
@@ -2059,8 +2060,8 @@ y [Bool ** size] # [false false false]
 |-------|----------------------------|
 | Int   | element at that index      |
 | Range | "slice" of list            |
-| %     | elements count             |
-| @     | Range from 0 to length - 1 |
+| `%`   | elements count             |
+| `@`   | Range from 0 to length - 1 |
 
 ```ruby
 letters [Text] <- ["a" "b" "c" "d" "e" "f" "g" "h" "i" "j"]
@@ -2192,29 +2193,29 @@ A key and value pair may also be called a map entry.
 
 | Operation    | Symbol  | Example                         |
 | ------------ | ------- | ------------------------------- |
-| Redirection  | ->      | map <- ["a":1 "b":2 "c":3]      |
-| Put          | ->+     | map +<- ["b":69 "c":420]        |
-| Remove pairs | ->-     | map -<- ["a":1 "c":3]           |
-| Remove keys  | ->-     | map -<- ["a" "c"]               |
+| Redirection  | `->`    | `map <- ["a":1 "b":2 "c":3]`    |
+| Put          | `->+`   | `map +<- ["b":69 "c":420]`      |
+| Remove pairs | `->-`   | `map -<- ["a":1 "c":3]`         |
+| Remove keys  | `->-`   | `map -<- ["a" "c"]`             |
 
 @candidate
 
 | Operation       | Symbol  | Example                    |
 | --------------- | ------- | -------------------------- |
-| Put pair        | ->+     | map +<- "c":3              |
-| Remove pair     | ->-     | map -<- "c"                |
-| Remove pairs    | ->-     | map -<- ["a":_ "c":_]      |
-| Remove pairs    | ->-     | map -<- [_:1 _:3]          |
+| Put pair        | `->+`   | `map +<- "c":3`            |
+| Remove pair     | `->-`   | `map -<- "c"`              |
+| Remove pairs    | `->-`   | `map -<- ["a":_ "c":_]`    |
+| Remove pairs    | `->-`   | `map -<- [_:1 _:3]`        |
 
 
 ##### Relational
 
-| Operation      | Symbol | Example                              |
-| -------------- | ------ | ------------------------------------ |
-| Equal          | =      | ["a":1 "b":2] = ["a":1 "b":2]        |
-| Contains key   | =~     | ["a":1 "b":2] =~ "a"                 |
-| Contains pairs | =~     | ["a":1 "b":2 "c":3] =~ ["b":2 "c":_] |
-| Contains keys  | =~     | ["a":1 "b":2 "c":3] =~ ["b" "c"]     |
+| Operation      | Symbol | Example                                |
+| -------------- | ------ | -------------------------------------- |
+| Equal          | `=`    | `["a":1 "b":2] = ["a":1 "b":2]`        |
+| Contains key   | `=~`   | `["a":1 "b":2] =~ "a"`                 |
+| Contains pairs | `=~`   | `["a":1 "b":2 "c":3] =~ ["b":2 "c":_]` |
+| Contains keys  | `=~`   | `["a":1 "b":2 "c":3] =~ ["b" "c"]`     |
 
 #### Syntax
 
@@ -2280,9 +2281,9 @@ default -> carCount@"Ferrari"
 | key           | output                     |
 |---------------|----------------------------|
 | map key value | element mapped to that key |
-| %             | entries count              |
-| @             | List of map keys           |
-| *             | List of map elements       |
+| `%`           | entries count              |
+| `@`           | List of map keys           |
+| `*`           | List of map elements       |
 
 ```ruby
 carCount [Text : Int] <- [
@@ -2394,8 +2395,8 @@ someTuple <- tuple.<"foo" 69>
 |-------|----------------------------------------------|
 | Int   | field value at the index                     |
 | Range | Subset tuple with fields within the range    |
-| %     | fields count                                 |
-| @     | Range 0 to fields count - 1                  |
+| `%`   | fields count                                 |
+| `@`   | Range 0 to fields count - 1                  |
 
 #### @candidate Tuple fields override
 
@@ -2460,9 +2461,9 @@ someRecord <- record.<field1:"foo", field2:69>
 |-------|----------------------------------------------|
 | Int   | field value at the index                     |
 | Range | Subset record with fields within the range   |
-| %     | fields count                                 |
-| @     | Range 0 to fields count - 1                  |
-| *     | List of fields names                         |
+| `%`   | fields count                                 |
+| `@`   | Range 0 to fields count - 1                  |
+| `*`   | List of fields names                         |
 
 ### Struct
 
@@ -2596,9 +2597,9 @@ color <- <255> # ERROR <Int> cannot be widened to Color
 |-------|----------------------------------------------|
 | Int   | field value at the index                     |
 | Range | Subset record with fields within the range   |
-| %     | fields count                                 |
-| @     | Range 0 to fields count - 1                  |
-| *     | list of field names                          |
+| `%`   | fields count                                 |
+| `@`   | Range 0 to fields count - 1                  |
+| `*`   | list of field names                          |
 
 ```ruby
 Color <
