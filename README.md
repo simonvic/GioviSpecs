@@ -1972,20 +1972,19 @@ The indexes are 0-based
 
 #### Operators
 
-| Operation     | Symbol  | Example         |
-| ------------- | ------- | --------------- |
-| Redirection   | `->`    | `list <- [1 2 3]` |
-| Concatenate   | `->+`   | `list +<- [4 5]`  |
-|               |         | `list +<- 4`      |
-| Remove all    | `->-`   | `list -<- [2 3]`  |
-| Remove        |         | `list -<- 3`      |
+| Operation     | Symbol  | Example             | Output        |
+| ------------- | ------- | ------------------- | ------------- |
+| Concatenation | `+`     | `[1 2 3] + [4 5]`   | `[1 2 3 4 5]` |
+| Intersection  | `-`     | `[1 2 3 2] - [2 4]` | `[1 3]`       |
 
 @candidate
 
 | Operation     | Symbol  | Example                 | Output            |
-| ------------- | ------- | ---------------------   | ---------------   |
+| ------------- | ------- | ----------------------- | ----------------- |
 | Split         | `/`     | `[1 1 0 0 1 1] / [1 0]` | `[[1 1] [1 1]]`   |
 |               |         | `[1 1 1 0 1 1] / 0`     | `[[1 1 1] [1 1]]` |
+| Concatenation | `+`     | `[1 2 3 4] + 5`         | `[1 2 3 4 5]`     |
+| Intersection  | `-`     | `[1 2 3 2] - 2`         | `[1 3]`           |
 
 <!-- TODO: what about a function!!!
 	list / ::(value) => value%2=0
@@ -2034,7 +2033,7 @@ Default value can be used
 
 ```ruby
 default -> someList # set someList to its default value
-default ->+ someList # add default entry to someList
+[default] ->+ someList # add default entry to someList
 ```
 
 #### List Initialization shorthand
@@ -2197,22 +2196,19 @@ A key and value pair may also be called a map entry.
 
 #### Operators
 
-| Operation    | Symbol  | Example                         |
-| ------------ | ------- | ------------------------------- |
-| Redirection  | `->`    | `map <- ["a":1 "b":2 "c":3]`    |
-| Put          | `->+`   | `map +<- ["b":69 "c":420]`      |
-| Remove pairs | `->-`   | `map -<- ["a":1 "c":3]`         |
-| Remove keys  | `->-`   | `map -<- ["a" "c"]`             |
+| Operation           | Symbol  | Example                                  | Output                     |
+| ------------------- | ------- | ------------------------------------     | -------------------------- |
+| Merge/Put           | `+`     | `["a":1, "b":2] + ["b":69, "c":420]`     | `["a":1, "b":69, "c":420]` |
+| Intersection        | `-`     | `["a":1, "b":2] - ["b":2, "c":420]`      | `["a":1]`                  |
 
 @candidate
 
-| Operation       | Symbol  | Example                    |
-| --------------- | ------- | -------------------------- |
-| Put pair        | `->+`   | `map +<- "c":3`            |
-| Remove pair     | `->-`   | `map -<- "c"`              |
-| Remove pairs    | `->-`   | `map -<- ["a":_ "c":_]`    |
-| Remove pairs    | `->-`   | `map -<- [_:1 _:3]`        |
-
+| Operation             | Symbol  | Example                                  | Output                     |
+| --------------------- | ------- | -----------------------------            | -------------------------- |
+| Intersection (keys)   | `-`     | `["a":1, "b":2, "c":3] - ["b":_, "c":_]` | `["a":1]`                  |
+|                       |         | `["a":1, "b":2, "c":3] - "c"`            | `["a":1, "b":2]`           |
+|                       |         | `["a":1, "b":2, "c":3] - ["b", "c"]`     | `["a":1]`                  |
+| Intersection (values) | `-`     | `["a":1, "b":2, "c":3] - [_:3]`          | `["a":1, "b":2]`           |
 
 ##### Relational
 
