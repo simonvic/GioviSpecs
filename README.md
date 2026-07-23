@@ -588,11 +588,16 @@ See [Default value](#default-value)
 <name> <Type> default <default value>
 ```
 
-## @candidate let
+## @candidate let / var
 
 ```ruby
 let x Int <- 69
 let y <- 69
+```
+
+```ruby
+var x Int <- 69
+var y <- 69
 ```
 
 or use the `:=` operator (or both)
