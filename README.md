@@ -3415,6 +3415,28 @@ Color.<> as Rgb -> _out
 Rgb.<> as Color -> _out
 ```
 
+### Narrowing
+
+TODO: complete
+
+#### @candidate Downcast syntax sugar
+
+If you need to explicitly downcast a product value to a narrower type with the
+same signature, you can simply state the type without the signature, which will
+be implied to be the same.
+
+```ruby
+Color.<> as record -> _out
+# equivalent to
+Color.<> as record<r Int, g Int, b Int> -> _out
+```
+
+```ruby
+Color.<> as tuple -> _out
+# equivalent to
+Color.<> as tuple<Int, Int, Int> -> _out
+```
+
 ## Functions
 
 Like any other type, a function reference type can be widened/narrowed/casted
