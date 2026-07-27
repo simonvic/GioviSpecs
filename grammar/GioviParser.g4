@@ -67,16 +67,12 @@ breakStatement: BREAK ';'?;
 
 skipStatement: CONTINUE ';'?;
 
-// TODO: remove redirection to identifier/constantIdentifier (already present in primary expression)
-// actually no, probably is needed to avoid ambiguity with expression
-
 // TODO: eventually unify patterns and variable declaration
 
 redirection
     : content=expression bop=REDIRECTION dest=varDeclaration                    # redirectionToVarDeclaration
     | content=expression bop=REDIRECTION dest=redirectionPattern ';'?           # redirectionToPattern
     | content=expression bop=redirectionOperator dest=reservedIdentifier ';'?   # redirectionToReservedIdentifier
-    | content=expression bop=redirectionOperator dest=identifier ';'?           # redirectionToIdentifier
     | content=expression bop=redirectionOperator dest=expression ';'?           # redirectionToExpression
     ;
 
@@ -84,7 +80,6 @@ redirectionRTL
     : dest=varDeclaration bop=REDIRECTION_RTL content=expression                   # redirectionToVarDeclarationRTL
     | dest=redirectionPattern bop=REDIRECTION_RTL content=expression ';'?          # redirectionToPatternRTL
     | dest=reservedIdentifier bop=redirectionOperatorRTL content=expression ';'?   # redirectionToReservedIdentifierRTL
-    | dest=identifier bop=redirectionOperatorRTL content=expression ';'?           # redirectionToIdentifierRTL
     | dest=expression bop=redirectionOperatorRTL content=expression ';'?           # redirectionToExpressionRTL
     ;
 
