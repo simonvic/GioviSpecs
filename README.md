@@ -4134,6 +4134,25 @@ doSomethingGeneric(someType SomeType) {
 }
 ```
 
+### @candidate Generic functions
+
+If function widening gets restricted to have equal types, generic functions
+could be used to allow parameter types widening
+
+```ruby
+doSomethingGeneric{T}(foo T) {
+	foo is T -> _out
+	if T {
+		= Int do {}
+		< Real do {}
+		> Natural do {}
+	}
+}
+
+doSomethingGeneric{Int}(69)
+doSomethingGeneric{_}("hello")
+```
+
 ## @candidate If expression (ternary operator like)
 
 Has to be exhaustive
