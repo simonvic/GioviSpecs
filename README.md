@@ -4119,10 +4119,10 @@ Color <name Text>
 Color : RGB <r Int, g Int, b Int>
 Color : CMYK <c Int, m Int, y Int, k Int>
 # Upper bounded by color
-Box{Color : T} <something T>
+Box{T < Color} <something T>
 
 # Lower bounded by Color
-Box{T : Color} <something T>
+Box{T > Color} <something T>
 ```
 
 ## @candidate Generics but with types as first class citizen
