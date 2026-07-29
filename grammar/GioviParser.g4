@@ -26,6 +26,7 @@ statement
     | moduleDeclaration
     | structDefinition
     | constantDeclaration
+    | varDeclarationInfer
     | varDeclaration
     | functionDeclaration
     | returnStatement
@@ -107,6 +108,8 @@ redirectionPattern
 constantDeclaration: CONST name=identifier type? REDIRECTION_RTL value=expression ';'?;
 
 varDeclaration: name=identifier type defaultDefinition? ';'?;
+
+varDeclarationInfer: VAR name=identifier type? defaultDefinition? REDIRECTION_RTL value=expression ';'?;
 
 defaultDefinition: literalDefault expression;
 
