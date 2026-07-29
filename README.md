@@ -588,19 +588,18 @@ See [Default value](#default-value)
 <name> <Type> default <default value>
 ```
 
-## @candidate let / var
+### Type inference
+
+Variables can also be declared using the `var` keyword; in this case, the type
+can be omitted as it can be inferred from the right hand side
 
 ```ruby
-let x Int <- 69
-let y <- 69
+var someInteger <- 69
+var someText <- "hello"
+var someListOfReal <- [6.9, 4.2]
 ```
 
-```ruby
-var x Int <- 69
-var y <- 69
-```
-
-or use the `:=` operator (or both)
+#### @candidate Alternative syntax
 
 ```ruby
 x Int := 69
