@@ -1164,7 +1164,7 @@ An extreme example: a value of type `[Text:[tuple<Int,Int,Int>]]` (map with
 `Text` keys and a list of tuples as value) could be iterated with a pattern
 `[colorName:[<r,_,b>]]` is a map pattern with a unary pattern as key and a list
 pattern as value which itself has a positional product pattern nested, where
-the second member pattern is a placeholder
+the second field pattern is a placeholder
 
 ### Limitations
 
@@ -1273,7 +1273,7 @@ given the choice of two deconstruction approaches: positional and named.
 
 ### Positional
 
-With a positional product pattern, the members of a product value are
+With a positional product pattern, the fields of a product value are
 deconstructed in the same order they're defined in the pattern.
 
 The positional product pattern can be used to deconstruct all product types.
@@ -1295,14 +1295,14 @@ simon -> <arg1, arg2>
 # favoriteColor is ignored
 ```
 
-Although, it's good practice to be explicit when discarding members using the
+Although, it's good practice to be explicit when discarding fields using the
 placeholder pattern
 
 ```ruby
 simon -> <arg1, arg2, _>
 ```
 
-The placeholder pattern can also be used for "skipping" a member
+The placeholder pattern can also be used for "skipping" a field
 
 ```ruby
 simon -> <arg1, _, arg3>
@@ -1316,12 +1316,12 @@ records, structs)
 
 ### Named
 
-With the named approach you're deconstructing the value based on the member's
+With the named approach you're deconstructing the value based on the field's
 names (the order won't matter), therefore the pattern labels must be the same
-of the member's names.
+of the field's names.
 
 Obviously, named product patterns can only be used with product types with
-named members (i.e. records, structs)
+named fields (i.e. records, structs)
 
 ```ruby
 simon Person.<name:"Simone", age:26, favoriteColor:<255, 0, 0>>
@@ -1345,7 +1345,7 @@ simon -> <name:arg1, age:_, favoriteColor:<r, g, b>>
 # age is explicitly ignored
 ```
 
-Most of the time, you want the pattern names and member names to be the same;
+Most of the time, you want the pattern names and field names to be the same;
 the names in the pattern can be omitted
 
 ```ruby
