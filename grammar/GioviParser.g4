@@ -137,22 +137,22 @@ patternMapKey
 	| literalPlaceholder # patternMapKeyPlaceholder
 	;
 
-productPattern: whole=unaryPattern? '<' patternProductMembers '>' ;
+productPattern: whole=unaryPattern? '<' patternProductFields '>' ;
 
-patternProductMembers
-	: patternMember (',' patternMember)* ','?             # patternProductPositional
-	| patternMemberNamed (',' patternMemberNamed)* ','?   # patternProductNamed
+patternProductFields
+	: patternField (',' patternField)* ','?             # patternProductPositional
+	| patternFieldNamed (',' patternFieldNamed)* ','?   # patternProductNamed
 	;
 
-patternMember
-	: productPattern     # patternMemberProduct
-	| unaryPattern       # patternMemberUnary
-	| literalPlaceholder # patternMemberPlaceholder
+patternField
+	: productPattern     # patternFieldProduct
+	| unaryPattern       # patternFieldUnary
+	| literalPlaceholder # patternFieldPlaceholder
 	;
 
-patternMemberNamed
-	: name=identifier ':' patternMember # patternMemberNamedExplicit
-	| ':' unaryPattern                  # patternMemberNamedImplicit
+patternFieldNamed
+	: name=identifier ':' patternField # patternFieldNamedExplicit
+	| ':' unaryPattern                 # patternFieldNamedImplicit
 	;
 
 unaryPattern: identifier type? ;
