@@ -5570,6 +5570,14 @@ darken(color Color) => darkenedColor Color {
 69 -> var someInteger default 69
 ```
 
+## @candidate Function composition/concatenation operators
+
+```ruby
+trim(t Text) => Text { => t.trim(); }
+lowercase(t Text) => Text { => t.lowercase(); }
+{trim+lowercase}("   HELLO WORLD    ") -> _out # "hello world"
+```
+
 <!-- 
 vim: noet
 -->
