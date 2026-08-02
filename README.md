@@ -5578,6 +5578,19 @@ lowercase(t Text) => Text { => t.lowercase(); }
 {trim+lowercase}("   HELLO WORLD    ") -> _out # "hello world"
 ```
 
+## @candidate `with` statement
+
+Similar to try-with resources
+
+```ruby
+with x Int do {
+	x -> _out
+}
+with alias giovi.util.random.Integer as randInt do {
+	randInt() -> _out
+}
+```
+
 <!-- 
 vim: noet
 -->
