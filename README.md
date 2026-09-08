@@ -5185,6 +5185,35 @@ someMap map[Text:Int]
 someMap <- map.["a":1 "b":2 "c:"3]
 ```
 
+### @candidate Alternative syntax with keywords
+
+More consistent with "braces as code things" philosophy
+
+```giovi
+_out <- type{Int}
+_out <- type{[Int]}
+_out <- function{(x Int, y Int) => Int { => x + y }}
+_out <- function{{"hello world" -> _out}}
+_out <- list{[1 2 3]}
+_out <- map{["a":1 "b":2 "c:"3]}
+_out <- tuple{<1 2 3>}
+_out <- record{<x:1 y:2 z:3>}
+_out <- Point{<x:1 y:2 z:3>}
+```
+
+```giovi
+# ambiguitiy between definition and instantiation expression
+someVariable type{Int}
+someVariable type{[Int]}
+someVariable function{(x Int, y Int) => Int}
+someVariable function{(x Int, y Int)}
+someVariable list{[Int]}
+someVariable map{[Text:Int]}
+someVariable tuple{<Int Int Int>}
+someVariable record{<x Int, y Int, z Int>}
+someVariable Point
+```
+
 ### @candidate Optional keyword for non primitive types
 
 ```giovi
