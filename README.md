@@ -5591,6 +5591,56 @@ with alias giovi.util.random.Integer as randInt do {
 }
 ```
 
+## @candidate Function return type bivariance
+
+If we allow implicit information loss in this instance, we could "safely" allow
+bivariance on the return type.
+
+```giovi
+getPoint3D() => <Int, Int, Int> { => <1 2 3> }
+
+getPoint2D ::() => <Int, Int>
+getPoint2D <- getPoint3D
+
+getPoint2D() -> <Int, Int> # it's safe, but we're implicitly discarding the third value
+```
+
+Alternatively, we could use some syntax sugar to ease downcasting
+
+```giovi
+getPoint3D <- getPoint2D as getPoint3D.type
+
+getPoint3D <- function(() => Int)
+
+# like rust
+getPoint3D into -> getPoint2D
+getPoint2D <- into getPoint2D
+```
+
+### @candidate Default return value
+
+Would allow explicit bivariance on return type
+
+```giovi
+produceInt ::() => Int default 69
+produceInt <- ::{
+	=> 420
+}
+produceInt() -> _out # 420
+
+produceInt <- ::{
+	"hello world" -> _out
+	# no return statement; defaults to 69
+}
+produceInt() -> _out # 69
+```
+
+Syntax conflict with function references variable declaration
+
+```giovi
+produceInt ::() => Int default 69 # what precendence?
+```
+
 <!-- 
 vim: noet
 -->
