@@ -152,7 +152,7 @@ patternField
 
 patternFieldNamed
 	: name=identifier ':' patternField # patternFieldNamedExplicit
-	| ':' unaryPattern                 # patternFieldNamedImplicit
+	| '_' ':' unaryPattern             # patternFieldNamedImplicit
 	;
 
 unaryPattern: identifier type? ;

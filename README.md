@@ -1349,7 +1349,7 @@ Most of the time, you want the pattern names and field names to be the same;
 the names in the pattern can be omitted
 
 ```ruby
-simon -> <:name, :favoriteColor>
+simon -> <_:name, _:favoriteColor>
 ```
 
 ## Iterator patterns
