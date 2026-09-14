@@ -5497,7 +5497,7 @@ struct Person <
 => someStruct.foo
 => someStruct.foo()
 => someStruct.0() # minor precedence incosistency
-=> someStruct.{0}() # minor precedence incosistency
+=> someStruct.{0}()
 = 
 ```
 
