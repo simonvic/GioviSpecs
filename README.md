@@ -4098,6 +4098,12 @@ doSomething(optional Optional{_}) {
 }
 ```
 
+### @candidate Alternative syntax
+
+```ruby
+Optional{{T}} <value T>
+```
+
 ### @candidate Generics inheritance
 
 ```ruby
