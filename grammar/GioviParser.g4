@@ -140,8 +140,8 @@ patternMapKey
 productPattern: whole=unaryPattern? '<' patternProductFields '>' ;
 
 patternProductFields
-	: patternField (',' patternField)* ','?             # patternProductPositional
-	| patternFieldNamed (',' patternFieldNamed)* ','?   # patternProductNamed
+	: patternField (',' patternField)* ','?                 # patternProductPositional
+	| patternFieldNominal (',' patternFieldNominal)* ','?   # patternProductNominal
 	;
 
 patternField
@@ -150,9 +150,9 @@ patternField
 	| literalPlaceholder # patternFieldPlaceholder
 	;
 
-patternFieldNamed
-	: name=identifier ':' patternField # patternFieldNamedExplicit
-	| '_' ':' unaryPattern             # patternFieldNamedImplicit
+patternFieldNominal
+	: name=identifier ':' patternField # patternFieldNominalExplicit
+	| '_' ':' unaryPattern             # patternFieldNominalImplicit
 	;
 
 unaryPattern: identifier type? ;
