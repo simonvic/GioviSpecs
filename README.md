@@ -1955,7 +1955,7 @@ fetchData(query Text.Sql) => Text.Json {}
 ##### @candidate Custom text type processors
 
 ```ruby
-Text : Yaml (
+Text + Yaml (
 	format() => Text {}
 	isValid() => Bool {}
 )
@@ -2850,17 +2850,17 @@ Vehicle <
 	wheelCount Natural
 >
 
-Vehicle : Car <
+Vehicle + Car <
 	wheelCount Natural default 4
 	licensePlate Text
 >
 
-Vehicle : Bike <
+Vehicle + Bike <
 	wheelCount Natural default 2
 	tireType Text
 >
 
-Bike : MotorBike <
+Bike + MotorBike <
 	isOffroad Bool
 >
 ```
@@ -2876,7 +2876,7 @@ Vehicle <
 	>
 	wheelsCount Int
 >
-Vehicle : Car <
+Vehicle + Car <
 	wheelsCount Int default 4
 	plate Text default "xxx"
 	# secondaryEngine Engine
@@ -2893,7 +2893,7 @@ Vehicle <
 	>
 	wheelsCount Int
 >
-Vehicle : Car <
+Vehicle + Car <
 	wheelsCount Int default 4
 	plate Text default "xxx"
 	secondaryEngine Vehicle.Engine
@@ -2909,10 +2909,10 @@ Vehicle <
 	>
 	wheelsCount Int
 >
-Vehicle : Car <
+Vehicle + Car <
 	wheelsCount Int default 4
 	plate Text default "xxx"
-	Vehicle.Engine : Engine <
+	Vehicle.Engine + Engine <
 		fuelType Text
 	>
 	secondaryEngine Engine
@@ -4112,8 +4112,8 @@ Optional{{T}} <value T>
 
 ```ruby
 Box{T} <color Text, something T>
-Box{Car} : CarBox < >
-Box{T} : MagicChest{T} < >
+Box{Car} + CarBox < >
+Box{T} + MagicChest{T} < >
 
 cardboardBox Box{Book} <- <"brown" Book.<"Moby Dick">>
 shelf Box{[Book]} <- <"black" [Book.<"Moby Dick"> Book.<"Metro 2033">]>
@@ -4125,8 +4125,8 @@ chest MagicChest{Gift} <- <"blue" Gift.<"socks">>
 
 ```ruby
 Color <name Text>
-Color : RGB <r Int, g Int, b Int>
-Color : CMYK <c Int, m Int, y Int, k Int>
+Color + RGB <r Int, g Int, b Int>
+Color + CMYK <c Int, m Int, y Int, k Int>
 # Upper bounded by color
 Box{T < Color} <something T>
 
@@ -4586,7 +4586,7 @@ Bike <
 	wheels Int default 2
 >
 
-Car,Bike : ApeCar <
+Car,Bike + ApeCar <
 	wheels Int default 3 # NOTE: default is mandatory since we don't know which one to inherit
 >
 ```
@@ -4595,7 +4595,7 @@ Car,Bike : ApeCar <
 ```ruby
 Color1 <r Int, g Int, b Int>
 Color2 <r Natural, g Natural, b Natural>
-Color1,Color2 : Rgb <
+Color1,Color2 + Rgb <
 	# all Int
 >
 ```
@@ -4604,7 +4604,7 @@ Color1,Color2 : Rgb <
 Food <calories Int>
 Edible <calories Text>
 
-Food,Edible : Apple <>
+Food,Edible + Apple <>
 # ERROR: can't inherit both calories
 ```
 
@@ -5252,23 +5252,7 @@ someTuple <Int Text>
 someRecord <foo:Int bar:Text>
 ```
 
-## @candidate(inheritance_symbol) Different inheritance symbol
-
-Less ambiguity with semicolons used elsewhere.
-
-Clearer meaning (union with parent)
-
-```ruby
-Point + Point3D<z Int>
-Coordinate,Point + Point3D<z Int>
-```
-
-```ruby
-Point + Point3D<z Int>
-Coordinate,Point + Point3D<z Int>
-```
-
-## @candidate(requires:inheritance_symbol) Use semicolon for instantiation
+## @candidate Use semicolon for instantiation
 
 ```ruby
 Point<x Int, y Int>

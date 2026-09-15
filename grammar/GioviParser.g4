@@ -167,7 +167,7 @@ unaryPattern: identifier type? ;
 /////////////////////////////////////////////////////////////////////////////// STRUCTS
 
 structDefinition
-	: (parentType=typeQualified ':')? STRUCT? typename=identifier body=structBodyDefinition
+	: (parentType=typeQualified '+')? STRUCT? typename=identifier body=structBodyDefinition
 	;
 
 structBodyDefinition
