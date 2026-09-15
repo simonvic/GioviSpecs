@@ -4608,6 +4608,22 @@ Food,Edible + Apple <>
 # ERROR: can't inherit both calories
 ```
 
+## @candidate Explicit inheritance/composition order
+
+```ruby
+Transportation,Vehicle + struct Car <
+	brand Text
+> AirCondition,ReclineableSeats
+
+_out <- Car.<
+# Transportation fields
+# Vehicle fields
+# brand Text
+# AirCondition fields
+# ReclineableSeats fields
+>
+```
+
 ## @candidate Unified loop keyword
 
 ```ruby
