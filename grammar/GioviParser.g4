@@ -106,11 +106,17 @@ redirectionPattern
 	| literalPlaceholder # redirectionPatternPlaceholder
 	;
 
-constantDeclaration: CONST name=identifier type? REDIRECTION_RTL value=expression ;
+constantDeclaration
+	: CONST name=identifier type? REDIRECTION_RTL value=expression
+	| value=expression REDIRECTION CONST name=identifier type?
+	;
 
 varDeclaration: name=identifier type defaultDefinition? ;
 
-varDeclarationInfer: VAR name=identifier type? defaultDefinition? REDIRECTION_RTL value=expression ;
+varDeclarationInfer
+	: VAR name=identifier type? defaultDefinition? REDIRECTION_RTL value=expression
+	| value=expression REDIRECTION VAR name=identifier type? defaultDefinition?
+	;
 
 defaultDefinition: literalDefault expression;
 
