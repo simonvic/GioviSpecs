@@ -13,7 +13,7 @@ block: '{' statement* '}';
 //////////////////////////////////////////////////////////////////////////////// STATEMENTS
 
 statement
-    : importStatement
+    : (importStatement
     | aliasStatement
     | ifStatement
     | multiIfStatement
@@ -31,6 +31,7 @@ statement
     | functionDeclaration
     | returnStatement
     | invocationStatement
+    ) ';'?
     ;
 
 statementOrBlock: statement | block;
@@ -62,26 +63,26 @@ iteratorPattern
 	| pattern
 	;
 
-returnStatement: (RETURN | RETURN_SYM) expression? ';'?;
+returnStatement: (RETURN | RETURN_SYM) expression? ;
 
-breakStatement: BREAK ';'?;
+breakStatement: BREAK ;
 
-skipStatement: CONTINUE ';'?;
+skipStatement: CONTINUE ;
 
 // TODO: eventually unify patterns and variable declaration
 
 redirection
-    : content=expression bop=REDIRECTION dest=varDeclaration                    # redirectionToVarDeclaration
-    | content=expression bop=REDIRECTION dest=redirectionPattern ';'?           # redirectionToPattern
-    | content=expression bop=redirectionOperator dest=reservedIdentifier ';'?   # redirectionToReservedIdentifier
-    | content=expression bop=redirectionOperator dest=expression ';'?           # redirectionToExpression
+    : content=expression bop=REDIRECTION dest=varDeclaration                # redirectionToVarDeclaration
+    | content=expression bop=REDIRECTION dest=redirectionPattern            # redirectionToPattern
+    | content=expression bop=redirectionOperator dest=reservedIdentifier    # redirectionToReservedIdentifier
+    | content=expression bop=redirectionOperator dest=expression            # redirectionToExpression
     ;
 
 redirectionRTL
-    : dest=varDeclaration bop=REDIRECTION_RTL content=expression                   # redirectionToVarDeclarationRTL
-    | dest=redirectionPattern bop=REDIRECTION_RTL content=expression ';'?          # redirectionToPatternRTL
-    | dest=reservedIdentifier bop=redirectionOperatorRTL content=expression ';'?   # redirectionToReservedIdentifierRTL
-    | dest=expression bop=redirectionOperatorRTL content=expression ';'?           # redirectionToExpressionRTL
+    : dest=varDeclaration bop=REDIRECTION_RTL content=expression               # redirectionToVarDeclarationRTL
+    | dest=redirectionPattern bop=REDIRECTION_RTL content=expression           # redirectionToPatternRTL
+    | dest=reservedIdentifier bop=redirectionOperatorRTL content=expression    # redirectionToReservedIdentifierRTL
+    | dest=expression bop=redirectionOperatorRTL content=expression            # redirectionToExpressionRTL
     ;
 
 redirectionOperator
@@ -105,11 +106,11 @@ redirectionPattern
 	| literalPlaceholder # redirectionPatternPlaceholder
 	;
 
-constantDeclaration: CONST name=identifier type? REDIRECTION_RTL value=expression ';'?;
+constantDeclaration: CONST name=identifier type? REDIRECTION_RTL value=expression ;
 
-varDeclaration: name=identifier type defaultDefinition? ';'?;
+varDeclaration: name=identifier type defaultDefinition? ;
 
-varDeclarationInfer: VAR name=identifier type? defaultDefinition? REDIRECTION_RTL value=expression ';'?;
+varDeclarationInfer: VAR name=identifier type? defaultDefinition? REDIRECTION_RTL value=expression ;
 
 defaultDefinition: literalDefault expression;
 
@@ -160,7 +161,7 @@ unaryPattern: identifier type? ;
 /////////////////////////////////////////////////////////////////////////////// STRUCTS
 
 structDefinition
-	: (parentType=typeQualified ':')? STRUCT? typename=identifier body=structBodyDefinition ';'?
+	: (parentType=typeQualified ':')? STRUCT? typename=identifier body=structBodyDefinition
 	;
 
 structBodyDefinition
