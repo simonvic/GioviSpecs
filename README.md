@@ -2833,6 +2833,8 @@ Color.rgb(5, 20, 512)
 
 #### Structs inheritance
 
+TODO: rephrase as "composition"
+
 A struct can inherit the fields from another struct, but beware that the term
 "inheritance" is used loosely here, since we are not talking about "true
 inheritance" like in other object oriented languages; it's just syntax sugar to
@@ -3096,6 +3098,8 @@ Eventually to be intergrated with "interfaces/traits", allowing the `for` to
 iterato on any struct that implements the `Iterable` interface
 
 ### Function type
+
+TODO: rename as closures?
 
 Functions are first-class citizens. This means they behave like any other
 value: they have a type, can be assigned to variables, can be passed as
