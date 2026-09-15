@@ -111,7 +111,7 @@ constantDeclaration
 	| value=expression REDIRECTION CONST name=identifier type?
 	;
 
-varDeclaration: name=identifier type defaultDefinition? ;
+varDeclaration: VAR? name=identifier type defaultDefinition? ;
 
 varDeclarationInfer
 	: VAR name=identifier type? defaultDefinition? REDIRECTION_RTL value=expression
