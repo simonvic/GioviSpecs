@@ -318,6 +318,7 @@ accessKey
     | range                            # accessKeyRange
     | literal                          # accessKeyLiteral
     | identifier                       # accessKeyIdentifier
+    | reservedIdentifier               # accessKeyReservedIdentifier
     ;
 
 typeList:     '[' type ('*' '*' initSize=expression)? ']';
