@@ -303,11 +303,11 @@ typeQualified: (identifier '.')* typename=identifier ;
 
 //////////////////////////////////////////////////////////////////////////////// PRODUCT TYPES
 
-typeTuple: TUPLE '<' (typeTupleEntry ','?)* '>' ;
+typeRecord: RECORD? '<' (fieldDeclaration ','?)* '>' ;
+
+typeTuple: TUPLE? '<' (typeTupleEntry ','?)* '>' ;
 
 typeTupleEntry: type defaultDefinition?;
-
-typeRecord: RECORD '<' (fieldDeclaration ','?)* '>' ;
 
 //////////////////////////////////////////////////////////////////////////////// COMPOSITE TYPES
 
