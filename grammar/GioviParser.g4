@@ -261,7 +261,7 @@ expression
     | expression AS type                                                 # expressionCast
     | expression IS NOT? type                                            # expressionTypeCheck
     | expression IS NOT? pattern                                         # expressionPatternMatching // TODO: only allow non-interator patterns?
-    | expression '.' (invocation | identifier | 'default')               # expressionDot
+    | expression '.' (invocation | identifier | 'default' | accessKey)   # expressionDot
     | expression '::' identifier                                         # expressionDotRef
     | ('::' | FUNCTION '.') referenceable                                # expressionRef
     | listCreation                                                       # expressionListCreation
@@ -277,7 +277,6 @@ expression
     | expression bop=(BIT_LSHIFT | BIT_RSHIFT | BIT_RUSHIFT) expression  # expressionBitwiseShift
     | prefix=('+' | '-') expression                                      # expressionPrefixed
     | prefix=(NOT | NOT_SYM) expression                                  # expressionNot
-    | expression bop='@' accessKey                                       # expressionAccess
     | expression bop='^' expression                                      # expressionPower
     | expression bop=('*' | '/' | '%') expression                        # expressionMultiplicative
     | expression bop=('+' | '-') expression                              # expressionAdditive
