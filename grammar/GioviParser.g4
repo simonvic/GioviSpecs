@@ -107,15 +107,15 @@ redirectionPattern
 	;
 
 constantDeclaration
-	: CONST name=identifier type? REDIRECTION_RTL value=expression
-	| value=expression REDIRECTION CONST name=identifier type?
+	: CONST name=identifier (':' type)? REDIRECTION_RTL value=expression
+	| value=expression REDIRECTION CONST name=identifier (':' type)?
 	;
 
-varDeclaration: VAR? name=identifier type defaultDefinition? ;
+varDeclaration: VAR? name=identifier ':' type defaultDefinition? ;
 
 varDeclarationInfer
-	: VAR name=identifier type? defaultDefinition? REDIRECTION_RTL value=expression
-	| value=expression REDIRECTION VAR name=identifier type? defaultDefinition?
+	: VAR name=identifier (':' type)? defaultDefinition? REDIRECTION_RTL value=expression
+	| value=expression REDIRECTION VAR name=identifier (':' type)? defaultDefinition?
 	;
 
 defaultDefinition: literalDefault expression;
@@ -162,7 +162,7 @@ patternFieldNominal
 	| '_' '=' unaryPattern             # patternFieldNominalImplicit
 	;
 
-unaryPattern: identifier type? ;
+unaryPattern: identifier (':' type)? ;
 
 /////////////////////////////////////////////////////////////////////////////// STRUCTS
 
@@ -182,7 +182,7 @@ structBodyDefinition
 	;
 
 // TODO: what about list or map of self?
-fieldDeclaration: identifier (type defaultDefinition? | SELF) ','?;
+fieldDeclaration: identifier ':' (type defaultDefinition? | SELF) ','?;
 
 selfFunctionDeclaration: selfFunctionSignature body=block ;
 
@@ -210,7 +210,7 @@ anonFunctionSignature: formalParameters (RETURN_SYM returnType=type)? ;
 
 formalParameters: '(' (formalParameter (',' formalParameter)* ','?)? ')';
 
-formalParameter: (label=identifier '=')? name=identifier type defaultDefinition?;
+formalParameter: (label=identifier '=')? name=identifier ':' type defaultDefinition?;
 
 invocationStatement
 	: (expression '.')? invocation # invocationStatementSimple
