@@ -158,8 +158,8 @@ patternField
 	;
 
 patternFieldNominal
-	: name=identifier ':' patternField # patternFieldNominalExplicit
-	| '_' ':' unaryPattern             # patternFieldNominalImplicit
+	: name=identifier '=' patternField # patternFieldNominalExplicit
+	| '_' '=' unaryPattern             # patternFieldNominalImplicit
 	;
 
 unaryPattern: identifier type? ;
@@ -190,15 +190,15 @@ selfFunctionSignature: self=SELF? name=identifier formalParameters (RETURN_SYM (
 
 structCreation: (STRUCT '.')? typeQualified '.' (recordCreationBody | tupleCreationBody) ;
 
-tupleCreation: (TUPLE '.')? tupleCreationBody ;
-
-tupleCreationBody: '<' (expression ','?)* '>' ;
-
 recordCreation: (RECORD '.')? recordCreationBody ;
 
 recordCreationBody: '<' (recordEntry ','?)+ '>' ;
 
-recordEntry: identifier ':' expression ;
+recordEntry: identifier '=' expression ;
+
+tupleCreation: (TUPLE '.')? tupleCreationBody ;
+
+tupleCreationBody: '<' (expression ','?)* '>' ;
 
 //////////////////////////////////////////////////////////////////////////////// FUNCTIONS
 
@@ -210,7 +210,7 @@ anonFunctionSignature: formalParameters (RETURN_SYM returnType=type)? ;
 
 formalParameters: '(' (formalParameter (',' formalParameter)* ','?)? ')';
 
-formalParameter: (label=identifier ':')? name=identifier type defaultDefinition?;
+formalParameter: (label=identifier '=')? name=identifier type defaultDefinition?;
 
 invocationStatement
 	: (expression '.')? invocation # invocationStatementSimple
@@ -222,7 +222,7 @@ invocation: identifier actualParameters ;
 
 actualParameters: '(' (actualParameter (',' actualParameter)* ','?)? ')';
 
-actualParameter: (label=identifier ':')? value=expression;
+actualParameter: (label=identifier '=')? value=expression;
 
 //////////////////////////////////////////////////////////////////////////////// FLOW CONTROL
 
@@ -266,9 +266,9 @@ expression
     | ('::' | FUNCTION '.') referenceable                                # expressionRef
     | listCreation                                                       # expressionListCreation
     | mapCreation                                                        # expressionMapCreation
-    | tupleCreation                                                      # expressionTupleCreation
-    | recordCreation                                                     # expressionRecordCreation
     | structCreation                                                     # expressionStructCreation
+    | recordCreation                                                     # expressionRecordCreation
+    | tupleCreation                                                      # expressionTupleCreation
     | TYPE '.' type                                                      # expressionTypeCreation
     | expression actualParameters                                        # expressionInvocation
     | invocation                                                         # expressionInvocationSimple
