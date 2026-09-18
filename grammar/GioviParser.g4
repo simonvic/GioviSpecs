@@ -136,7 +136,7 @@ listPattern: '[' pattern ']' ;
 
 mapPattern: '[' patternMapNaked ']' ;
 
-patternMapNaked: key=patternMapKey ':' value=pattern ;
+patternMapNaked: key=patternMapKey '=>' value=pattern ;
 
 patternMapKey
 	: productPattern     # patternMapKeyProduct
@@ -327,10 +327,10 @@ listEntries:  (listEntry ','?)*;
 listEntry:    expression | range;
 // TODO: listEntries ->+ list
 
-typeMap:     '[' mapKeyType=type ':' mapValueType=type ']';
-mapCreation: '[' (':' | mapEntries) ']';
+typeMap:     '[' mapKeyType=type '=>' mapValueType=type ']';
+mapCreation: '[' ('=>' | mapEntries) ']';
 mapEntries:  (mapEntry ','?)+;
-mapEntry:    mapKey=expression ':' mapValue=expression;
+mapEntry:    mapKey=expression '=>' mapValue=expression;
 // TODO: mapEntries ->+ map
 
 //////////////////////////////////////////////////////////////////////////////// FUNCTION REFS
