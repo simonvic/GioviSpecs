@@ -606,7 +606,7 @@ x Int := 69
 x := 69
 ```
 
-## @candidate type prefix
+## @candidate(requires:label_separator) Type prefix
 
 `::` for function, `//` for modules, maybe `~` for types?
 
@@ -5678,6 +5678,40 @@ Syntax conflict with function references variable declaration
 
 ```giovi
 produceInt ::() => Int default 69 # what precendence?
+```
+
+## @candidate(label_separator) Different label separator
+
+if types are separated with `:`, labels could be separated with `=`
+
+```ruby
+simon:Person.<name="Simone", age=26, favoriteColor=<255, 0, 0>>
+simon -> <name=arg1, favoriteColor=arg2, age=arg3>
+
+processPizzaOrder(
+	ofType = type:Text,
+	atTable = tableNumber:Int,
+	withPineapple = hasPineapple:Bool,
+) {
+	if hasPineapple do return
+	makePizza(type) -> pizza:Pizza
+	serve(pizza, tableNumber)
+}
+
+processPizzaOrder(
+	ofType = "Diavola",
+	atTable = 69,
+	withPineapple = false
+)
+```
+
+### @candidate Different equal sign
+
+To avoid ambiguity, eventually change `=` to `==`
+
+```ruby
+foo(label=val)
+foo(notLabel==val)
 ```
 
 <!-- 
