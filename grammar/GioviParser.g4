@@ -260,7 +260,7 @@ expression
     : '{' expression '}'                                                 # expressionParenthesized
     | expression AS type                                                 # expressionCast
     | expression IS NOT? type                                            # expressionTypeCheck
-    | expression IS NOT? pattern                                         # expressionPatternMatching
+    | expression IS NOT? pattern                                         # expressionPatternMatching // TODO: only allow non-interator patterns?
     | expression '.' (invocation | identifier | 'default')               # expressionDot
     | expression '::' identifier                                         # expressionDotRef
     | ('::' | FUNCTION '.') referenceable                                # expressionRef
