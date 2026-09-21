@@ -3813,6 +3813,8 @@ alias some.very.deep.Module as Module
 
 ### @candidate Import behaviour
 
+Import as object vs in-place import
+
 ```giovi
 import foo.bar # import whole module
 foo.bar.FOO -> _out
@@ -3820,6 +3822,15 @@ foo.bar.FOO -> _out
 import foo.bar # import module in current scope
 FOO -> _out
 ```
+
+### @candidate Parent module visibility
+
+If modules are like named scopes, parent scopes should be accessible, hence we
+can't import nested modules without importing the parents.
+
+Either we make the import statement automatically visit all modules in the URI
+(possible unwanted side effects if the module contains code) or we require the
+user to import manually (annoying and easy to break)
 
 ## @candidate Module return value
 
