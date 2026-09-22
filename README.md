@@ -283,7 +283,6 @@ someVariable.default -> _out
 SomeStruct.someField -> _out
 ```
 
-@candidate accessing a value with an unknown identifier will return a Void value.
 
 ```ruby
 Color <r Int, g Int, b Int>
@@ -405,21 +404,21 @@ if x is i Int do {
 }
 ```
 
-@candidate This means that if the `is` operator is negated, the opposite would be true
-
-```ruby
-if x is not i Int do {
-	i -> _out # ERROR: i not declared
-} else {
-	i -> _out # Ok
-}
-
-if x is not i Int do {
-	i -> _out # ERROR: i not declared
-}
-i -> _out # Ok
-# TODO: should it?
-```
+> @candidate This means that if the `is` operator is negated, the opposite would be true
+> 
+> ```ruby
+> if x is not i Int do {
+> 	i -> _out # ERROR: i not declared
+> } else {
+> 	i -> _out # Ok
+> }
+> 
+> if x is not i Int do {
+> 	i -> _out # ERROR: i not declared
+> }
+> i -> _out # Ok
+> # TODO: should it?
+> ```
 
 The same behavior applies to if-chain, except when the operator is negated
 
@@ -750,17 +749,17 @@ The type can be omitted as it will be inferred from the assigned value
 const PI <- 3.1415926535
 ```
 
-@candidate mention shallow vs deep immutability
-
-```ruby
-const LIST <- [1 2 3]
-LIST <- [69 420] # shallow immutability
-LIST@0 <- 69 # deep immutability
-
-const FOO <- <bar:"hello", baz:69>
-FOO <- <"world" 420> # shallow immutability
-FOO.bar <- "world" # deep immutability
-```
+> @candidate mention shallow vs deep immutability
+> 
+> ```ruby
+> const LIST <- [1 2 3]
+> LIST <- [69 420] # shallow immutability
+> LIST@0 <- 69 # deep immutability
+> 
+> const FOO <- <bar:"hello", baz:69>
+> FOO <- <"world" 420> # shallow immutability
+> FOO.bar <- "world" # deep immutability
+> ```
 
 # Control structure
 
@@ -1981,14 +1980,14 @@ The indexes are 0-based
 | Concatenation | `+`     | `[1 2 3] + [4 5]`   | `[1 2 3 4 5]` |
 | Intersection  | `-`     | `[1 2 3 2] - [2 4]` | `[1 3]`       |
 
-@candidate
-
-| Operation     | Symbol  | Example                 | Output            |
-| ------------- | ------- | ----------------------- | ----------------- |
-| Split         | `/`     | `[1 1 0 0 1 1] / [1 0]` | `[[1 1] [1 1]]`   |
-|               |         | `[1 1 1 0 1 1] / 0`     | `[[1 1 1] [1 1]]` |
-| Concatenation | `+`     | `[1 2 3 4] + 5`         | `[1 2 3 4 5]`     |
-| Intersection  | `-`     | `[1 2 3 2] - 2`         | `[1 3]`           |
+> @candidate
+> 
+> | Operation     | Symbol  | Example                 | Output            |
+> | ------------- | ------- | ----------------------- | ----------------- |
+> | Split         | `/`     | `[1 1 0 0 1 1] / [1 0]` | `[[1 1] [1 1]]`   |
+> |               |         | `[1 1 1 0 1 1] / 0`     | `[[1 1 1] [1 1]]` |
+> | Concatenation | `+`     | `[1 2 3 4] + 5`         | `[1 2 3 4 5]`     |
+> | Intersection  | `-`     | `[1 2 3 2] - 2`         | `[1 3]`           |
 
 <!-- TODO: what about a function!!!
 	list / ::(value) => value%2=0
@@ -2093,23 +2092,23 @@ letters@_count  # 10 (elements count)
 letters@_range  # 0..9 (range) useful when you need to iterate a list with indexes
 ```
 
-@candidate Out-of-bound access will not throw an error, but rather return a
-default entry value.
-
-```ruby
-numbers [Int] <- [1 2 3]
-numbers@69 -> _out
-# will print 0 (Int default)
-```
-
-Note that it does not mean a value is automatically added.
-
-```ruby
-numbers [Int] <- [1 2 3]
-numbers@69 -> _out
-numbers@_count -> _out
-# will print 3 (entries count)
-```
+> @candidate Out-of-bound access will not throw an error, but rather return a
+> default entry value.
+> 
+> ```ruby
+> numbers [Int] <- [1 2 3]
+> numbers@69 -> _out
+> # will print 0 (Int default)
+> ```
+> 
+> Note that it does not mean a value is automatically added.
+> 
+> ```ruby
+> numbers [Int] <- [1 2 3]
+> numbers@69 -> _out
+> numbers@_count -> _out
+> # will print 3 (entries count)
+> ```
 
 ##### Multidimensional list (matrix)
 
@@ -2205,14 +2204,14 @@ A key and value pair may also be called a map entry.
 | Merge/Put           | `+`     | `["a":1, "b":2] + ["b":69, "c":420]`     | `["a":1, "b":69, "c":420]` |
 | Intersection        | `-`     | `["a":1, "b":2] - ["b":2, "c":420]`      | `["a":1]`                  |
 
-@candidate
-
-| Operation             | Symbol  | Example                                  | Output                     |
-| --------------------- | ------- | -----------------------------            | -------------------------- |
-| Intersection (keys)   | `-`     | `["a":1, "b":2, "c":3] - ["b":_, "c":_]` | `["a":1]`                  |
-|                       |         | `["a":1, "b":2, "c":3] - "c"`            | `["a":1, "b":2]`           |
-|                       |         | `["a":1, "b":2, "c":3] - ["b", "c"]`     | `["a":1]`                  |
-| Intersection (values) | `-`     | `["a":1, "b":2, "c":3] - [_:3]`          | `["a":1, "b":2]`           |
+> @candidate
+> 
+> | Operation             | Symbol  | Example                                  | Output                     |
+> | --------------------- | ------- | -----------------------------            | -------------------------- |
+> | Intersection (keys)   | `-`     | `["a":1, "b":2, "c":3] - ["b":_, "c":_]` | `["a":1]`                  |
+> |                       |         | `["a":1, "b":2, "c":3] - "c"`            | `["a":1, "b":2]`           |
+> |                       |         | `["a":1, "b":2, "c":3] - ["b", "c"]`     | `["a":1]`                  |
+> | Intersection (values) | `-`     | `["a":1, "b":2, "c":3] - [_:3]`          | `["a":1, "b":2]`           |
 
 ##### Relational
 
@@ -2275,12 +2274,12 @@ Default values can be used
 default -> carCount@{"Fiat"}
 ```
 
-@candidate Default entry value can be overridden (but not keys)
-
-```ruby
-carCount [Text : Int default 69]
-default -> carCount@"Ferrari"
-```
+> @candidate Default entry value can be overridden (but not keys)
+> 
+> ```ruby
+> carCount [Text : Int default 69]
+> default -> carCount@"Ferrari"
+> ```
 
 #### Map Access
 
@@ -2305,23 +2304,23 @@ carCount@_keys   # ["Mercedes" "Audi" "BMW" "Ferrari"]
 carCount@_values # [10 7 15 20]
 ```
 
-@candidate A map maps all possible values of its domain, so accessing a
-"non-existing" key will not throw an error, but rather return a default value.
-
-```ruby
-carCount [Text : Int]
-carCount@"UnkownModel" -> _out
-# will print 0
-```
-
-This does not mean the entry is automatically added; using the containment
-operator will still return false
-
-```ruby
-carCount [Text : Int]
-carCount@"UnkownModel" -> _out
-carCount =~ "UnkownModel" -> _out # false
-```
+> @candidate A map maps all possible values of its domain, so accessing a
+> "non-existing" key will not throw an error, but rather return a default value.
+> 
+> ```ruby
+> carCount [Text : Int]
+> carCount@"UnkownModel" -> _out
+> # will print 0
+> ```
+> 
+> This does not mean the entry is automatically added; using the containment
+> operator will still return false
+> 
+> ```ruby
+> carCount [Text : Int]
+> carCount@"UnkownModel" -> _out
+> carCount =~ "UnkownModel" -> _out # false
+> ```
 
 Examples
 
@@ -2533,8 +2532,8 @@ me Person <- Person.<
 >
 ```
 
-@candidate For consistency, it can optionally be prefixed by the `struct`
-keyword and a `dot`
+For consistency with other product types, it can optionally be prefixed by the
+`struct` keyword and a `dot`
 
 ```ruby
 me Person <- struct.Person.<>
@@ -2678,7 +2677,7 @@ engine Car.Engine
 You can define recursive struct (struct defined with itself) using the `self`
 keyword
 
-@candidate allow to use typename instead of `self` keyword
+> @candidate allow to use typename instead of `self` keyword
 
 ```ruby
 Node <
@@ -2687,15 +2686,15 @@ Node <
 >
 ```
 
-@candidate An alias `Self` (with capital S) is available for consistency with
-types naming conventions
-
-```ruby
-Node <
-	data Text
-	nextNode Self
->
-```
+> @candidate An alias `Self` (with capital S) is available for consistency with
+> types naming conventions
+> 
+> ```ruby
+> Node <
+> 	data Text
+> 	nextNode Self
+> >
+> ```
 
 In Giovi all values are initialized at declaration, but in these case a lazy
 approach is used and the `nextNode` is initialized when accessed for the first
@@ -2768,8 +2767,8 @@ value but the fields by reference -->
 In the function body, you can use `self` as a variable; it will be the instance
 of the struct from which the function has been invoked.
 
-@candidate if we rework the struct to have an actual scope, allow omitting the
-`self` when accessing fields
+> @candidate if we rework the struct to have an actual scope, allow omitting the
+> `self` when accessing fields
 
 ```ruby
 Car <
@@ -3266,12 +3265,12 @@ Point.<x:1 y:2> as Point3D -> p3d Point3D # widening
 Point3D.<x:1 y:2 z:3> as Point -> p Point # narrowing
 ```
 
-@candidate alternative syntax
-
-```ruby
-Real.of(69n)
-Point3D.of(Point.<>)
-```
+> @candidate alternative syntax
+> 
+> ```ruby
+> Real.of(69n)
+> Point3D.of(Point.<>)
+> ```
 
 ## Type conversion table
 
@@ -4392,14 +4391,14 @@ if catch ex LogException do {
 The catch expression can be non-exhaustive. The uncaught exceptions will be
 wrapped as a cause and re-thrown
 
-@candidate what if we use a "trailing" catch statement without `try`?
-
-```ruby
-doSomething() if catch ex {
-	is Exception1 do {}
-	is Exception2 do {}
-}
-```
+> @candidate what if we use a "trailing" catch statement without `try`?
+> 
+> ```ruby
+> doSomething() if catch ex {
+> 	is Exception1 do {}
+> 	is Exception2 do {}
+> }
+> ```
 
 ### @candidate Errors
 
@@ -4486,17 +4485,17 @@ interface Vec <
 i Vec # variable of interface Vec
 ```
 
-@candidate Alternative syntax with no interface keyword. Any Struct with no
-field and zero or more abstract functions is an interface
-
-```ruby
-Any<>
-Vec <
-	self magnitude() => Real
-	self normalize() => Vec
-	distance(from Vec, to Vec) => Real
->
-```
+> @candidate Alternative syntax with no interface keyword. Any Struct with no
+> field and zero or more abstract functions is an interface
+> 
+> ```ruby
+> Any<>
+> Vec <
+> 	self magnitude() => Real
+> 	self normalize() => Vec
+> 	distance(from Vec, to Vec) => Real
+> >
+> ```
 
 Unlike other variables where in an assignment the operand needs to be narrower
 or equal which gets widened, with interface variables the assignment can be
@@ -4504,7 +4503,6 @@ seen as narrowing operation: an interface variable can hold any value whose
 type implements those function signatures
 
 ```ruby
-
 Vec2 <
 	x Real
 	y Real
@@ -5058,6 +5056,26 @@ Foo <
 i Int <- someTuple?someField?someOtherField
 # if any of the access fails, short circuit and return void, default or something
 ```
+
+> @candidate accessing a value with an unknown identifier will return a Void value.
+> 
+> ```ruby
+> Color <r Int, g Int, b Int>
+> color Color
+> color.foo -> _out # void
+> if color.foo is not Void do {
+> 	color.foo -> _out
+> }
+> if color.r is red Int do {
+> 	red -> _out
+> }
+> if color.r {
+> 	is red Int do red -> _out
+> 	is red Real do red -> _out
+> 	is red Natural do red -> _out
+> 	is Void do "field r not present" -> _out
+> }
+> ```
 
 ## @candidate Docs part of the code
 
