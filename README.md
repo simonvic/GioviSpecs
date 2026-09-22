@@ -3532,20 +3532,6 @@ bankAccounts [Person : [Account]] <- [
 ]
 ```
 
-## @candidate List type inference
-
-```ruby
-listOfInteger [] <- [-1 0 4 5]     # [Int]
-listOfReal [] <- [1n 2 3.14]       # [Real]
-listOfText [] <- ["Luca" "Paolo"]  # [Text]
-listOfBool [] <- [true false true] # [Bool]
-listOfColor [] <- [ # [Color]
-	<2 2 2>
-	Color.<1 1 1>
-	<r:3 g:3 b:3>
-]
-```
-
 # Default value
 
 TODO: this is rather important lol Expand this section
