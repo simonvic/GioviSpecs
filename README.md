@@ -282,6 +282,23 @@ wallets."Simone" -> _out # 6.9
 wallets.{names.3} -> _out # 69.420
 ```
 
+NOTE: beware of the difference between the `foo.bar` notation and `foo.{bar}`
+notation. With the former, you're referencing to a member named `bar`; with the
+latter, the expression within the braces is evaluated first and then used to
+access.
+
+```ruby
+Color <r Int, g Int, b Int>
+someColor Color <- <255 100 50>
+someColor.r -> _out # 255
+
+r Int <- 1
+someColor.{r} -> _out # 100
+# r is first evaluated to 1 and then used
+```
+
+### Special properties
+
 Depending on the type, you can also access "special" properties (e.g. lists
 length, substrings, slices). See:
 - [Text access](#text-access)
