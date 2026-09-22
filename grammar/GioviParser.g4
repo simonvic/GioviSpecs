@@ -314,7 +314,6 @@ typeRecord: RECORD '<' (fieldDeclaration ','?)* '>' ;
 
 accessKey
     : '{' (accessKey | expression) '}' # accessKeyParenthesized
-    | key=('%' | '@' | '*')            # accessKeySpecial
     | range                            # accessKeyRange
     | literal                          # accessKeyLiteral
     | identifier                       # accessKeyIdentifier
