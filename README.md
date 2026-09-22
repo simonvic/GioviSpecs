@@ -251,8 +251,8 @@ if "someValue" not in someList do "Not contained" -> _out
 
 ## Access operator
 
-The access operator `@` is used to access special properties of variable/type.<br>
-The "key" used for access can be a special symbol, a literal (e.g. `Int`) or a variable
+The access operator `@` is used to access special properties.<br>
+The "key" used for access can be a special symbol, a literal or a variable
 
 ```
 <accessed>@<key>
@@ -951,7 +951,7 @@ list [Int] <- [ 1 2 3 4 ]
 if list {
 
 	# if contains 69 but only when elements count is less than 100
-	=~ 69 when list@% < 100 do {}
+	=~ 69 when list@_count < 100 do {}
 
 	# if contains 69 but only when someFunction() returns 420
 	=~ 69 when someFunction() = 420 do {}
@@ -1737,13 +1737,13 @@ You can use the exponent notation
 
 #### Text Access
 
-| key   | output                     |
-|-------|----------------------------|
-| Int   | char at that index         |
-| Range | substring                  |
-| `%`   | length                     |
-| `*`   | List of chars (Text)       |
-| `@`   | Range from 0 to length - 1 |
+| key      | output                     |
+|----------|----------------------------|
+| Int      | char at that index         |
+| Range    | substring                  |
+| `_count` | length of the text         |
+| `_chars` | List of chars (Text)       |
+| `_range` | Range from 0 to length - 1 |
 
 ```ruby
 "hello world" -> text Text
@@ -1760,11 +1760,11 @@ text@{-11}  # "h" 11 from last character
 text@1..6               # "ello w" from 1 to 6
 text@0..10..2           # "hlowrd" from 0 to 10 every 2
 text@10..0              # "dlrow olleh" from 10 to 0
-text@{text@% - 1 .. 0}  # "dlrow olleh" from text length - 1  to 0
+text@{text@_count - 1 .. 0}  # "dlrow olleh" from text length - 1  to 0
 
-text@%         # 11 (length)
-text@@         # 0..10 (range)
-text@*         # [ "h" "e" "l" "l" "o" " " "w" "o" "r" "l" "d" ]
+text@_count         # 11 (length)
+text@_range         # 0..10 (range)
+text@_chars         # [ "h" "e" "l" "l" "o" " " "w" "o" "r" "l" "d" ]
 ```
 
 #### Text block
@@ -2065,12 +2065,12 @@ x [Int ^ 3] # x has always 3 elements
 
 #### List Access
 
-| key   | output                     |
-|-------|----------------------------|
-| Int   | element at that index      |
-| Range | "slice" of list            |
-| `%`   | elements count             |
-| `@`   | Range from 0 to length - 1 |
+| key      | output                     |
+|----------|----------------------------|
+| Int      | element at that index      |
+| Range    | "slice" of list            |
+| `_count` | elements count             |
+| `_range` | Range from 0 to length - 1 |
 
 ```ruby
 letters [Text] <- ["a" "b" "c" "d" "e" "f" "g" "h" "i" "j"]
@@ -2087,10 +2087,10 @@ letters@{-11}  # "h" 11 from last character
 letters@2..5                # ["c" "d" "e" "f"]
 letters@0..10..2            # ["a" "c" "e" "g" "i"]
 letters@10..0               # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
-letters@{letters@% - 1..0}  # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
+letters@{letters@_count - 1..0}  # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
 
-letters@%  # 10 (elements count)
-letters@@  # 0..9 (range) useful when you need to iterate a list with indexes
+letters@_count  # 10 (elements count)
+letters@_range  # 0..9 (range) useful when you need to iterate a list with indexes
 ```
 
 @candidate Out-of-bound access will not throw an error, but rather return a
@@ -2107,7 +2107,7 @@ Note that it does not mean a value is automatically added.
 ```ruby
 numbers [Int] <- [1 2 3]
 numbers@69 -> _out
-numbers@% -> _out
+numbers@_count -> _out
 # will print 3 (entries count)
 ```
 
@@ -2287,9 +2287,9 @@ default -> carCount@"Ferrari"
 | key           | output                     |
 |---------------|----------------------------|
 | map key value | element mapped to that key |
-| `%`           | entries count              |
-| `@`           | List of map keys           |
-| `*`           | List of map elements       |
+| `_count`      | entries count              |
+| `_keys`       | List of map keys           |
+| `_values`     | List of map elements       |
 
 ```ruby
 carCount [Text : Int] <- [
@@ -2300,9 +2300,9 @@ carCount [Text : Int] <- [
 ]
 
 carCount@"Audi"  # 7
-carCount@%       # 4
-carCount@@       # ["Mercedes" "Audi" "BMW" "Ferrari"]
-carCount@*       # [10 7 15 20]
+carCount@_count  # 4
+carCount@_keys   # ["Mercedes" "Audi" "BMW" "Ferrari"]
+carCount@_values # [10 7 15 20]
 ```
 
 @candidate A map maps all possible values of its domain, so accessing a
@@ -2397,12 +2397,12 @@ someTuple <- tuple.<"foo" 69>
 
 #### Tuple Access
 
-| key   | output                                       |
-|-------|----------------------------------------------|
-| Int   | field value at the index                     |
-| Range | Subset tuple with fields within the range    |
-| `%`   | fields count                                 |
-| `@`   | Range 0 to fields count - 1                  |
+| key      | output                                       |
+|----------|----------------------------------------------|
+| Int      | field value at the index                     |
+| Range    | Subset tuple with fields within the range    |
+| `_count` | fields count                                 |
+| `_range` | Range 0 to fields count - 1                  |
 
 #### @candidate Tuple fields override
 
@@ -2463,13 +2463,13 @@ someRecord <- record.<field1:"foo", field2:69>
 
 #### Record Access
 
-| key   | output                                       |
-|-------|----------------------------------------------|
-| Int   | field value at the index                     |
-| Range | Subset record with fields within the range   |
-| `%`   | fields count                                 |
-| `@`   | Range 0 to fields count - 1                  |
-| `*`   | List of fields names                         |
+| key       | output                                       |
+|-----------|----------------------------------------------|
+| Int       | field value at the index                     |
+| Range     | Subset record with fields within the range   |
+| `_count`  | fields count                                 |
+| `_range`  | Range 0 to fields count - 1                  |
+| `_fields` | List of fields names                         |
 
 ### Struct
 
@@ -2599,13 +2599,13 @@ color <- <255> # ERROR <Int> cannot be widened to Color
 
 #### Struct Access
 
-| key   | output                                       |
-|-------|----------------------------------------------|
-| Int   | field value at the index                     |
-| Range | Subset record with fields within the range   |
-| `%`   | fields count                                 |
-| `@`   | Range 0 to fields count - 1                  |
-| `*`   | list of field names                          |
+| key       | output                                       |
+|-----------|----------------------------------------------|
+| Int       | field value at the index                     |
+| Range     | Subset record with fields within the range   |
+| `_count`  | fields count                                 |
+| `_range`  | Range 0 to fields count - 1                  |
+| `_fields` | list of field names                          |
 
 ```ruby
 Color <
@@ -2625,11 +2625,9 @@ color@{-3}   # Third-last field
 
 color@0..2  # Record <red: 255, green: 100>
 
-color@%  # 3 (fields count)
-
-color@*  # ["red" "green" "blue"] (list of field names)
-
-color@@  # 0..3 (range)
+color@_count  # 3 (fields count)
+color@_range  # 0..3 (range)
+color@_fields # ["red" "green" "blue"] (list of field names)
 ```
 
 You can access fields by their name with the dot notation
@@ -4198,16 +4196,16 @@ x Int <- true ? 69 else 420
 ### Accessing via index (1-based) vs accessing via offset (0-based)
 
 ```ruby
-list [GioviText] <- "abcdefgh"@*
+list [GioviText] <- "abcdefgh"@_chars
 
 # INDEX
 list@1 # "a"
 list@8 # "g"
 list@{-1} # "g"
 list@{-8} # "a"
-list@{list@{%}} # "g"
+list@{list@_count} # "g"
 for i in 1..8 do list@i
-for i in list@@ do list@i
+for i in list@_range do list@i
 
 # OFFSET
 list.0 # "a"
@@ -4216,7 +4214,7 @@ list.7 # "g"
 ## the following are invalid
 list.{-1} # would cause confusion with index
 list.{-7} # makes no sense
-list.{list@%} # syntax 
+list.{list@_count} # syntax 
 
 for i in 0..7 do list.{i}
 ```
@@ -4229,7 +4227,7 @@ Something like xpath or jq? Or maybe language syntax itself?
 
 ```ruby
 "💩" -> _out
-"💩"@% -> _out # should be 1
+"💩"@_count -> _out # should be 1
 "💩"@0 -> _out # should be :poop:
 "💩".0 -> _out # should be single char
 "💩".1 -> _out # should be single char
@@ -4803,8 +4801,8 @@ State <
 	#? - returns: text representation
 	toBraille(state [[Int]]) => Text {
 		output Text
-		rows Int <- state@%
-		columns Int <- state@0@%
+		rows Int <- state@_count
+		columns Int <- state@0@_count
 		# Iterate the 3 rows and
 		for chunkRowIdx in 0..rows-1..3 do {
 			# and 2 columns (3x2 chunk) that makes a braille character
@@ -4860,8 +4858,8 @@ State <                                                                        #
 		state [[Int]]                                                          #?< the state to convert
 	) => Text {                                                                #?< text representation
 		output Text
-		rows Int <- state@%
-		columns Int <- state@0@%
+		rows Int <- state@_count
+		columns Int <- state@0@_count
 		for chunkRowIdx in 0..rows-1..3 do {                                   # Iterate the 3 rows and
 			for chunkColIdx in 0..columns-1..2 do {                            # and 2 columns (3x2 chunk) that makes a braille character
 				"0b" -> char Text                                              #?< Binary of braille char index
@@ -4895,8 +4893,8 @@ State <                                                                        #
 		state [[Int]]                                                          #?? the state to convert
 	) => Text {                                                                #?? text representation
 		output Text
-		rows Int <- state@%
-		columns Int <- state@0@%
+		rows Int <- state@_count
+		columns Int <- state@0@_count
 		for chunkRowIdx in 0..rows-1..3 do {                                   # Iterate the 3 rows and
 			for chunkColIdx in 0..columns-1..2 do {                            # and 2 columns (3x2 chunk) that makes a braille character
 				"0b" -> char Text                                              #?? Binary of braille char index
@@ -5501,19 +5499,15 @@ struct Person <
 => someMatrix.{0}.{0}
 => someMap."hello"
 => someMap.69.9
-=> someMap.%
-=> someMap.count()
-=> someMap.@
-=> someMap.keys()
-=> someMap.*
-=> someMap.values()
+=> someMap._count
+=> someMap._keys
+=> someMap._values
 => someList.1..2
 
 => someStruct.foo
 => someStruct.foo()
 => someStruct.0() # minor precedence incosistency
 => someStruct.{0}()
-= 
 ```
 
 ## @candidate Map syntax
