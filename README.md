@@ -739,7 +739,7 @@ By convention constant identifiers are written in SCREAMING_CASE.
 ```ruby
 const LIGHT_SPEED Natural <- 299792458n
 const EARTH_GRAVITY Real <- 9.81
-const BEST_LANGUAGE Text <- "Giovi"
+const FUN_LANGUAGE Text <- "Giovi"
 const RED Color <- <255 0 0>
 const NAME_LIST [Text] <- ["Simone" "Alessio" "Giada" "Francesca"]
 ```
@@ -1444,7 +1444,7 @@ greetPerson(name Text, surname Text) {
 	"Greetings $name, $surname" -> _out
 }
 
-getBestLanguage() => Text {
+getFunLanguage() => Text {
 	=> "Giovi"
 }
 
