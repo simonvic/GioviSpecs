@@ -1424,8 +1424,6 @@ for key : value in ["Simone":69 "Luca":420 "Paolo":10] do {
 
 Functions are code blocks that can be re-invoked at a later time.
 
-<!-- TODO: rework functions to be more like structs and anonymous struct -->
-
 ```
 <function name>(<param name> <Param type> <default value>, <other params>) => <Return type> {
 	<body>
