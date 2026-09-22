@@ -249,32 +249,10 @@ operator
 if "someValue" not in someList do "Not contained" -> _out
 ```
 
-## Access operator
-
-The access operator `@` is used to access special properties.<br>
-The "key" used for access can be a special symbol, a literal or a variable
-
-```
-<accessed>@<key>
-```
-
-A key can also be an expression, but it must be enclosed in braces
-
-```
-<accessed>@{<key>}
-```
-
-The output of the access depends on the "key" and to what type you're accessing.<br>
-> See:
-> - [Text access](#text-access)
-> - [List access](#list-access)
-> - [Map access](#map-access)
-> - [Struct access](#struct-access)
-
 ## Dot operator
 
-The dot operator `.` is used to access nested properties of value. For example:
-accessing structs and records fields, module members and more
+The dot operator `.` is used to access "members" and properties of a value.
+For example: accessing structs and records fields, module members and more
 
 ```ruby
 someStruct.someField -> _out
@@ -283,24 +261,33 @@ someVariable.default -> _out
 SomeStruct.someField -> _out
 ```
 
+The dot operator is not like in many other languages: the right hand side
+operand can be a literal, a range, an identifier or an expression; expressions
+however needs to be wrapped in braces.
+
+It is used to access lists elements by index, map values by keys and more.
 
 ```ruby
-Color <r Int, g Int, b Int>
-color Color
-color.foo -> _out # void
-if color.foo is not Void do {
-	color.foo -> _out
-}
-if color.r is red Int do {
-	red -> _out
-}
-if color.r {
-	is red Int do red -> _out
-	is red Real do red -> _out
-	is red Natural do red -> _out
-	is Void do "field r not present" -> _out
-}
+names [Text] <- ["Simone", "Mario", "Luigi", "Francesco"]
+names.0 -> _out # "Simone"
+names.{2 + 1} -> _out # "Luigi"
+
+wallets [Text:Real] <- [
+	"Simone" : 6.9
+	"Mario" : 4.20
+	"Luigi" : 69.420
+	"Francesco" : 420.69
+]
+wallets."Simone" -> _out # 6.9
+wallets.{names.3} -> _out # 69.420
 ```
+
+Depending on the type, you can also access "special" properties (e.g. lists
+length, substrings, slices). See:
+- [Text access](#text-access)
+- [List access](#list-access)
+- [Map access](#map-access)
+- [Struct access](#struct-access)
 
 ## Type check operator
 
@@ -754,7 +741,7 @@ const PI <- 3.1415926535
 > ```ruby
 > const LIST <- [1 2 3]
 > LIST <- [69 420] # shallow immutability
-> LIST@0 <- 69 # deep immutability
+> LIST.0 <- 69 # deep immutability
 > 
 > const FOO <- <bar:"hello", baz:69>
 > FOO <- <"world" 420> # shallow immutability
@@ -950,7 +937,7 @@ list [Int] <- [ 1 2 3 4 ]
 if list {
 
 	# if contains 69 but only when elements count is less than 100
-	=~ 69 when list@_count < 100 do {}
+	=~ 69 when list._count < 100 do {}
 
 	# if contains 69 but only when someFunction() returns 420
 	=~ 69 when someFunction() = 420 do {}
@@ -1746,24 +1733,24 @@ You can use the exponent notation
 
 ```ruby
 "hello world" -> text Text
-text@0         # "h"
-text@1         # "e"
+text.0 -> _out   # "h"
+text.1 -> _out   # "e"
 
 # Negative indexes can be used to access last characters
-text@{-1}   # "d" last character
-text@{-2}   # "l" second-last character
-text@{-3}   # "r" third-last character
-text@{-11}  # "h" 11 from last character
+text.{-1} -> _out  # "d" last character
+text.{-2} -> _out  # "l" second-last character
+text.{-3} -> _out  # "r" third-last character
+text.{-11} -> _out # "h" 11 from last character
 
 # A range can be used to access substring (indexes are inclusive)
-text@1..6               # "ello w" from 1 to 6
-text@0..10..2           # "hlowrd" from 0 to 10 every 2
-text@10..0              # "dlrow olleh" from 10 to 0
-text@{text@_count - 1 .. 0}  # "dlrow olleh" from text length - 1  to 0
+text.{1..6} -> _out     # "ello w" from 1 to 6
+text.{0..10..2} -> _out # "hlowrd" from 0 to 10 every 2
+text.{10..0} -> _out    # "dlrow olleh" from 10 to 0
+text.{text._count - 1 .. 0} -> _out  # "dlrow olleh" from text length - 1  to 0
 
-text@_count         # 11 (length)
-text@_range         # 0..10 (range)
-text@_chars         # [ "h" "e" "l" "l" "o" " " "w" "o" "r" "l" "d" ]
+text._count -> _out # 11 (length)
+text._range -> _out # 0..10 (range)
+text._chars -> _out # [ "h" "e" "l" "l" "o" " " "w" "o" "r" "l" "d" ]
 ```
 
 #### Text block
@@ -2074,22 +2061,22 @@ x [Int ^ 3] # x has always 3 elements
 ```ruby
 letters [Text] <- ["a" "b" "c" "d" "e" "f" "g" "h" "i" "j"]
 
-letters@0  # "a"
+letters.0 -> _out  # "a"
 
 # Negative indexes can be used to access last elements
-letters@{-1}   # "d" last character
-letters@{-2}   # "l" second-last character
-letters@{-3}   # "r" third-last character
-letters@{-11}  # "h" 11 from last character
+letters.{-1} -> _out  # "d" last character
+letters.{-2} -> _out  # "l" second-last character
+letters.{-3} -> _out  # "r" third-last character
+letters.{-11} -> _out # "h" 11 from last character
 
 # A range can be used to access a slice (indexes are inclusive)
-letters@2..5                # ["c" "d" "e" "f"]
-letters@0..10..2            # ["a" "c" "e" "g" "i"]
-letters@10..0               # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
-letters@{letters@_count - 1..0}  # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
+letters.{2..5} -> _out     # ["c" "d" "e" "f"]
+letters.{0..10..2} -> _out # ["a" "c" "e" "g" "i"]
+letters.{10..0} -> _out    # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
+letters.{letters._count - 1..0} # ["j" "i" "h" "g" "f" "e" "d" "e" "c" "b" "a"] aka the drunk test :)
 
-letters@_count  # 10 (elements count)
-letters@_range  # 0..9 (range) useful when you need to iterate a list with indexes
+letters._count -> _out # 10 (elements count)
+letters._range -> _out # 0..9 (range) useful when you need to iterate a list with indexes
 ```
 
 > @candidate Out-of-bound access will not throw an error, but rather return a
@@ -2097,7 +2084,7 @@ letters@_range  # 0..9 (range) useful when you need to iterate a list with index
 > 
 > ```ruby
 > numbers [Int] <- [1 2 3]
-> numbers@69 -> _out
+> numbers.69 -> _out
 > # will print 0 (Int default)
 > ```
 > 
@@ -2105,8 +2092,8 @@ letters@_range  # 0..9 (range) useful when you need to iterate a list with index
 > 
 > ```ruby
 > numbers [Int] <- [1 2 3]
-> numbers@69 -> _out
-> numbers@_count -> _out
+> numbers.69 -> _out
+> numbers._count -> _out
 > # will print 3 (entries count)
 > ```
 
@@ -2125,7 +2112,7 @@ identityMatrix [[Real]] <- [
 
 Values can be accessed as normal lists
 
-`nameOfList@row@column`
+`nameOfList.{row}.{column}`
 
 ```ruby
 # Example of a Rubik cube multidimensional list
@@ -2163,15 +2150,15 @@ rubikCube [[[Text]]] <- [
 	]
 ]
 
-rubikCube@2@1@1   # will refer to the central tile of green face
+rubikCube.{2}.{1}.{1} -> _out   # will refer to the central tile of green face
 ```
 
 #### @candidate Multidimensional lists access
 
 ```ruby
 cube [[[Int]]]
-cube@1@2@3 -> _out
-cube@{1, 2, 3} -> _out
+cube.{1}.{2}.{3} -> _out
+cube.{1, 2, 3} -> _out
 ```
 
 ### @candidate Set
@@ -2240,7 +2227,7 @@ carCount +<- [ # Put key-value pairs
 	"Ferrari" : 20
 ]
 
-carCount@{"Ferrari"} <- 26   # Set "Ferrari" value to 26
+carCount.{"Ferrari"} <- 26   # Set "Ferrari" value to 26
 ```
 
 To avoid ambuigity with the syntax of an empty list, an empty map can be
@@ -2253,7 +2240,7 @@ defined as follows:
 <!-- TODO: if immutability is considered
 "Ferrari" : 26 -> carCount
 should be used instead of
-26 -> carCount@"Ferrari"
+26 -> carCount."Ferrari"
 -->
 
 Map entries can optionally be separated by a comma (trailing comma is allowed)
@@ -2271,14 +2258,14 @@ Default values can be used
 
 ```ruby
 [ "Fiat" : default ] ->+ carCount
-default -> carCount@{"Fiat"}
+default -> carCount.{"Fiat"}
 ```
 
 > @candidate Default entry value can be overridden (but not keys)
 > 
 > ```ruby
 > carCount [Text : Int default 69]
-> default -> carCount@"Ferrari"
+> default -> carCount.{"Ferrari"}
 > ```
 
 #### Map Access
@@ -2298,10 +2285,10 @@ carCount [Text : Int] <- [
 	"Ferrari" : 20
 ]
 
-carCount@"Audi"  # 7
-carCount@_count  # 4
-carCount@_keys   # ["Mercedes" "Audi" "BMW" "Ferrari"]
-carCount@_values # [10 7 15 20]
+carCount."Audi"  # 7
+carCount._count  # 4
+carCount._keys   # ["Mercedes" "Audi" "BMW" "Ferrari"]
+carCount._values # [10 7 15 20]
 ```
 
 > @candidate A map maps all possible values of its domain, so accessing a
@@ -2309,7 +2296,7 @@ carCount@_values # [10 7 15 20]
 > 
 > ```ruby
 > carCount [Text : Int]
-> carCount@"UnkownModel" -> _out
+> carCount."UnkownModel" -> _out
 > # will print 0
 > ```
 > 
@@ -2318,7 +2305,7 @@ carCount@_values # [10 7 15 20]
 > 
 > ```ruby
 > carCount [Text : Int]
-> carCount@"UnkownModel" -> _out
+> carCount."UnkownModel" -> _out
 > carCount =~ "UnkownModel" -> _out # false
 > ```
 
@@ -2336,12 +2323,12 @@ for name : money in bank do {
 }
 
 "List of names: " -> _out
-for name in bank@{@} do {
+for name in bank._keys do {
 	"- $name" -> _out
 }
 
 sum Real
-for money in bank@{*} do {
+for money in bank._values do {
 	money ->+ sum
 }
 "The bank has a total of $sum €" -> _out
@@ -2615,32 +2602,21 @@ Color <
 
 color Color <- <255 100 50>
 
-color@0  # 255
+color.0 -> _out  # 255
 
 # Negative indexes can be used to access last fields
-color@{-1}   # Last field
-color@{-2}   # Second-last field
-color@{-3}   # Third-last field
+color.{-1} -> _out  # 50 (Last field)
+color.{-2} -> _out  # 100 (Second-last field)
+color.{-3} -> _out  # 255 (Third-last field)
 
-color@0..2  # Record <red: 255, green: 100>
+color.{0..2} -> _out  # <red: 255, green: 100> (slice)
 
-color@_count  # 3 (fields count)
-color@_range  # 0..3 (range)
-color@_fields # ["red" "green" "blue"] (list of field names)
-```
+color._count -> _out  # 3 (fields count)
+color._range -> _out  # 0..3 (range)
+color._fields -> _out # ["red" "green" "blue"] (list of field names)
 
-You can access fields by their name with the dot notation
-
-```ruby
-Color <
-	red Natural
-	green Natural
-	blue Natural
->
-color Color <- <255 100 50>
-
-color.red -> _out
-color.blue <- 255  # setting blue channel to 255
+color.red -> _out # 255 (the field `red`)
+color.blue <- 255  # setting blue field to 255
 ```
 
 #### @candidate Nested struct
@@ -4029,7 +4005,7 @@ Regex."^[a-zA-Z]+:\s*([0-9]+).*$" -> regex Text.Regex
 ```ruby
 <"^[a-zA-Z]+:\s*([0-9]+).*$"> -> regex Regex
 if regex.matches("cpu temp: 69C") do {
-	regex.groups@0 -> _out
+	regex.groups.0 -> _out
 }
 ```
 
@@ -4195,16 +4171,16 @@ x Int <- true ? 69 else 420
 ### Accessing via index (1-based) vs accessing via offset (0-based)
 
 ```ruby
-list [GioviText] <- "abcdefgh"@_chars
+list [GioviText] <- "abcdefgh"._chars
 
 # INDEX
-list@1 # "a"
-list@8 # "g"
-list@{-1} # "g"
-list@{-8} # "a"
-list@{list@_count} # "g"
-for i in 1..8 do list@i
-for i in list@_range do list@i
+list.1 # "a"
+list.8 # "g"
+list.{-1} # "g"
+list.{-8} # "a"
+list.{list._count} # "g"
+for i in 1..8 do list.{i}
+for i in list._range do list.{i}
 
 # OFFSET
 list.0 # "a"
@@ -4213,7 +4189,7 @@ list.7 # "g"
 ## the following are invalid
 list.{-1} # would cause confusion with index
 list.{-7} # makes no sense
-list.{list@_count} # syntax 
+list.{list._count} # syntax 
 
 for i in 0..7 do list.{i}
 ```
@@ -4226,8 +4202,8 @@ Something like xpath or jq? Or maybe language syntax itself?
 
 ```ruby
 "💩" -> _out
-"💩"@_count -> _out # should be 1
-"💩"@0 -> _out # should be :poop:
+"💩"._count -> _out # should be 1
+"💩".0 -> _out # should be :poop:
 "💩".0 -> _out # should be single char
 "💩".1 -> _out # should be single char
 ```
@@ -4799,8 +4775,8 @@ State <
 	#? - returns: text representation
 	toBraille(state [[Int]]) => Text {
 		output Text
-		rows Int <- state@_count
-		columns Int <- state@0@_count
+		rows Int <- state._count
+		columns Int <- state.0._count
 		# Iterate the 3 rows and
 		for chunkRowIdx in 0..rows-1..3 do {
 			# and 2 columns (3x2 chunk) that makes a braille character
@@ -4813,13 +4789,13 @@ State <
 					for rowIdx in chunkRowIdx..chunkRowIdx + 2 do {
 						if rowIdx >= rows | colIdx >= columns do {
 							char +<- "0"
-						} else if state@rowIdx@colIdx {
+						} else if state.{rowIdx}.{colIdx} {
 							<= 0 do char +<- "0";
 							>= 1 do char +<- "1";
 						}
 					}
 				}
-				output +<- CODEX@{char as Int}
+				output +<- CODEX.{char as Int}
 			}
 			output +<- "\n"
 		}
@@ -4856,8 +4832,8 @@ State <                                                                        #
 		state [[Int]]                                                          #?< the state to convert
 	) => Text {                                                                #?< text representation
 		output Text
-		rows Int <- state@_count
-		columns Int <- state@0@_count
+		rows Int <- state._count
+		columns Int <- state.0._count
 		for chunkRowIdx in 0..rows-1..3 do {                                   # Iterate the 3 rows and
 			for chunkColIdx in 0..columns-1..2 do {                            # and 2 columns (3x2 chunk) that makes a braille character
 				"0b" -> char Text                                              #?< Binary of braille char index
@@ -4865,13 +4841,13 @@ State <                                                                        #
 					for rowIdx in chunkRowIdx..chunkRowIdx + 2 do {            # Iterate first, second and third row of the chunk's column
 						if rowIdx >= rows | colIdx >= columns do {
 							char +<- "0"
-						} else if state@rowIdx@colIdx {
+						} else if state.{rowIdx}.{colIdx} {
 							<= 0 do char +<- "0";
 							>= 1 do char +<- "1";
 						}
 					}
 				}
-				output +<- CODEX@{char as Int}
+				output +<- CODEX.{char as Int}
 			}
 			output +<- "\n"
 		}
@@ -4891,8 +4867,8 @@ State <                                                                        #
 		state [[Int]]                                                          #?? the state to convert
 	) => Text {                                                                #?? text representation
 		output Text
-		rows Int <- state@_count
-		columns Int <- state@0@_count
+		rows Int <- state._count
+		columns Int <- state.0._count
 		for chunkRowIdx in 0..rows-1..3 do {                                   # Iterate the 3 rows and
 			for chunkColIdx in 0..columns-1..2 do {                            # and 2 columns (3x2 chunk) that makes a braille character
 				"0b" -> char Text                                              #?? Binary of braille char index
@@ -4900,13 +4876,13 @@ State <                                                                        #
 					for rowIdx in chunkRowIdx..chunkRowIdx + 2 do {            # Iterate first, second and third row of the chunk's column
 						if rowIdx >= rows | colIdx >= columns do {
 							char +<- "0"
-						} else if state@rowIdx@colIdx {
+						} else if state.{rowIdx}.{colIdx} {
 							<= 0 do char +<- "0";
 							>= 1 do char +<- "1";
 						}
 					}
 				}
-				output +<- CODEX@{char as Int}
+				output +<- CODEX.{char as Int}
 			}
 			output +<- "\n"
 		}
@@ -5086,9 +5062,9 @@ Can be read with "reflection".
 #? This function does something
 someFun() {}
 
-someFun@? -> _out
-someFun@# -> _out
-someFun@doc -> _out
+someFun._doc -> _out
+someFun.# -> _out
+someFun.? -> _out
 ```
 
 It might return a struct made of the various parts of a doc
@@ -5099,10 +5075,10 @@ It might return a struct made of the various parts of a doc
 #? @param y second operant
 #? @return the sum of x and y
 sum(x Int, y Int) {=> x + y}
-sum@{doc} -> doc Doc
+sum._doc -> doc Doc
 doc.body -> _out
-doc.params@0 -> _out
-doc.params@1 -> _out
+doc.params.0 -> _out
+doc.params.1 -> _out
 doc.return -> _out
 ```
 
@@ -5444,17 +5420,10 @@ alias giovi.util.Ansi::[
 ]
 ```
 
-## @candidate(conflicts:drop_at_operator) Default access operator
+## @candidate Default access operator
 
-Different meaning between access operators
-
-```giovi
-foo.default -> _out
-foo@default -> _out
-```
-
-For consistency, `@default` could be used on types for spawning, and `.default`
-to get its default
+For consistency, `._default` could be used on types for spawning, and
+`.default` to get its default
 
 ## @candidate List initialization
 
@@ -5507,25 +5476,6 @@ struct Person <
 	name: "Nobody"
 	age: 18
 >
-```
-
-## @candidate(drop_at_operator) Drop access (`@`) operator
-
-```giovi
-=> someList.69
-=> someList.{someIndex} # a drawback: requiring braces
-=> someMatrix.{0}.{0}
-=> someMap."hello"
-=> someMap.69.9
-=> someMap._count
-=> someMap._keys
-=> someMap._values
-=> someList.1..2
-
-=> someStruct.foo
-=> someStruct.foo()
-=> someStruct.0() # minor precedence incosistency
-=> someStruct.{0}()
 ```
 
 ## @candidate Map syntax
