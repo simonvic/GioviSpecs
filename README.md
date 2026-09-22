@@ -272,11 +272,11 @@ names [Text] <- ["Simone", "Mario", "Luigi", "Francesco"]
 names.0 -> _out # "Simone"
 names.{2 + 1} -> _out # "Luigi"
 
-wallets [Text:Real] <- [
-	"Simone" : 6.9
-	"Mario" : 4.20
-	"Luigi" : 69.420
-	"Francesco" : 420.69
+wallets [Text=>Real] <- [
+	"Simone" => 6.9
+	"Mario" => 4.20
+	"Luigi" => 69.420
+	"Francesco" => 420.69
 ]
 wallets."Simone" -> _out # 6.9
 wallets.{names.3} -> _out # 69.420
@@ -1054,7 +1054,7 @@ ranges
 ```ruby
 for i in 0..10 do somethingWith(i)
 for number in [1 2 3 4] do somethingWith(number)
-for key in ["Simone":69 "Luca":420 "Paolo":10] do somethingWith(key)
+for key in ["Simone"=>69 "Luca"=>420 "Paolo"=>10] do somethingWith(key)
 ```
 
 The for statement is like an usual for-each loop, but on steroids; the iterator
@@ -1068,7 +1068,7 @@ for _ in 0..9 do something() # do something 10 times
 
 for [i] in [0 1 2 3] do somethingWith(i)
 
-for [key : value] in ["Simone":69 "Luca":420 "Paolo":10] do {
+for [key => value] in ["Simone"=>69 "Luca"=>420 "Paolo"=>10] do {
 	somethingWith(key, value)
 }
 
@@ -1147,7 +1147,7 @@ There are five kinds of pattern that allow you to deconstruct any type of data:
   - **Named**: `<x:a, y:b, z:c>`
 - Iterator patterns:
   - **List pattern**: `[someIdentifier]`
-  - **Map pattern**: `[key : value]`
+  - **Map pattern**: `[key => value]`
 
 A value can be deconstructed with a pattern only when the pattern is "equal or
 narrower" than the value; the rules are similar to types widening rules.
@@ -1163,9 +1163,9 @@ be deconstructed as such
 
 Non-terminal patterns can have other patterns nested.
 
-An extreme example: a value of type `[Text:[tuple<Int,Int,Int>]]` (map with
+An extreme example: a value of type `[Text=>[tuple<Int,Int,Int>]]` (map with
 `Text` keys and a list of tuples as value) could be iterated with a pattern
-`[colorName:[<r,_,b>]]` is a map pattern with a unary pattern as key and a list
+`[colorName=>[<r,_,b>]]` is a map pattern with a unary pattern as key and a list
 pattern as value which itself has a positional product pattern nested, where
 the second field pattern is a placeholder
 
@@ -1393,21 +1393,21 @@ for the key and one for the value respectively.
 
 ```ruby
 # iterate over a map
-for [key : value] in ["Simone":69 "Luca":420 "Paolo":10] do {
+for [key => value] in ["Simone"=>69 "Luca"=>420 "Paolo"=>10] do {
 	somethingWith(key, value)
 }
 
 # iterate over a nested map
-graph [Text : [Text : Int]] <- [
-	"a" : ["b":5 "e":3]
-	"b" : ["a":5 "c":1 "d":9 "f":2]
-	"c" : ["b":1 "e":6]
-	"d" : ["b":9 "e":7]
-	"e" : ["a":3 "c":6 "d":7 "f":8]
-	"f" : ["b":2 "e":8]
+graph [Text => [Text => Int]] <- [
+	"a" => ["b"=>5 "e"=>3]
+	"b" => ["a"=>5 "c"=>1 "d"=>9 "f"=>2]
+	"c" => ["b"=>1 "e"=>6]
+	"d" => ["b"=>9 "e"=>7]
+	"e" => ["a"=>3 "c"=>6 "d"=>7 "f"=>8]
+	"f" => ["b"=>2 "e"=>8]
 ]
 
-for nodeA : [nodeB : edgeCost] in graph do {
+for nodeA => [nodeB => edgeCost] in graph do {
 	"$nodeA ---$edgeCost---> $nodeB" -> _out
 }
 ```
@@ -1415,7 +1415,7 @@ for nodeA : [nodeB : edgeCost] in graph do {
 Like for the list pattern, the brackets can be omitted for non-nested patterns
 
 ```ruby
-for key : value in ["Simone":69 "Luca":420 "Paolo":10] do {
+for key => value in ["Simone"=>69 "Luca"=>420 "Paolo"=>10] do {
 	somethingWith(key, value)
 }
 ```
@@ -2201,45 +2201,45 @@ A key and value pair may also be called a map entry.
 
 #### Operators
 
-| Operation           | Symbol  | Example                                  | Output                     |
-| ------------------- | ------- | ------------------------------------     | -------------------------- |
-| Merge/Put           | `+`     | `["a":1, "b":2] + ["b":69, "c":420]`     | `["a":1, "b":69, "c":420]` |
-| Intersection        | `-`     | `["a":1, "b":2] - ["b":2, "c":420]`      | `["a":1]`                  |
+| Operation           | Symbol  | Example                                  | Output                        |
+| ------------------- | ------- | ---------------------------------------- | ----------------------------- |
+| Merge/Put           | `+`     | `["a"=>1, "b"=>2] + ["b"=>69, "c"=>420]` | `["a"=>1, "b"=>69, "c"=>420]` |
+| Intersection        | `-`     | `["a"=>1, "b"=>2] - ["b"=>2, "c"=>420]`  | `["a"=>1]`                    |
 
 > @candidate
 > 
-> | Operation             | Symbol  | Example                                  | Output                     |
-> | --------------------- | ------- | -----------------------------            | -------------------------- |
-> | Intersection (keys)   | `-`     | `["a":1, "b":2, "c":3] - ["b":_, "c":_]` | `["a":1]`                  |
-> |                       |         | `["a":1, "b":2, "c":3] - "c"`            | `["a":1, "b":2]`           |
-> |                       |         | `["a":1, "b":2, "c":3] - ["b", "c"]`     | `["a":1]`                  |
-> | Intersection (values) | `-`     | `["a":1, "b":2, "c":3] - [_:3]`          | `["a":1, "b":2]`           |
+> | Operation             | Symbol  | Example                                       | Output             |
+> | --------------------- | ------- | --------------------------------------------- | ------------------ |
+> | Intersection (keys)   | `-`     | `["a"=>1, "b"=>2, "c"=>3] - ["b"=>_, "c"=>_]` | `["a"=>1]`         |
+> |                       |         | `["a"=>1, "b"=>2, "c"=>3] - "c"`              | `["a"=>1, "b"=>2]` |
+> |                       |         | `["a"=>1, "b"=>2, "c"=>3] - ["b", "c"]`       | `["a"=>1]`         |
+> | Intersection (values) | `-`     | `["a"=>1, "b"=>2, "c"=>3] - [_=>3]`           | `["a"=>1, "b"=>2]` |
 
 ##### Relational
 
-| Operation      | Symbol | Example                                |
-| -------------- | ------ | -------------------------------------- |
-| Equal          | `=`    | `["a":1 "b":2] = ["a":1 "b":2]`        |
-| Contains key   | `=~`   | `["a":1 "b":2] =~ "a"`                 |
-| Contains pairs | `=~`   | `["a":1 "b":2 "c":3] =~ ["b":2 "c":_]` |
-| Contains keys  | `=~`   | `["a":1 "b":2 "c":3] =~ ["b" "c"]`     |
+| Operation      | Symbol | Example                                     |
+| -------------- | ------ | ------------------------------------------- |
+| Equal          | `=`    | `["a"=>1 "b"=>2] = ["a"=>1 "b"=>2]`         |
+| Contains key   | `=~`   | `["a"=>1 "b"=>2] =~ "a"`                    |
+| Contains pairs | `=~`   | `["a"=>1 "b"=>2 "c"=>3] =~ ["b"=>2 "c"=>_]` |
+| Contains keys  | `=~`   | `["a"=>1 "b"=>2 "c"=>3] =~ ["b" "c"]`       |
 
 #### Syntax
 
 ```
-<identifier> [<KeyType> : <ElementType>]
+<identifier> [<KeyType> => <ElementType>]
 ```
 
 ```ruby
-carCount [Text : Int]
-[ "Audi" : 1 ] ->+ carCount  # Put new key "Audi" with value 1
-[ "Audi" : 5 ] ->+ carCount  # Set "Audi" key value to 5
+carCount [Text => Int]
+[ "Audi" => 1 ] ->+ carCount  # Put new key "Audi" with value 1
+[ "Audi" => 5 ] ->+ carCount  # Set "Audi" key value to 5
 
 carCount +<- [ # Put key-value pairs
-	"Mercedes" : 10
-	"Audi" : 7
-	"BMW" : 15
-	"Ferrari" : 20
+	"Mercedes" => 10
+	"Audi" => 7
+	"BMW" => 15
+	"Ferrari" => 20
 ]
 
 carCount.{"Ferrari"} <- 26   # Set "Ferrari" value to 26
@@ -2249,11 +2249,11 @@ To avoid ambuigity with the syntax of an empty list, an empty map can be
 defined as follows:
 
 ```ruby
-[:] -> carCount
+[=>] -> carCount
 ```
 
 <!-- TODO: if immutability is considered
-"Ferrari" : 26 -> carCount
+"Ferrari" => 26 -> carCount
 should be used instead of
 26 -> carCount."Ferrari"
 -->
@@ -2262,24 +2262,24 @@ Map entries can optionally be separated by a comma (trailing comma is allowed)
 
 ```ruby
 [
-	"Mercedes" : 10,
-	"Audi" : 7,
-	"BMW" : 15,
-	"Ferrari" : 20,
+	"Mercedes" => 10,
+	"Audi" => 7,
+	"BMW" => 15,
+	"Ferrari" => 20,
 ]
 ```
 
 Default values can be used
 
 ```ruby
-[ "Fiat" : default ] ->+ carCount
+[ "Fiat" => default ] ->+ carCount
 default -> carCount.{"Fiat"}
 ```
 
 > @candidate Default entry value can be overridden (but not keys)
 > 
 > ```ruby
-> carCount [Text : Int default 69]
+> carCount [Text => Int default 69]
 > default -> carCount.{"Ferrari"}
 > ```
 
@@ -2293,11 +2293,11 @@ default -> carCount.{"Fiat"}
 | `_values`     | List of map elements       |
 
 ```ruby
-carCount [Text : Int] <- [
-	"Mercedes" : 10
-	"Audi" : 7
-	"BMW" : 15
-	"Ferrari" : 20
+carCount [Text => Int] <- [
+	"Mercedes" => 10
+	"Audi" => 7
+	"BMW" => 15
+	"Ferrari" => 20
 ]
 
 carCount."Audi"  # 7
@@ -2310,7 +2310,7 @@ carCount._values # [10 7 15 20]
 > "non-existing" key will not throw an error, but rather return a default value.
 > 
 > ```ruby
-> carCount [Text : Int]
+> carCount [Text => Int]
 > carCount."UnkownModel" -> _out
 > # will print 0
 > ```
@@ -2319,7 +2319,7 @@ carCount._values # [10 7 15 20]
 > operator will still return false
 > 
 > ```ruby
-> carCount [Text : Int]
+> carCount [Text => Int]
 > carCount."UnkownModel" -> _out
 > carCount =~ "UnkownModel" -> _out # false
 > ```
@@ -2327,13 +2327,13 @@ carCount._values # [10 7 15 20]
 Examples
 
 ```ruby
-bank [Text : Real] <- [
-	"Simone" : 69.0
-	"Alessio" : 15.50
-	"Francesco" : 125.15
+bank [Text => Real] <- [
+	"Simone" => 69.0
+	"Alessio" => 15.50
+	"Francesco" => 125.15
 ]
 
-for name : money in bank do {
+for name => money in bank do {
 	"$name has $money € in his wallet" -> _out
 }
 
@@ -2979,8 +2979,8 @@ You can declare a variable of type `type` using the `type` keyword
 someType type
 someType -> _out # Void
 
-someType <- type.[Text:Int]
-someType -> _out # [Text:Int]
+someType <- type.[Text=>Int]
+someType -> _out # [Text=>Int]
 ```
 
 TODO: expand on this. Should it behaves specially and be allowed to hold any
@@ -3219,7 +3219,7 @@ There are two kinds of casting:
     - `Natural` to `Int`
     - `Int` to `Real`
     - `[Natural]` to `[Real]`
-    - `[Natural : [Int]]` to `[Int : [Real]]` *A map with `Natural` keys and
+    - `[Natural => [Int]]` to `[Int => [Real]]` *A map with `Natural` keys and
     values of list of `Int` to a map with `Int` keys and values of list of
     `Real`*
 - **narrowing**: lossy casting from a "wider" type to a "narrower" one
@@ -3525,10 +3525,10 @@ Person <name Text, age Natural>
 Account <money Real, isLocked Bool>
 
 # Each person can have multiple accounts
-bankAccounts [Person : [Account]] <- [
-	Person.<"Simon" 24n> : [Account.<6.9 false> Account.<420000 true>]
-	<name:"Jake" age:19n> : [<money:20.5>]
-	<"Joe" 69n> : [<100_000, false>]
+bankAccounts [Person => [Account]] <- [
+	Person.<"Simon" 24n>  => [Account.<6.9 false> Account.<420000 true>]
+	<name:"Jake" age:19n> => [<money:20.5>]
+	<"Joe" 69n>           => [<100_000, false>]
 ]
 ```
 
@@ -4617,7 +4617,7 @@ loop {
 loop "hello world" -> _out
 loop i in 0..10 do "hello world $i" -> _out
 loop entry in list do "hello world $i" -> _out
-loop key : value in map do "hello world $key : $value" -> _out
+loop key => value in map do "hello world $key => $value" -> _out
 loop <r g b> in colors do "hello world <$r $g $b>" -> _out
 loop color<r g b> in colors do "hello world <$r $g $b>" -> _out
 ```
@@ -4723,12 +4723,12 @@ build() => Build {
 		license: MIT
 		main: "main.giovi"
 		dependencies: [
-			"test" : [
-				<id: "org.gunit.gupiter" version: <1,69,0>>
+			"test" => [
+				<id: "org.gunit.gupiter", version: <1,69,0>>
 			]
-			"compile" : [
-				<id: "it.simonvic.MyLibrary" version: <4,2,0>>
-				<id: "org.some.useful.Library" version: <"2024.exp">>
+			"compile" => [
+				<id: "it.simonvic.MyLibrary", version: <4,2,0>>
+				<id: "org.some.useful.Library", version: <"2024.exp">>
 			]
 		]
 		onBuild: ::{
@@ -5201,8 +5201,8 @@ listOfTypes <- [type.[Int], type.[Real]]
 someListType type []
 someListType <- type.[Int]
 
-someMapType type [:]
-someMapType <- type.[Text:Int]
+someMapType type [=>]
+someMapType <- type.[Text=>Int]
 ```
 
 ### @candidate Same for list and maps?
@@ -5211,8 +5211,8 @@ someMapType <- type.[Text:Int]
 someList list[Int]
 someList <- list.[1 2 3]
 
-someMap map[Text:Int]
-someMap <- map.["a":1 "b":2 "c:"3]
+someMap map[Text=>Int]
+someMap <- map.["a"=>1 "b"=>2 "c"=>3]
 ```
 
 ### @candidate Alternative syntax with keywords
@@ -5225,7 +5225,7 @@ _out <- type{[Int]}
 _out <- function{(x Int, y Int) => Int { => x + y }}
 _out <- function{{"hello world" -> _out}}
 _out <- list{[1 2 3]}
-_out <- map{["a":1 "b":2 "c:"3]}
+_out <- map{["a"=>1 "b"=>2 "c"=>3]}
 _out <- tuple{<1 2 3>}
 _out <- record{<x:1 y:2 z:3>}
 _out <- Point{<x:1 y:2 z:3>}
@@ -5238,7 +5238,7 @@ someVariable type{[Int]}
 someVariable function{(x Int, y Int) => Int}
 someVariable function{(x Int, y Int)}
 someVariable list{[Int]}
-someVariable map{[Text:Int]}
+someVariable map{[Text=>Int]}
 someVariable tuple{<Int Int Int>}
 someVariable record{<x Int, y Int, z Int>}
 someVariable Point
@@ -5249,7 +5249,7 @@ someVariable Point
 ```giovi
 # composite types
 someList [Int]
-someMap [Text:Int]
+someMap [Text=>Int]
 ```
 
 ### @candidate(requires:explicit_decl_keyword) Product types
@@ -5303,14 +5303,14 @@ someType Type
 someType <- Type:Int
 
 listOfTypes [Type]
-listOfTypes <- [Type:Int, Type:Real]
-listOfTypes <- [Type:[Int], Type:[Real]]
+listOfTypes <- [Type=>Int, Type=>Real]
+listOfTypes <- [Type=>[Int], Type=>[Real]]
 
 someListType Type []
 someListType <- Type:[Int]
 
-someMapType Type [:]
-someMapType <- Type:[Text:Int]
+someMapType Type [=>]
+someMapType <- Type=>[Text=>Int]
 
 # for even more consistency:
 Point<x Int, y Int>
@@ -5347,8 +5347,8 @@ listOfTypes <- [type:[Int], type:[Real]]
 someListType type []
 someListType <- type:[Int]
 
-someMapType type [:]
-someMapType <- type:[Text:Int]
+someMapType type [=>]
+someMapType <- type:[Text=>Int]
 
 # for even more consistency:
 Point<x Int, y Int>
@@ -5477,16 +5477,6 @@ struct Person <
 	name: "Nobody"
 	age: 18
 >
-```
-
-## @candidate Map syntax
-
-Since a map can be seen as a function in math
-
-```giovi
-someMap [Text=>Int] <- ["a"=>1 "b"=>2 "c"=>3]
-someMap."foo" -> _out
-[=>] -> _out
 ```
 
 ## @candidate Visibility modifiers
