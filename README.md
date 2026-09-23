@@ -5566,13 +5566,6 @@ darken(color Color) => darkenedColor Color {
 }
 ```
 
-## @candidate LTR variable and constants declaration
-
-```ruby
-3.14 -> const PI
-69 -> var someInteger default 69
-```
-
 ## @candidate Function composition/concatenation operators
 
 ```ruby
