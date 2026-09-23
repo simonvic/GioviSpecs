@@ -4597,7 +4597,7 @@ Food,Edible + Apple <>
 ```ruby
 Transportation,Vehicle + struct Car <
 	brand Text
-> AirCondition,ReclineableSeats
+> + AirCondition,ReclineableSeats
 
 _out <- Car.<
 # Transportation fields
