@@ -1515,12 +1515,12 @@ It's possible to mix optional and required parameters in the signature
 
 ```ruby
 processPizzaOrder(
-  type Text default "Margherita",
+  kind Text default "Margherita",
   tableNumber Int,
   withPineapple Bool default false,
   ) {
   	if withPineapple do return
-	makePizza(type) -> pizza Pizza
+	makePizza(kind) -> pizza Pizza
 	serve(pizza, tableNumber)
 }
 ```
@@ -1535,7 +1535,7 @@ processPizzaOrder("Diavola", 69) # "Diavola" to table 69
 processPizzaOrder(_, 69) # "Margherita" to table 69
 processPizzaOrder(_, _) # "Margherita" to table 0
 processPizzaOrder(_, 69, true) # "Margherita" with pineapple to table 69
-processPizzaOrder(69) # ERROR: expecting pizza type, but got 69
+processPizzaOrder(69) # ERROR: expecting pizza kind, but got 69
 ```
 
 When invoking the function with named parameters, all required parameters value
@@ -1544,8 +1544,8 @@ Also, as long as all required parameters have been specified, remaining
 optional parameters can be omitted, even if they are not terminal
 
 ```ruby
-processPizzaOrder(type:"Diavola", tableNumber: 69)
-processPizzaOrder(type:_, tableNumber: 69)
+processPizzaOrder(kind:"Diavola", tableNumber: 69)
+processPizzaOrder(kind:_, tableNumber: 69)
 processPizzaOrder(tableNumber: 69)
 ```
 
@@ -1575,17 +1575,17 @@ readability in the function body...
 
 ```ruby
 processPizzaOrder(
-	type Text,
+	kind Text,
 	tableNumber Int,
 	hasPineapple Bool,
 ) {
 	if hasPineapple do return
-	makePizza(type) -> pizza Pizza
+	makePizza(kind) -> pizza Pizza
 	serve(pizza, tableNumber)
 }
 
 processPizzaOrder(
-	type: "Diavola",
+	kind: "Diavola",
 	tableNumber: 69,
 	hasPineapple: false
 )
@@ -1595,17 +1595,17 @@ processPizzaOrder(
 
 ```ruby
 processPizzaOrder(
-	ofType Text
+	ofKind Text
 	atTableNumber Int,
 	withPineapple Bool,
 ) {
 	if withPineapple do return
-	makePizza(ofType) -> pizza Pizza
+	makePizza(ofKind) -> pizza Pizza
 	serve(pizza, atTableNumber)
 }
 
 processPizzaOrder(
-	ofType: "Diavola",
+	ofKind: "Diavola",
 	atTableNumber: 69,
 	withPineapple: false
 )
@@ -1616,17 +1616,17 @@ exposed at invocation, while still being readable in the implementation body
 
 ```ruby
 processPizzaOrder(
-	ofType: type Text,
+	ofKind: kind Text,
 	atTable: tableNumber Int,
 	withPineapple: hasPineapple Bool,
 ) {
 	if hasPineapple do return
-	makePizza(type) -> pizza Pizza
+	makePizza(kind) -> pizza Pizza
 	serve(pizza, tableNumber)
 }
 
 processPizzaOrder(
-	ofType: "Diavola",
+	ofKind: "Diavola",
 	atTable: 69,
 	withPineapple: false
 )
@@ -1638,12 +1638,12 @@ Function overloading is possible, as long as all required parameters are
 different (different name and different type)
 
 ```ruby
-makePizza(type Text) { }
-makePizza(type Text, withPineapple Bool) { }
+makePizza(kind Text) { }
+makePizza(kind Text, withPineapple Bool) { }
 makePizza(ingredients [Text]) { }
 
-# ERROR makePizza(type Text) already defined
-makePizza(type Text, withPineapple Bool default false) { }
+# ERROR makePizza(kind Text) already defined
+makePizza(kind Text, withPineapple Bool default false) { }
 ```
 
 ## @candidate Statement functions
@@ -5425,6 +5425,12 @@ alias giovi.util.Ansi::[
 
 For consistency, `._default` could be used on types for spawning, and
 `.default` to get its default
+
+Or we use default as rhs
+
+```giovi
+default.Int -> _out
+```
 
 ## @candidate List initialization
 
