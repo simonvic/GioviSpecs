@@ -1967,7 +1967,7 @@ Yaml."{
 	}"
 ```
 
-## Composite types
+## Collection types
 
 ### List
 
@@ -5244,7 +5244,7 @@ someVariable Point
 ### @candidate Optional keyword for non primitive types
 
 ```giovi
-# composite types
+# collection types
 someList [Int]
 someMap [Text=>Int]
 ```
