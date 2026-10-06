@@ -5674,6 +5674,35 @@ foo(label=val)
 foo(notLabel==val)
 ```
 
+## @candidate Explicit environment access
+
+```giovi
+var.foo -> _out
+const.foo -> _out
+function.foo -> _out
+struct.foo -> _out
+module.foo -> _out
+type.foo -> _out
+```
+
+```giovi
+var(foo) -> _out
+const(foo) -> _out
+function(foo) -> _out
+struct(foo) -> _out
+module(foo) -> _out
+type(foo) -> _out
+```
+
+```giovi
+var{foo} -> _out
+const{foo} -> _out
+function{foo} -> _out
+struct{foo} -> _out
+module{foo} -> _out
+type{foo} -> _out
+```
+
 <!-- 
 vim: noet
 -->
