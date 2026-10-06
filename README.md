@@ -2819,39 +2819,52 @@ Color.rgb(5, 20, 512)
 	.brighten()
 ```
 
-#### Structs inheritance
+#### Aggregation and composition
 
-TODO: rephrase as "composition"
-
-A struct can inherit the fields from another struct, but beware that the term
-"inheritance" is used loosely here, since we are not talking about "true
-inheritance" like in other object oriented languages; it's just syntax sugar to
-avoid repeating the same fields in multiple structs.
-
-It can define new fields and redefine inherited ones.
-
-TODO: clarify about overridden fields. Should the type be equal? Wider?
+When modelling a certain domain, it is often needed to define an aggregation or
+composition relationship between types. To achieve aggregation, pratically
+speaking, you can simply define a field of a previously typed.
 
 ```ruby
-Vehicle <
-	paint Color
-	wheelCount Natural
->
-
-Vehicle + Car <
-	wheelCount Natural default 4
-	licensePlate Text
->
-
-Vehicle + Bike <
-	wheelCount Natural default 2
-	tireType Text
->
-
-Bike + MotorBike <
-	isOffroad Bool
->
+Fullname <name Text, surname Text>
+Person <age Int, fullname Fullname>
+Person -> _out # Person<age Int, fullname Fullname>
 ```
+
+At times, however, you may want to "flatten/inline" such aggregated fields;
+instead of manually copying such fields in the new declaration, you can specify
+the typename of the other type you want to aggregate.
+
+```ruby
+Fullname <name Text, surname Text>
+Person <age Int> + Fullname
+Person -> _out # <age Int, name Text, surname Text>
+```
+
+You can also specify the aggregate type before the new declaration; by doing
+so, the fields will appear before the ones in the new declaration.
+
+```ruby
+Fullname <name Text, surname Text>
+Fullname + Person <age Int>
+Person -> _out # <name Text, surname Text, age Int>
+```
+
+Multiple aggregations are possible
+
+```ruby
+Vehicle, Engine + Car<brand Text> + AirCondition, ReclineableSeats
+Car -> _out
+# Car<
+#	Vehicle fields...,
+#	Engine fields...,
+#	brand Text,
+#	AirCondition fields...,
+#	ReclineableSeats fields...,
+#>
+```
+
+TODO: clarify overrides and defaults
 
 ##### @candidate Nested structs definition inheritance
 
@@ -4590,22 +4603,6 @@ Edible <calories Text>
 
 Food,Edible + Apple <>
 # ERROR: can't inherit both calories
-```
-
-## @candidate Explicit inheritance/composition order
-
-```ruby
-Transportation,Vehicle + struct Car <
-	brand Text
-> + AirCondition,ReclineableSeats
-
-_out <- Car.<
-# Transportation fields
-# Vehicle fields
-# brand Text
-# AirCondition fields
-# ReclineableSeats fields
->
 ```
 
 ## @candidate Unified loop keyword

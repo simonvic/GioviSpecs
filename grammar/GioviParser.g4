@@ -167,8 +167,10 @@ unaryPattern: identifier type? ;
 /////////////////////////////////////////////////////////////////////////////// STRUCTS
 
 structDefinition
-	: (parentType=typeQualified '+')? STRUCT? typename=identifier body=structBodyDefinition
+	: (preAggregates=structDefinitionAggregates '+')? STRUCT? typename=identifier body=structBodyDefinition ('+' postAggregates=structDefinitionAggregates)?
 	;
+
+structDefinitionAggregates: typeQualified (',' typeQualified)* ;
 
 structBodyDefinition
 	: '<'
