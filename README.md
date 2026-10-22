@@ -2975,6 +2975,21 @@ enum Color {
 }
 ```
 
+## @candidate Match statement
+
+Pattern matching specific statement; exhaustive; expression;
+
+```giovi
+text Text <- match color {
+	rgb RGB <r, g, b> => "$r,$g,$b"
+	rgba RGB <r, g, b> => "$r,$g,$b"
+}
+text Text <- match opt {
+	_ Some<i> => i
+	_ None => "none"
+}
+```
+
 ## Other types
 
 ### @candidate Type type
