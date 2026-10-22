@@ -2964,6 +2964,17 @@ if enterClub(69) {
 }
 ```
 
+Can also list types directly instead of declaring them
+
+```giovi
+struct RGB <r Natural, g Natural, b Natural>
+struct RGBA <r Natural, g Natural, b Natural, a Natural>
+enum Color {
+	RGB,
+	RGBA,
+}
+```
+
 ## Other types
 
 ### @candidate Type type
