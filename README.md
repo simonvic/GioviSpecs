@@ -1,3 +1,7 @@
+<div align="center">
+	<img width="256px" src="assets/giovi_cropped_colored.svg">
+</div>
+
 # Giovi
 
 Giovi is a typed scripting language, which is easy to read, quick to write with
