@@ -5729,6 +5729,19 @@ module{foo} -> _out
 type{foo} -> _out
 ```
 
+## @candidate Keywords in patterns
+
+```giovi
+Person <
+	name Text
+	age Int
+	foo ::()
+>
+
+Person.<> -> <var name, const AGE Int, function foo ::()>
+AGE -> _out
+```
+
 <!-- 
 vim: noet
 -->
