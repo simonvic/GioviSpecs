@@ -2355,6 +2355,8 @@ for money in bank._values do {
 
 ## Product types
 
+TODO: mention projections
+
 ### Tuples
 
 A Tuple is an ordered collection of heterogeneous values.

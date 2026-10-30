@@ -103,6 +103,7 @@ fragment Letter:                    [a-zA-Z];
 fragment LetterOrDigit:             Letter | Digit;
 fragment LetterOrDigitOrUnderscore: LetterOrDigit | '_';
 
+// TODO: require at least one newline or quote to be considered block
 TEXT_BLOCK_LITERAL:       '"{' (. | EscapeSequence)*? '}"';
 TEXT_LITERAL:             '"' (~["\\\r\n] | EscapeSequence)* '"';
 EXACT_TEXT_BLOCK_LITERAL: '\'{' (. | EscapeSequence)*? '}\'';
