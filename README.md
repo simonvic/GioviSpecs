@@ -3132,8 +3132,6 @@ iterato on any struct that implements the `Iterable` interface
 
 ### Function type
 
-TODO: rename as closures?
-
 Functions are first-class citizens. This means they behave like any other
 value: they have a type, can be assigned to variables, can be passed as
 arguments to other functions and returned, etcetera.
@@ -5746,6 +5744,32 @@ Person <
 
 Person.<> -> <var name, const AGE Int, function foo ::()>
 AGE -> _out
+```
+
+## @candidate closures
+
+as an actual closure
+
+```giovi
+funcs [function()=>Int]]
+for i in 0..10 do {
+	# strawman syntax
+	funcs +<- closure.() => Int { => i^2 }
+}
+{funcs.2}() -> _out # 9
+{funcs.3}() -> _out # 16
+```
+
+or via constant arguments
+
+```giovi
+funcs [function(const i Int)=>Int]]
+for i in 0..10 do {
+	# strawman syntax
+	funcs +<- function.(i) => Int { => i^2 }
+}
+{funcs.2}() -> _out # 9
+{funcs.3}() -> _out # 16
 ```
 
 <!-- 
