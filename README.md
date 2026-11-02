@@ -4316,6 +4316,21 @@ if true do {
 }
 ```
 
+## @candidate Alternative interpolation delimiters
+
+```giovi
+if true do {
+	_out <- "hello \{user\}"
+	_out <- "hello \{user.name()\}"
+	_out <- "{<p class="foo">\{helloMsg\}</p>}"
+	_out <- "{"\{helloMsg\}" is a very common phrase}}"
+	_out <- "{
+		"\{helloMsg.toUpperCase()\}" is a very common phrase}
+		}"
+	_out <- "{the \{ is called opening brace while \} is a closing brace}"
+}
+```
+
 ## @candidate Condensed nested fields label
 
 ```ruby
