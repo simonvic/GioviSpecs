@@ -4307,6 +4307,15 @@ i <- 420
 t -> _out # hello 420 world
 ```
 
+## @candidate Alternative text block delimiters
+
+```giovi
+if true do {
+	_out <- """<p class="foo">hello world</p>"""
+	_out <- """"hello world" is a very common phrase"""
+}
+```
+
 ## @candidate Condensed nested fields label
 
 ```ruby
